@@ -1,40 +1,44 @@
-Information Architecture (IA) - Source of Truth #2
-Document Version: v1.0
-Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
-Product: Web-Based Library Management System (LMS)
-Status: Draft
-Last Updated: 2026-06-25
-Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
-Supervisor: Farid Suryanto, S.Pd., MT.
+# information_architecture.md — Information Architecture
+## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-### 1. DOCUMENT OVERVIEW
-1.1 Purpose
-Dokumen ini mendefinisikan Arsitektur Informasi (IA) dari Sistem Informasi Perpustakaan SD Negeri Tamanan (Web-Based LMS). IA ini berfungsi sebagai Source of Truth #2 (SoT-2) yang diturunkan secara langsung dari SoT-1 (SRS v1.0).
+**Status:** Draft (Revisi — sinkron dengan srs.md v3.0)
+**Last Updated:** 2026-07-01
+**Diturunkan dari:** `srs.md` v3.1 (SoT-1)
+**Digunakan untuk:** High-Fidelity Prototype, struktur halaman Frontend, navigasi antarmuka, struktur routing, pemetaan relasi antar-layar.
 
-Dokumen ini digunakan sebagai landasan mutlak untuk:
+---
 
-Merancang High-Fidelity Prototype (SoT-5).
-Menentukan struktur halaman pada implementasi Frontend.
-Membangun navigasi antarmuka yang konsisten dan responsif.
-Menentukan struktur routing pada aplikasi web (URL mapping).
-Memetakan relasi antar-layar dan aliran informasi yang efisien untuk Guru dan Siswa.
+## 1. Global Layout
 
-1.2 Related Sources of Truth
-ArtifactReferenceDescriptionSoT-1SRS v1.0Spesifikasi Kebutuhan Perangkat Lunak dasar.SoT-3Design SystemPanduan token visual, warna, tipografi, dan komponen UI.SoT-4User FlowsDetail langkah operasional per use-case.SoT-5HiFi PrototypeRepresentasi visual interaktif akhir.
+### 1.1 Mode Layout
 
-### 2. PRODUCT STRUCTURE
-2.1 Product Modules
-Module IDModule NameDescriptionM001AuthenticationMengatur keamanan akses masuk dan keluar sistem untuk aktor Guru.M002Manajemen Data BukuModul pengelolaan katalog buku perpustakaan: menambah, mengubah, menghapus, dan mencari data buku.M003Transaksi PeminjamanModul pencatatan peminjaman buku oleh siswa yang dikelola oleh guru.M004Transaksi PengembalianModul pencatatan pengembalian buku beserta kondisi dan pengecekan keterlambatan.M005Riwayat PeminjamanModul rekap historis seluruh transaksi peminjaman dan pengembalian untuk monitoring guru.M006Akses Publik SiswaHalaman publik tanpa login untuk siswa melihat ketersediaan dan mencari buku.
+**A. Layout Halaman Login (Unauthenticated)**
+- Tidak ada sidebar maupun topbar.
+- Konten terpusat di tengah layar: form input username, password, dan tombol "Masuk".
 
-2.2 Module Hierarchy
-textSistem Informasi Perpustakaan SDN Tamanan (Root)
+**B. Layout Halaman Publik Siswa (Unauthenticated)**
+- Topbar sederhana berisi judul "Perpustakaan SD Negeri Tamanan" dan tombol "Login Guru" di pojok kanan atas.
+- Konten utama berisi kolom pencarian dan tabel daftar buku (termasuk lokasi rak).
+- Tidak ada sidebar.
+
+**C. Layout Halaman Guru (Authenticated)**
+- **Sidebar** — permanen di sisi kiri layar pada resolusi Desktop/Tablet, berisi menu: Data Buku, Peminjaman, Pengembalian, Riwayat, dan tombol Logout. Dapat diciutkan (collapsible) untuk memaksimalkan area kerja.
+- **Topbar / User Menu** — dropdown di pojok kanan atas berisi nama Guru aktif dan tombol "Keluar" (Logout).
+- **Konten** — area utama menampilkan tabel data, form, atau modal sesuai halaman aktif.
+- **Mobile/Tablet Navigation** — jika lebar layar < 768px, sidebar disembunyikan dan diakses via tombol hamburger menu di topbar.
+- **Breadcrumb** — tidak diaktifkan, karena struktur menu sangat dangkal (maksimal 1 tingkat sub-halaman berupa modal), demi efisiensi fokus layar.
+
+### 1.2 Module Hierarchy
+
+```
+Sistem Informasi Perpustakaan SDN Tamanan (Root)
 ├── M001: Authentication
 │   └── Halaman Login
 ├── M006: Akses Publik Siswa (Landing Page Publik)
-│   ├── Daftar Buku & Status Ketersediaan
+│   ├── Daftar Buku, Lokasi Rak & Status Ketersediaan
 │   └── Pencarian Buku (Judul / Tema)
 ├── M002: Manajemen Data Buku (Authenticated)
-│   ├── Tabel Katalog Buku
+│   ├── Tabel Katalog Buku (termasuk Lokasi Rak)
 │   ├── Form Tambah Buku Baru (Modal Overlay)
 │   └── Form Edit Data Buku (Modal Overlay)
 ├── M003: Transaksi Peminjaman (Authenticated)
@@ -46,273 +50,180 @@ textSistem Informasi Perpustakaan SDN Tamanan (Root)
 └── M005: Riwayat Peminjaman (Authenticated)
     ├── Tabel Riwayat Seluruh Transaksi
     └── Filter & Pencarian Riwayat
+```
 
-### 3. SITE MAP
-3.1 Navigation Tree
-PAGE-001: Login (Tanpa Sidebar - Akses Publik / Unauthenticated)
-PAGE-002: Ketersediaan Buku / Halaman Publik (Landing Page tanpa login untuk Siswa)
-PAGE-003: Manajemen Data Buku (Halaman Utama setelah Login Guru)
-PAGE-003-SUB-01: Form Tambah Buku Baru (Modal Triggered)
-PAGE-003-SUB-02: Form Edit Data Buku (Modal Triggered)
-PAGE-004: Catat Peminjaman
-PAGE-005: Catat Pengembalian
-PAGE-006: Riwayat Peminjaman
+| Module ID | Module Name | Description |
+|---|---|---|
+| M001 | Authentication | Mengatur keamanan akses masuk dan keluar sistem untuk aktor Guru. |
+| M002 | Manajemen Data Buku | Modul pengelolaan katalog buku: menambah, mengubah, menghapus, mencari data buku (termasuk lokasi rak). |
+| M003 | Transaksi Peminjaman | Modul pencatatan peminjaman buku oleh siswa, dikelola oleh guru. |
+| M004 | Transaksi Pengembalian | Modul pencatatan pengembalian buku beserta kondisi dan pengecekan keterlambatan. |
+| M005 | Riwayat Peminjaman | Modul rekap historis seluruh transaksi peminjaman dan pengembalian. |
+| M006 | Akses Publik Siswa | Halaman publik tanpa login untuk siswa melihat ketersediaan, lokasi rak, dan mencari buku. |
 
-3.2 Navigation Type
-NavigationTypeBehaviorMain MenuSidebar NavigationBerada permanen di sisi kiri layar pada resolusi Desktop/Tablet. Dapat diciutkan (collapsible) untuk memaksimalkan area kerja Guru. Hanya ditampilkan setelah Guru berhasil login.User MenuTop-Right DropdownBerisi informasi nama Guru aktif dan tombol "Keluar" (Logout).Mobile/Tablet NavigationTop Hamburger MenuSidebar akan disembunyikan dan diakses via tombol hamburger jika lebar layar menyusut di bawah 768px (Responsiveness rule).BreadcrumbDisabledTidak diaktifkan karena struktur menu sangat dangkal (maksimal 1 tingkat sub-halaman) guna efisiensi fokus layar.
+### 1.3 Content Hierarchy per Module
 
-### 4. PAGE INVENTORY
-Page IDPage NameModuleAccess RoleURL PathPAGE-001LoginM001Tamu / Guest/loginPAGE-002Ketersediaan Buku (Publik)M006Publik (Siswa & Guru)/PAGE-003Manajemen Data BukuM002Guru (Authenticated)/bukuPAGE-004Catat PeminjamanM003Guru (Authenticated)/peminjamanPAGE-005Catat PengembalianM004Guru (Authenticated)/pengembalianPAGE-006Riwayat PeminjamanM005Guru (Authenticated)/riwayat
+**Module: Manajemen Data Buku**
+- Level 1 (Halaman Master Katalog): Judul "Data Buku Perpustakaan", tombol "Tambah Buku Baru", kolom pencarian (Judul/Tema).
+- Level 2 (Tabel Data Katalog): Tabel Buku (ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, **Lokasi Rak**, Stok, Status, Aksi); Status Badge Stok (Hijau: Tersedia, Merah: Stok Habis); tombol Edit/Hapus per baris.
+- Level 3 (Modal Form Tambah/Edit Buku): Field ID Buku (alfanumerik, unik), Judul Buku, Penulis, Penerbit, Tema/Kategori, Tahun Terbit (numerik), **Lokasi Rak (format kode huruf + nomor, misal "A1"/"B3", wajib diisi, tervalidasi)**, Stok Awal (integer ≥ 0); tombol "Batal" dan "Simpan".
 
-### 5. PAGE DEFINITIONS
-# Page ID: PAGE-001
-Page Name: Login
-Purpose: Memverifikasi identitas Guru untuk mencegah akses tidak sah ke fitur pengelolaan perpustakaan.
-Entry Points:
-Mengakses URL /login secara langsung.
-Mengakses halaman yang memerlukan autentikasi tanpa sesi aktif (redirect otomatis).
-Sesi login guru habis (idle timeout 30 menit).
-Exit Points:
-Berhasil login → diarahkan otomatis ke /buku (PAGE-003).
-Related User Flows: UC-001: Login Guru
-Child Pages: None.
-Required Permissions: Publik / Tanpa Autentikasi.
-Notes: Layar minimalis tanpa sidebar menu. Menampilkan form input username, password, dan tombol "Masuk".
+**Module: Transaksi Peminjaman**
+- Level 1 (Halaman Catat Peminjaman): Judul "Catat Peminjaman Buku"; Panel Kiri (Daftar Buku Tersedia, stok > 0); Panel Kanan (Form Data Peminjaman).
+- Level 2 (Detail & Form Isian): Kartu Buku (Judul, Penulis, Tema, **Lokasi Rak**, Badge Stok) — Lokasi Rak ditampilkan agar Guru dapat mengambil buku secara fisik dengan cepat; Field Nama Siswa, Kelas Siswa, Tanggal Pinjam (otomatis, non-editable), Tanggal Batas Pengembalian (date picker).
+- Level 3 (Aksi & Konfirmasi): Ringkasan Data Peminjaman; tombol "Batal" dan "Simpan Peminjaman".
 
-# Page ID: PAGE-002
-Page Name: Ketersediaan Buku (Publik)
-Purpose: Menyediakan akses mandiri bagi siswa untuk melihat status ketersediaan buku dan mencari buku tanpa perlu login.
-Entry Points:
-Mengakses URL root (/) aplikasi secara langsung oleh siswa.
-Tautan publik yang dibagikan kepada siswa.
-Exit Points:
-Klik tombol "Login Guru" → diarahkan ke /login (PAGE-001).
-Related User Flows: UC-006: Siswa Melihat Ketersediaan Buku
-Child Pages: None.
-Required Permissions: Publik / Tanpa Autentikasi.
-Notes: Halaman bersifat read-only sepenuhnya. Menampilkan tabel daftar buku dengan kolom Judul, Penulis, Tema, Stok Tersedia, dan Status Buku. Dilengkapi kolom pencarian berdasarkan judul atau tema. Tidak menampilkan data identitas peminjam.
+**Module: Transaksi Pengembalian**
+- Level 1 (Daftar Peminjaman Aktif): Judul "Catat Pengembalian Buku"; daftar peminjaman belum dikembalikan.
+- Level 2 (Detail Transaksi Aktif): Tabel Peminjaman Aktif (Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali); Indikator Keterlambatan (badge merah + jumlah hari); tombol "Proses Pengembalian" per baris.
+- Level 3 (Form Konfirmasi): Ringkasan data; Field Tanggal Pengembalian (otomatis); Pilihan Kondisi Buku (Baik/Rusak Ringan/Rusak Berat, radio button); info keterlambatan; tombol "Batal" dan "Konfirmasi Pengembalian".
 
-# Page ID: PAGE-003
-Page Name: Manajemen Data Buku
-Purpose: Menyediakan antarmuka utama guru untuk mengelola seluruh katalog buku perpustakaan secara penuh.
-Entry Points:
-Setelah sukses login dari PAGE-001.
-Klik menu "Data Buku" pada Sidebar.
-Exit Points:
-Klik menu lain di Sidebar.
-Klik "Keluar" di User Menu → diarahkan ke /login (PAGE-001).
-Related User Flows: UC-002: Manajemen Data Buku
-Child Pages:
+**Module: Riwayat Peminjaman**
+- Level 1 (Halaman Riwayat): Judul "Riwayat Peminjaman"; Filter Pencarian (Nama Siswa, Judul Buku, Rentang Tanggal).
+- Level 2 (Tabel Riwayat): Kolom Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Status; Badge Status (Hijau: Sudah Dikembalikan, Kuning: Masih Dipinjam).
 
-PAGE-003-SUB-01: Form Tambah Buku Baru (Ditampilkan dalam bentuk Modal Dialog di atas halaman utama).
-PAGE-003-SUB-02: Form Edit Data Buku (Ditampilkan dalam bentuk Modal Dialog di atas halaman utama).
+**Module: Akses Publik Siswa**
+- Level 1 (Halaman Ketersediaan Buku): Judul "Perpustakaan SD Negeri Tamanan"; kolom pencarian (Judul/Tema); tombol "Login Guru" di pojok kanan atas.
+- Level 2 (Daftar Buku): Tabel Buku (Judul, Penulis, Tema, **Lokasi Rak**, Stok Tersedia, Status) — Lokasi Rak wajib ditampilkan agar siswa dapat langsung menemukan posisi fisik buku tanpa bertanya ke Guru; Badge Status (Hijau: Tersedia, Merah: Dipinjam/Stok Habis).
 
-Required Permissions: Guru (Authenticated).
-Notes: Menampilkan tabel katalog buku interaktif dengan kolom ID Buku, Judul, Penulis, Tema, Tahun Terbit, Stok, Status, dan kolom Aksi (Edit / Hapus). Dilengkapi tombol "Tambah Buku Baru" dan kolom pencarian. Indikator visual (badge merah) untuk buku dengan stok 0.
+---
 
+## 2. Route Map
 
-# Page ID: PAGE-004
-Page Name: Catat Peminjaman
-Purpose: Menyediakan antarmuka bagi guru untuk mencatat transaksi peminjaman buku oleh siswa secara cepat dan akurat.
-Entry Points:
-Klik menu "Peminjaman" pada Sidebar.
-Exit Points:
-Klik menu lain di Sidebar.
-Related User Flows: UC-003: Pencatatan Peminjaman Buku
-Child Pages: None.
-Required Permissions: Guru (Authenticated).
-Notes: Halaman terbagi menjadi dua panel: Panel Kiri menampilkan daftar buku yang tersedia (stok > 0), Panel Kanan menampilkan form isian data peminjam (nama siswa, kelas) dan detail transaksi (tanggal pinjam otomatis, tanggal batas kembali). Buku dengan stok 0 ditampilkan dalam kondisi non-selectable (disabled) dengan badge "Stok Habis".
+### 2.1 Page Inventory & Routing
 
-# Page ID: PAGE-005
-Page Name: Catat Pengembalian
-Purpose: Menyediakan antarmuka bagi guru untuk memproses pengembalian buku, mencatat kondisi buku, dan memperbarui stok secara otomatis.
-Entry Points:
-Klik menu "Pengembalian" pada Sidebar.
-Exit Points:
-Klik menu lain di Sidebar.
-Related User Flows: UC-004: Pencatatan Pengembalian Buku
-Child Pages: None.
-Required Permissions: Guru (Authenticated).
-Notes: Menampilkan daftar transaksi peminjaman yang masih aktif (belum dikembalikan). Setiap baris dilengkapi informasi nama siswa, kelas, judul buku, tanggal pinjam, tanggal batas kembali, dan indikator keterlambatan (warna merah jika melewati batas). Tombol "Proses Pengembalian" membuka form konfirmasi kondisi buku (Baik / Rusak Ringan / Rusak Berat).
+| Page ID | Page Name | Module | Access Role | Route | Fallback / Redirect Rule |
+|---|---|---|---|---|---|
+| PAGE-001 | Login | M001 | Tamu / Guest | `/login` | Jika Guru sudah login, akses `/login` redirect otomatis ke `/buku`. |
+| PAGE-002 | Ketersediaan & Lokasi Buku (Publik) | M006 | Publik (Siswa & Guru) | `/` | Halaman publik, dapat diakses siapa pun tanpa autentikasi. |
+| PAGE-003 | Manajemen Data Buku | M002 | Guru (Authenticated) | `/buku` | Jika sesi habis/tidak valid, redirect ke `/login`. |
+| PAGE-003-SUB-01 | Form Tambah Buku Baru | M002 | Guru (Authenticated) | Modal di `/buku` | — |
+| PAGE-003-SUB-02 | Form Edit Data Buku | M002 | Guru (Authenticated) | Modal di `/buku` | — |
+| PAGE-004 | Catat Peminjaman | M003 | Guru (Authenticated) | `/peminjaman` | Jika sesi habis/tidak valid, redirect ke `/login`. |
+| PAGE-005 | Catat Pengembalian | M004 | Guru (Authenticated) | `/pengembalian` | Jika sesi habis/tidak valid, redirect ke `/login`. |
+| PAGE-006 | Riwayat Peminjaman | M005 | Guru (Authenticated) | `/riwayat` | Jika sesi habis/tidak valid, redirect ke `/login`. |
+| — | Redirector Root | — | — | `-` | Jika ada sesi aktif → `/buku`; jika tidak ada → `/login`. |
+| — | 404 Page | — | — | `*` (route lain) | Menampilkan "Halaman Tidak Ditemukan" + tombol kembali ke `/`. |
 
+### 2.2 Page Definitions
 
-# Page ID: PAGE-006
-Page Name: Riwayat Peminjaman
-Purpose: Menampilkan rekap historis seluruh transaksi peminjaman dan pengembalian buku untuk keperluan monitoring dan pelaporan guru.
-Entry Points:
-Klik menu "Riwayat" pada Sidebar.
-Exit Points:
-Klik menu lain di Sidebar.
-Related User Flows: UC-005: Melihat Riwayat Peminjaman
-Child Pages: None.
-Required Permissions: Guru (Authenticated).
-Notes: Menampilkan tabel riwayat lengkap dengan kolom Nama Siswa, Kelas, Judul Buku, Tanggal Pinjam, Tanggal Batas Kembali, Tanggal Kembali Aktual, Kondisi Buku, dan Status (Sudah Dikembalikan / Masih Dipinjam). Dilengkapi filter pencarian berdasarkan nama siswa, judul buku, dan rentang tanggal. Data bersifat read-only.
+**PAGE-001: Login**
+- Purpose: Memverifikasi identitas Guru untuk mencegah akses tidak sah.
+- Entry Points: akses langsung `/login`; redirect otomatis saat akses halaman authenticated tanpa sesi; sesi habis (idle timeout 30 menit).
+- Exit Points: berhasil login → diarahkan ke `/buku` (PAGE-003).
+- Related User Flow: UC-001 (Login Guru).
+- Required Permissions: Publik / Tanpa Autentikasi.
+- Notes: Layar minimalis tanpa sidebar; form username, password, tombol "Masuk".
 
+**PAGE-002: Ketersediaan & Lokasi Buku (Publik)**
+- Purpose: Akses mandiri siswa untuk melihat ketersediaan, lokasi rak, dan mencari buku tanpa login.
+- Entry Points: akses URL root `/`; tautan publik yang dibagikan ke siswa.
+- Exit Points: klik "Login Guru" → `/login` (PAGE-001).
+- Related User Flow: UC-006 (Siswa Melihat Ketersediaan Buku).
+- Required Permissions: Publik / Tanpa Autentikasi.
+- Notes: Read-only sepenuhnya; tabel Judul, Penulis, Tema, **Lokasi Rak**, Stok Tersedia, Status; kolom pencarian; data peminjam tidak ditampilkan.
 
-### 6. USER NAVIGATION FLOWS
-# Flow NF-001: Alur Login dan Akses Sistem Guru
-Entry Page: PAGE-001 (Login)
-Navigation Path:
-PAGE-001 (Buka halaman /login)
-PAGE-001 (Input username dan password)
-PAGE-001 (Klik tombol "Masuk")
-Sistem memvalidasi kredensial
-PAGE-003 (Diarahkan otomatis ke halaman Manajemen Data Buku)
-Exit Page: PAGE-003 (Manajemen Data Buku)
-Related User Flows: UC-001
+**PAGE-003: Manajemen Data Buku**
+- Purpose: Antarmuka utama guru mengelola katalog buku.
+- Entry Points: setelah login dari PAGE-001; klik menu "Data Buku" di sidebar.
+- Exit Points: klik menu lain di sidebar; klik "Keluar" → `/login`.
+- Related User Flow: UC-002 (Manajemen Data Buku).
+- Child Pages: PAGE-003-SUB-01 (modal Tambah Buku), PAGE-003-SUB-02 (modal Edit Buku).
+- Required Permissions: Guru (Authenticated).
+- Notes: Tabel katalog interaktif (ID Buku, Judul, Penulis, Tema, Tahun Terbit, **Lokasi Rak**, Stok, Status, Aksi); tombol "Tambah Buku Baru"; kolom pencarian; badge merah untuk stok 0; validasi format Lokasi Rak (kode huruf + nomor).
 
-# Flow NF-002: Alur Pengelolaan Data Buku
-Entry Page: PAGE-003 (Manajemen Data Buku)
-Navigation Path:
-PAGE-003 (Halaman Manajemen Data Buku)
-Klik tombol "Tambah Buku Baru"
-PAGE-003-SUB-01 (Modal Form Tambah Buku Muncul)
-Isi ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Stok Awal
-Klik "Simpan"
-PAGE-003 (Tabel Katalog Terperbarui, Modal Tertutup)
-Exit Page: PAGE-003 (Manajemen Data Buku)
-Related User Flows: UC-002
+**PAGE-004: Catat Peminjaman**
+- Purpose: Mencatat transaksi peminjaman buku secara cepat dan akurat.
+- Entry Points: klik menu "Peminjaman" di sidebar.
+- Exit Points: klik menu lain di sidebar.
+- Related User Flow: UC-003 (Pencatatan Peminjaman Buku).
+- Required Permissions: Guru (Authenticated).
+- Notes: Panel Kiri (daftar buku tersedia, stok > 0, menampilkan Lokasi Rak agar Guru cepat mengambil buku fisik); Panel Kanan (form data peminjam + tanggal); buku stok 0 non-selectable dengan badge "Stok Habis". Saat transaksi berhasil disimpan, sistem otomatis menjalankan logika F007 (Sinkronisasi Stok & Status) di background.
 
-# Flow NF-003: Alur Pencatatan Peminjaman Buku
-Entry Page: PAGE-003 (Manajemen Data Buku)
-Navigation Path:
-PAGE-003 (Manajemen Data Buku)
-Sidebar Navigation (Klik "Peminjaman")
-PAGE-004 (Halaman Catat Peminjaman)
-Panel Kiri: Pilih buku yang akan dipinjam (stok > 0)
-Panel Kanan: Isi nama siswa, kelas, dan tanggal batas kembali
-Klik "Simpan Peminjaman"
-Sistem memperbarui stok dan status buku menjadi "Dipinjam"
-PAGE-004 (Form ter-reset, siap untuk transaksi berikutnya)
-Exit Page: PAGE-004 (Catat Peminjaman)
-Related User Flows: UC-003
+**PAGE-005: Catat Pengembalian**
+- Purpose: Memproses pengembalian buku, mencatat kondisi buku, memperbarui stok otomatis.
+- Entry Points: klik menu "Pengembalian" di sidebar.
+- Exit Points: klik menu lain di sidebar.
+- Related User Flow: UC-004 (Pencatatan Pengembalian Buku).
+- Required Permissions: Guru (Authenticated).
+- Notes: Daftar transaksi aktif (belum dikembalikan); info nama siswa, kelas, judul buku, tanggal pinjam, batas kembali, indikator keterlambatan (merah); tombol "Proses Pengembalian" membuka form konfirmasi kondisi buku. Saat pengembalian dikonfirmasi, sistem otomatis menjalankan logika F007 (Sinkronisasi Stok & Status) di background.
 
-# Flow NF-004: Alur Pencatatan Pengembalian Buku
-Entry Page: PAGE-004 (Catat Peminjaman)
-Navigation Path:
-PAGE-004 (Catat Peminjaman)
-Sidebar Navigation (Klik "Pengembalian")
-PAGE-005 (Halaman Catat Pengembalian)
-Pilih transaksi peminjaman aktif dari daftar
-Klik tombol "Proses Pengembalian"
-Form konfirmasi muncul: pilih kondisi buku (Baik / Rusak Ringan / Rusak Berat)
-Klik "Konfirmasi"
-Sistem memperbarui status buku menjadi "Tersedia" dan stok bertambah
-PAGE-005 (Daftar peminjaman aktif terperbarui)
-Exit Page: PAGE-005 (Catat Pengembalian)
-Related User Flows: UC-004
+**PAGE-006: Riwayat Peminjaman**
+- Purpose: Rekap historis seluruh transaksi untuk monitoring dan pelaporan.
+- Entry Points: klik menu "Riwayat" di sidebar.
+- Exit Points: klik menu lain di sidebar.
+- Related User Flow: UC-005 (Melihat Riwayat Peminjaman).
+- Required Permissions: Guru (Authenticated).
+- Notes: Tabel lengkap (Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Status); filter nama siswa/judul buku/rentang tanggal; data read-only.
 
-# Flow NF-005: Alur Monitoring Riwayat dan Keluar Aplikasi
-Entry Page: PAGE-005 (Catat Pengembalian)
-Navigation Path:
-PAGE-005 (Catat Pengembalian)
-Sidebar Navigation (Klik "Riwayat")
-PAGE-006 (Halaman Riwayat Peminjaman)
-Filter/cari riwayat berdasarkan nama siswa atau rentang tanggal
-Top-Right User Menu (Klik Dropdown)
-Klik "Keluar"
-PAGE-001 (Kembali ke Halaman Login)
-Exit Page: PAGE-001 (Login)
-Related User Flows: UC-005, UC-001
-Flow NF-006: Alur Akses Siswa (Publik)
-Entry Page: PAGE-002 (Ketersediaan Buku - Publik)
-Navigation Path:
-PAGE-002 (Siswa membuka URL root "/" aplikasi)
-PAGE-002 (Melihat daftar buku beserta status ketersediaan)
-PAGE-002 (Menggunakan kolom pencarian untuk mencari buku berdasarkan judul/tema)
-PAGE-002 (Melihat detail stok dan status buku yang dicari)
-Exit Page: PAGE-002 (Tetap di halaman publik)
-Related User Flows: UC-006
+### 2.3 Traceability Matrix (SRS → IA)
 
+| Feature ID | Feature Name | Mapped Page ID | Mapped Route |
+|---|---|---|---|
+| F001 | Autentikasi Guru (Login) | PAGE-001 | `/login` |
+| F002 | Manajemen Data Buku (termasuk Lokasi Rak) | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 | `/buku` |
+| F003 | Pencatatan Peminjaman Buku | PAGE-004 | `/peminjaman` |
+| F004 | Pencatatan Pengembalian Buku | PAGE-005 | `/pengembalian` |
+| F005 | Riwayat Peminjaman | PAGE-006 | `/riwayat` |
+| F006 | Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik) | PAGE-002 | `/` |
+| F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada halaman khusus — logika berjalan otomatis di sisi backend, terpicu saat submit form di PAGE-004 dan PAGE-005 | — (server-side logic, bukan route halaman) |
 
-### 7. CONTENT HIERARCHY
-7.1 Module: Manajemen Data Buku
+---
 
-Level 1 (Halaman Master Katalog):
-Judul Halaman: "Data Buku Perpustakaan".
-Tombol Utama: "Tambah Buku Baru".
-Kolom Pencarian Buku (Judul / Tema).
+## 3. Navigasi
 
-Level 2 (Tabel Data Katalog):
-Tabel Buku (ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Stok, Status, Aksi).
-Status Badge Stok (Hijau: Tersedia, Merah: Stok Habis).
-Tombol Aksi per baris: "Edit" dan "Hapus".
+### 3.1 Tipe Navigasi
 
-Level 3 (Modal Form Tambah / Edit Buku):
-Field Input ID Buku (Alfanumerik, Unik).
-Field Input Judul Buku (Teks).
-Field Input Penulis (Teks).
-Field Input Penerbit (Teks).
-Field Input Tema/Kategori Buku (Teks).
-Field Input Tahun Terbit (Numerik).
-Field Input Stok Awal (Integer ≥ 0).
-Tombol "Batal" dan "Simpan".
+| Navigation | Type | Behavior |
+|---|---|---|
+| Main Menu | Sidebar Navigation | Permanen di sisi kiri layar (Desktop/Tablet), collapsible, hanya tampil setelah Guru login. |
+| User Menu | Top-Right Dropdown | Berisi nama Guru aktif dan tombol "Keluar" (Logout). |
+| Mobile/Tablet Navigation | Top Hamburger Menu | Sidebar disembunyikan, diakses via tombol hamburger jika layar < 768px. |
+| Breadcrumb | Disabled | Tidak diaktifkan karena struktur menu dangkal (maksimal 1 sub-halaman). |
 
+### 3.2 Hierarki Navigasi
 
-7.2 Module: Transaksi Peminjaman
+```
+/login (publik)
+   └─→ /buku (setelah login berhasil)
+         ├── /buku        → modal: Tambah Buku, Edit Buku (termasuk field Lokasi Rak)
+         ├── /peminjaman
+         ├── /pengembalian
+         ├── /riwayat
+         └── logout ──→ kembali ke /login
 
-Level 1 (Halaman Catat Peminjaman):
+/ (publik, terpisah dari alur Guru)
+   └─→ /login (via tombol "Login Guru")
+```
 
-Judul Halaman: "Catat Peminjaman Buku".
-Panel Kiri: Daftar Buku Tersedia (stok > 0).
-Panel Kanan: Form Data Peminjaman.
+### 3.3 User Navigation Flows
 
+**NF-001: Alur Login dan Akses Sistem Guru**
+- Entry: PAGE-001 (Login) → input username/password → klik "Masuk" → sistem validasi → redirect ke PAGE-003.
+- Exit: PAGE-003 (Manajemen Data Buku). Related: UC-001.
 
-Level 2 (Detail Buku & Form Isian):
-Kartu Buku (Judul, Penulis, Tema, Badge Stok Tersedia).
-Field Input Nama Siswa (Teks).
-Field Input Kelas Siswa (Teks).
-Field Tanggal Pinjam (Otomatis terisi, non-editable).
-Field Input Tanggal Batas Pengembalian (Date Picker).
+**NF-002: Alur Pengelolaan Data Buku**
+- Entry: PAGE-003 → klik "Tambah Buku Baru" → modal PAGE-003-SUB-01 muncul → isi ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, **Lokasi Rak**, Stok Awal → klik "Simpan" → tabel katalog terperbarui, modal tertutup.
+- Exit: PAGE-003. Related: UC-002.
 
+**NF-003: Alur Pencatatan Peminjaman Buku**
+- Entry: PAGE-003 → sidebar "Peminjaman" → PAGE-004 → pilih buku (stok > 0, lokasi rak terlihat) di Panel Kiri → isi nama siswa, kelas, tanggal batas kembali di Panel Kanan → klik "Simpan Peminjaman" → stok & status buku terupdate otomatis (F007) → form ter-reset.
+- Exit: PAGE-004. Related: UC-003.
 
-Level 3 (Aksi & Konfirmasi):
-Ringkasan Data Peminjaman (Nama Siswa, Buku, Tanggal).
-Tombol "Batal" dan "Simpan Peminjaman".
+**NF-004: Alur Pencatatan Pengembalian Buku**
+- Entry: PAGE-004 → sidebar "Pengembalian" → PAGE-005 → pilih transaksi aktif → klik "Proses Pengembalian" → form konfirmasi (pilih kondisi buku) → klik "Konfirmasi" → status buku jadi "Tersedia", stok bertambah otomatis (F007).
+- Exit: PAGE-005. Related: UC-004.
 
-7.3 Module: Transaksi Pengembalian
-Level 1 (Halaman Daftar Peminjaman Aktif):
-Judul Halaman: "Catat Pengembalian Buku".
-Daftar peminjaman yang belum dikembalikan.
+**NF-005: Alur Monitoring Riwayat dan Keluar Aplikasi**
+- Entry: PAGE-005 → sidebar "Riwayat" → PAGE-006 → filter/cari riwayat → User Menu dropdown → klik "Keluar" → kembali ke PAGE-001.
+- Exit: PAGE-001. Related: UC-005, UC-001.
 
-Level 2 (Detail Transaksi Aktif):
-Tabel Peminjaman Aktif (Nama Siswa, Kelas, Judul Buku, Tanggal Pinjam, Batas Kembali).
-Indikator Keterlambatan (Badge merah dengan jumlah hari terlambat jika melewati batas).
-Tombol "Proses Pengembalian" per baris.
+**NF-006: Alur Akses Siswa (Publik)**
+- Entry: PAGE-002 → siswa buka `/` → lihat daftar buku, lokasi rak & status → gunakan kolom pencarian → lihat detail lokasi rak dan stok/status buku yang dicari.
+- Exit: tetap di PAGE-002. Related: UC-006.
 
-Level 3 (Form Konfirmasi Pengembalian):
-Ringkasan data peminjaman yang diproses.
-Field Tanggal Pengembalian (Otomatis terisi, non-editable).
-Pilihan Kondisi Buku: Baik / Rusak Ringan / Rusak Berat (Radio Button).
-Informasi keterlambatan (jika ada) dalam jumlah hari.
-Tombol "Batal" dan "Konfirmasi Pengembalian".
-
-7.4 Module: Riwayat Peminjaman
-
-Level 1 (Halaman Riwayat):
-Judul Halaman: "Riwayat Peminjaman".
-Filter Pencarian (Nama Siswa, Judul Buku, Rentang Tanggal).
-
-Level 2 (Tabel Riwayat Transaksi):
-Tabel Riwayat (Nama Siswa, Kelas, Judul Buku, Tanggal Pinjam, Batas Kembali, Tanggal Kembali Aktual, Kondisi Buku, Status).
-Badge Status: Hijau (Sudah Dikembalikan), Kuning (Masih Dipinjam).
-
-7.5 Module: Akses Publik Siswa
-
-Level 1 (Halaman Ketersediaan Buku):
-Judul Halaman: "Perpustakaan SD Negeri Tamanan".
-Kolom Pencarian Buku (Judul / Tema).
-Tombol "Login Guru" di pojok kanan atas.
-
-Level 2 (Daftar Buku):
-Tabel Buku (Judul, Penulis, Tema, Stok Tersedia, Status Buku).
-Badge Status: Hijau (Tersedia), Merah (Dipinjam / Stok Habis).
-
-8. ROUTING CONVENTIONS
-Sistem menggunakan Client-Side Routing yang bersih dan ramah pengguna (human-readable URLs).
-
-Page IDRouteAccess TypeFallback/Redirect RulesPAGE-001/loginPublic / GuestJika guru sudah login, mengakses /login akan me-redirect otomatis ke /buku.PAGE-002/Public / GuestHalaman publik, dapat diakses oleh siapapun tanpa autentikasi.PAGE-003/bukuAuthenticatedJika sesi habis atau tidak valid, redirect otomatis ke /login.PAGE-004/peminjamanAuthenticatedJika sesi habis atau tidak valid, redirect otomatis ke /login.PAGE-005/pengembalianAuthenticatedJika sesi habis atau tidak valid, redirect otomatis ke /login.PAGE-006/riwayatAuthenticatedJika sesi habis atau tidak valid, redirect otomatis ke /login.-/redirector-Jika ada sesi aktif → /buku, jika tidak ada → /login.-* (Any other)404 PageMenampilkan pesan "Halaman Tidak Ditemukan" dan menyediakan tombol kembali ke /.
-
-9. TRACEABILITY MATRIX (SRS v1.0 → IA v1.0)
-Untuk menjamin kepatuhan Chain of Truth, setiap komponen arsitektur informasi dipetakan kembali ke ID Fitur dari spesifikasi kebutuhan sistem.
-Feature IDFeature NameMapped Page IDMapped Navigation / RouteF001Autentikasi Guru (Login)PAGE-001/loginF002Manajemen Data BukuPAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02/bukuF003Pencatatan Transaksi Peminjaman BukuPAGE-004/peminjamanF004Pencatatan Pengembalian BukuPAGE-005/pengembalianF005Riwayat Peminjaman dan PengembalianPAGE-006/riwayatF006Akses Ketersediaan Buku untuk Siswa (Publik)PAGE-002/
+### 3.4 Indikator Visual Navigasi
+- Badge merah pada menu/tabel untuk buku dengan stok 0.
+- Badge merah pada baris transaksi yang melewati batas pengembalian.
+- Badge hijau/kuning pada tabel Riwayat untuk status "Sudah Dikembalikan" / "Masih Dipinjam".
+- Label/chip berisi kode Lokasi Rak (misal "A1") ditampilkan konsisten di setiap tempat buku ditampilkan: katalog Guru, form peminjaman, dan halaman publik siswa.

@@ -1,271 +1,402 @@
-Software Requirements Specification (SRS)
-Document Version: v1.0
-Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
-Product: Web-Based Library Management System (LMS)
-Status: Draft
-Last Updated: 2026-06-25
-Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
-Supervisor: Farid Suryanto, S.Pd., MT.
+# srs.md — Software Requirements Specification
+## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-### 1. INTRODUCTION
-1.1 Purpose
-Dokumen ini mendefinisikan spesifikasi kebutuhan fungsional dan non-fungsional untuk Sistem Informasi Perpustakaan SD Negeri Tamanan berbasis web. Dokumen ini berfungsi sebagai source of truth tunggal (SoT-1) yang melandasi pembuatan artefak pengembangan berikutnya seperti User Flows, Arsitektur Sistem, Model Data, dan API Contracts.
+**Document Version:** v3.1 (Perbaikan kontradiksi Out-of-Scope vs F003)**Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
+**Product:** Web-Based Library Management System
+**Status:** Draft
+**Last Updated:** 2026-07-01
+**Author:** Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
+**Supervisor:** Farid Suryanto, S.Pd., MT.
 
-1.2 Scope
-Business Goals
-Mendigitalisasi pencatatan peminjaman dan pengembalian buku perpustakaan untuk menghindari kehilangan data.
-Mempermudah pengelolaan data buku dan pemantauan stok secara real-time.
-Memberikan akses informasi ketersediaan buku kepada siswa secara mandiri tanpa bergantung pada petugas.
+---
 
-In Scope
-Pencatatan transaksi peminjaman buku (memilih siswa, memilih buku, menyimpan tanggal pinjam dan batas kembali).
-Pencatatan pengembalian buku beserta kondisi buku dan pengecekan keterlambatan.
-Manajemen Data Buku (menambah, mengubah, menghapus, dan mencari buku di sistem).
-Pengelolaan stok dan status ketersediaan buku secara otomatis pasca-transaksi.
-Riwayat peminjaman dan pengembalian yang dapat dicari dan difilter oleh guru.
-Akses publik bagi siswa untuk melihat ketersediaan buku tanpa login.
+## 1. Tujuan Sistem
 
-Out of Scope
-Sistem denda atau sanksi atas keterlambatan pengembalian buku.
-Peminjaman buku yang dapat dilakukan secara mandiri oleh siswa tanpa konfirmasi guru.
-Integrasi dengan sistem Data Pokok Pendidikan (Dapodik) atau sistem dinas pendidikan.
-Manajemen multi-cabang atau multi-perpustakaan.
-Modul pemesanan/reservasi buku secara online oleh siswa.
+### 1.1 Latar Belakang
 
-1.3 Stakeholders
-StakeholderRoleResponsibilityKepala Sekolah / KlienProject SponsorMemberikan arahan kebutuhan dan menyetujui hasil akhir sistem.Guru / Petugas PerpustakaanEnd User (Admin)Mengelola data buku, mencatat transaksi peminjaman dan pengembalian, serta melihat riwayat.SiswaEnd User (Read-only)Melihat ketersediaan dan mencari buku secara mandiri tanpa login.System AnalystAuthorMenyusun dan memperbarui dokumentasi Source of Truth (SoT).
+Berdasarkan observasi di SD Negeri Tamanan, Yogyakarta, sejumlah proses administrasi sekolah masih dikelola secara manual, seperti pendataan aset, penyusunan jadwal pelajaran, dan peminjaman fasilitas. Administrasi data siswa telah terintegrasi dengan sistem pusat sehingga tidak dikelola langsung oleh pihak sekolah. Di antara proses-proses tersebut, **pengelolaan perpustakaan** merupakan permasalahan paling kompleks karena melibatkan pencatatan peminjaman dan pengembalian buku, pengelolaan data buku, serta akses informasi oleh siswa dan pengelola.
 
-1.4 Definitions
-TermDefinitionLMSLibrary Management System — sistem pengelolaan perpustakaan berbasis web.GuruAktor berperan sebagai administrator sistem yang mengelola buku dan transaksi perpustakaan.SiswaAktor pengguna akhir yang dapat melihat ketersediaan dan mencari buku tanpa login.Stok BukuJumlah eksemplar buku yang tersedia dan siap dipinjam di perpustakaan.Status BukuKondisi ketersediaan buku: "Tersedia" atau "Dipinjam".SoTSource of Truth — artefak yang telah divalidasi dan menjadi referensi resmi untuk pekerjaan hilir.
+### 1.2 Rumusan Masalah
 
-1.5 References
-Laporan Analisis Kebutuhan — Kelompok DPSI BRAYYY, Universitas Ahmad Dahlan (2026).
-Praktikum 1 — Use Case Diagram Sistem Perpustakaan SD Negeri Tamanan.
-Praktikum 2 — Class Diagram Sistem Perpustakaan SD Negeri Tamanan.
-Chain of Truth: A Source-of-Truth Workflow for AI-Assisted Software Development — Suryanto & Athoillah, UAD (2026).
-IEEE Std 830-1998: IEEE Recommended Practice for Software Requirements Specifications.
-ISO/IEC/IEEE 29148:2018 — Systems and Software Engineering: Requirements Engineering.
+Sistem ini dibangun untuk mengatasi permasalahan berikut secara spesifik:
 
-### 2. PRODUCT OVERVIEW
-2.1 Product Summary
-Sistem Informasi Perpustakaan SD Negeri Tamanan merupakan aplikasi berbasis web yang dirancang untuk mendigitalisasi dan menyederhanakan operasional perpustakaan sekolah. Berdasarkan hasil observasi dan wawancara, perpustakaan saat ini tidak memiliki petugas tetap, pencatatan masih manual menggunakan buku tulis yang sebagian datanya telah hilang, penataan buku tidak terorganisir, dan stok buku tidak dapat diketahui secara pasti. Sistem ini hadir untuk menyelesaikan permasalahan tersebut dengan menyediakan antarmuka yang sederhana dan mudah digunakan oleh guru yang merangkap sebagai pengelola perpustakaan, tanpa memerlukan latar belakang teknis.
+1. Pencatatan peminjaman dan pengembalian buku yang masih dilakukan secara manual menggunakan buku tulis, sehingga data tidak terstruktur dan sebagian riwayat telah hilang.
+2. Penataan buku di rak yang tidak terorganisir — buku ditempatkan secara acak, sehingga siswa kesulitan menemukan lokasi fisik buku yang dicari.
+3. Ketersediaan dan jumlah stok buku yang tidak dapat diketahui secara pasti karena tidak ada pencatatan yang terpusat.
+4. Ketergantungan siswa pada pencarian mandiri tanpa informasi yang jelas mengenai lokasi dan status buku, tanpa harus bertanya langsung ke petugas.
 
-2.2 User Types
-User TypeDescriptionGuruPengguna dengan akses penuh (administrator). Bertugas mengelola data buku, mencatat transaksi peminjaman dan pengembalian, serta memantau riwayat transaksi. Guru wajib login untuk mengakses seluruh fitur manajemen.SiswaPengguna dengan akses terbatas (read-only). Dapat melihat ketersediaan buku dan mencari buku tanpa perlu melakukan login ke sistem.
+### 1.3 Business Goals
 
-2.3 User Goals
-User Type: Guru
-Dapat melakukan login ke sistem dengan aman menggunakan username dan password.
-Dapat menambah, mengubah, menghapus, dan mencari data buku di sistem dengan mudah.
-Dapat mencatat transaksi peminjaman buku siswa beserta tanggal pinjam dan batas pengembalian.
-Dapat mencatat pengembalian buku dan memperbarui kondisi serta status buku secara otomatis.
-Dapat melihat dan mencari riwayat seluruh transaksi peminjaman dan pengembalian buku.
+* Digitalisasi pencatatan transaksi peminjaman dan pengembalian buku untuk menghindari kehilangan riwayat.
+* Menyediakan informasi lokasi rak dan ketersediaan buku secara mandiri bagi siswa.
+* Menjamin data stok buku selalu akurat dan real-time tanpa perhitungan manual oleh Guru.
 
-User Type: Siswa
-Dapat melihat status ketersediaan buku (tersedia/dipinjam) tanpa memerlukan login.
-Dapat mencari buku berdasarkan judul atau tema secara mandiri.
+### 1.4 Ringkasan Solusi
 
-2.4 Operating Environment
-Frontend: HTML5, CSS3, JavaScript Framework (React/Vue/Next.js).
-Backend: Node.js / Python / Go Rest API.
-Database: Relational Database (PostgreSQL / MySQL).
-Deployment: Cloud Hosting (AWS / GCP / DigitalOcean).
-Browser Support: Google Chrome, Mozilla Firefox, Microsoft Edge, Safari (versi terbaru).
-Device Support: Desktop PC, Laptop, Tablet — Responsive Web Layout.
+Sistem ini wajib menyediakan pencatatan transaksi peminjaman dan pengembalian buku secara terpusat dan digital — termasuk informasi lokasi rak — sehingga Guru dapat mengelola data perpustakaan secara akurat tanpa kehilangan riwayat, dan siswa dapat memeriksa ketersediaan serta lokasi buku secara mandiri.
 
-2.5 Assumptions
-Sekolah menyediakan minimal satu unit komputer yang terhubung internet di area perpustakaan untuk digunakan guru.
-Guru memiliki akun yang telah dibuat dan dikonfigurasi sebelum sistem digunakan.
-Perangkat komputer di perpustakaan selalu terhubung dengan koneksi internet yang stabil selama jam operasional sekolah.
-Data buku awal (inventaris ±16.000 eksemplar) akan dimasukkan ke sistem secara manual oleh guru sebelum sistem mulai digunakan.
+---
 
-2.6 Constraints
-Sistem hanya mendukung satu perpustakaan (single-school, single-library); manajemen multi-cabang di luar cakupan.
-Keamanan data bergantung pada kerahasiaan akun login guru — tidak ada mekanisme self-registration.
-Penghapusan buku yang masih berstatus "Dipinjam" tidak diperkenankan hingga buku dikembalikan.
+## 2. Aktor Pengguna
 
-### 3. SYSTEM FEATURES
-# Feature ID: F001
-Feature Name: Autentikasi Guru (Login)
-Description
-Fitur ini memungkinkan guru untuk masuk ke dalam sistem perpustakaan menggunakan username dan password agar dapat mengakses seluruh fitur manajemen yang memerlukan hak akses administrator.
+| Aktor | Hak Akses | Tanggung Jawab |
+|---|---|---|
+| **Guru** (bertindak sebagai pengelola perpustakaan, karena tidak ada petugas perpustakaan tetap) | Wajib login (administrator) | Mengelola data buku (tambah, ubah, hapus, cari), mencatat transaksi peminjaman dan pengembalian, melihat riwayat transaksi. |
+| **Siswa** | Tanpa login (read-only, publik) | Melihat status ketersediaan dan lokasi rak buku, mencari buku berdasarkan judul/tema. |
 
-Requirements
-Sistem harus menyediakan halaman login dengan kolom username dan password.
-Sistem harus memvalidasi kredensial guru ke database sebelum memberikan akses.
-Sistem harus menampilkan pesan kesalahan yang informatif jika username atau password tidak sesuai.
-Sistem harus mengarahkan guru ke halaman utama dashboard setelah login berhasil.
-Sistem harus menyediakan fungsi logout yang mengakhiri sesi aktif guru.
+### 2.1 User Goals
 
-Business Rules
-Akun guru hanya dapat dibuat oleh administrator sistem, bukan melalui self-registration.
-Sesi login harus berakhir secara otomatis setelah periode tidak aktif (idle timeout) selama 30 menit.
-Seluruh fitur manajemen (tambah/ubah/hapus buku, catat transaksi, lihat riwayat) hanya dapat diakses setelah guru berhasil login.
+**Guru**
+* Dapat mencatat transaksi peminjaman dan pengembalian buku dengan cepat tanpa risiko kehilangan data.
+* Dapat menambah, mengubah, dan menghapus data buku (termasuk lokasi rak) agar katalog selalu akurat.
+* Dapat melihat riwayat transaksi kapan saja tanpa perhitungan atau pencatatan manual di buku tulis.
 
-# Feature ID: F002
-Feature Name: Manajemen Data Buku
-Description
-Fitur ini memungkinkan guru untuk mengelola katalog buku perpustakaan secara penuh, mencakup penambahan buku baru, pengubahan informasi buku yang ada, penghapusan buku, dan pencarian buku berdasarkan kata kunci.
+**Siswa**
+* Dapat mengetahui status ketersediaan dan lokasi rak sebuah buku tanpa harus bertanya langsung ke Guru.
+* Dapat mencari buku berdasarkan judul atau tema secara mandiri.
 
-Requirements
-Sistem harus menyediakan formulir tambah buku dengan kolom: ID Buku, Judul Buku, Penulis, Penerbit, Tema Buku, Tahun Terbit, dan Stok Awal.
-Sistem harus memvalidasi seluruh kolom wajib sebelum menyimpan data buku baru.
-Sistem harus memungkinkan guru mengubah data buku yang sudah terdaftar melalui form edit.
-Sistem harus menyediakan tombol konfirmasi penghapusan sebelum data buku dihapus secara permanen.
-Sistem harus menyediakan kolom pencarian buku berdasarkan judul atau tema/kategori.
-Sistem harus menampilkan daftar seluruh buku beserta informasi stok dan status ketersediaannya.
+---
 
-Business Rules
-ID Buku harus bersifat unik; sistem menolak penyimpanan jika ID sudah digunakan.
-Nilai stok buku tidak boleh bernilai negatif (harus ≥ 0).
-Buku yang sedang berstatus "Dipinjam" tidak dapat dihapus dari sistem sebelum dikembalikan.
-Stok buku berkurang otomatis saat transaksi peminjaman berhasil dicatat, dan bertambah kembali saat pengembalian berhasil dicatat.
+## 3. Tech Stack
 
-# Feature ID: F003
-Feature Name: Pencatatan Peminjaman Buku
-Description
-Fitur ini memungkinkan guru untuk mencatat transaksi peminjaman buku yang dilakukan oleh siswa, termasuk memilih siswa peminjam, buku yang dipinjam, tanggal pinjam, dan tanggal batas pengembalian.
+Tech stack berikut bersifat final dan wajib digunakan apa adanya oleh AI coding assistant. Tidak ada alternatif/opsi lain.
 
-Requirements
-Sistem harus menampilkan daftar buku yang tersedia (stok > 0) saat guru membuka menu peminjaman.
-Sistem harus menyediakan formulir peminjaman dengan kolom: nama dan kelas siswa, buku yang dipinjam, tanggal peminjaman (otomatis terisi), dan tanggal batas pengembalian.
-Sistem harus memvalidasi kelengkapan data sebelum menyimpan transaksi peminjaman.
-Sistem harus memperbarui status buku menjadi "Dipinjam" dan mengurangi stok secara otomatis setelah transaksi berhasil disimpan.
-Sistem harus menampilkan konfirmasi bahwa transaksi peminjaman berhasil dicatat.
+| Layer | Teknologi |
+|---|---|
+| Frontend | React (Vite) |
+| Backend | Express.js (Node.js) |
+| Database | MySQL |
+| Komunikasi Frontend–Backend | REST API, format JSON, protokol HTTPS |
+| Autentikasi | Username & password, password disimpan dalam bentuk hash (bcrypt) |
 
-Business Rules
-Buku dengan stok 0 (habis) tidak dapat dipilih untuk transaksi peminjaman.
-Satu transaksi peminjaman hanya untuk satu eksemplar buku per siswa per waktu.
-Tanggal peminjaman diisi otomatis oleh sistem berdasarkan tanggal hari ini dan tidak dapat diubah secara manual.
+Catatan arsitektur: Frontend dan backend wajib berjalan sebagai dua project terpisah (bukan satu framework gabungan). Frontend wajib menggunakan `fetch`/`axios` untuk memanggil REST API milik backend, dan backend wajib mengaktifkan CORS agar dapat diakses oleh frontend.
 
-# Feature ID: F004
-Feature Name: Pencatatan Pengembalian Buku
-Description
-Fitur ini memungkinkan guru untuk mencatat proses pengembalian buku oleh siswa, memperbarui kondisi buku, mengecek status keterlambatan, dan memperbarui ketersediaan stok buku.
+### 3.1 Operating Environment
 
-Requirements
-Sistem harus menampilkan daftar transaksi peminjaman yang belum dikembalikan saat guru membuka menu pengembalian.
-Sistem harus memungkinkan guru memilih data peminjaman yang akan diproses pengembaliannya.
-Sistem harus menyediakan kolom kondisi buku (Baik / Rusak Ringan / Rusak Berat) yang diisi guru saat pengembalian.
-Sistem harus secara otomatis menghitung dan menampilkan informasi keterlambatan jika pengembalian melebihi tanggal batas.
-Sistem harus memperbarui status buku menjadi "Tersedia" dan menambah stok kembali setelah pengembalian berhasil dicatat.
+* **Browser Support:** Google Chrome, Mozilla Firefox, Microsoft Edge (versi terbaru).
+* **Device Support:** Desktop/laptop untuk Guru (input intensif); tablet/mobile untuk akses publik siswa (read-only).
+* **Deployment:** Frontend dan backend dapat di-deploy pada layanan hosting terpisah (misal: Vercel/Netlify untuk frontend, VPS/Railway untuk backend) — detail infrastruktur ditentukan pada dokumen arsitektur, bukan pada SRS ini.
 
-Business Rules
-Tanggal pengembalian diisi otomatis oleh sistem berdasarkan tanggal hari ini.
-Sistem menampilkan informasi keterlambatan (jumlah hari terlambat) secara informatif, namun tidak menerapkan sanksi denda karena kebijakan sekolah negeri tidak memberlakukan denda.
-Data pengembalian disimpan secara terpisah dari data peminjaman namun tetap terhubung melalui ID Peminjaman.
+### 3.2 Assumptions
 
-# Feature ID: F005
-Feature Name: Riwayat Peminjaman
-Description
-Fitur ini menyediakan rekap historis seluruh transaksi peminjaman dan pengembalian buku yang dapat diakses dan dicari oleh guru untuk keperluan monitoring dan pelaporan.
+* Perangkat yang digunakan Guru dan siswa selalu terhubung ke jaringan internet sekolah yang stabil selama jam operasional.
+* Server backend dan database MySQL berjalan pada satu lingkungan hosting yang sama atau saling terhubung secara stabil.
 
-Requirements
-Sistem harus menampilkan daftar riwayat seluruh transaksi peminjaman dan pengembalian secara kronologis.
-Sistem harus menyediakan fungsi pencarian riwayat berdasarkan nama siswa, judul buku, atau rentang tanggal.
-Sistem harus menampilkan detail riwayat meliputi: nama siswa, kelas, judul buku, tanggal pinjam, tanggal batas kembali, tanggal kembali aktual, dan kondisi buku.
-Sistem harus membedakan secara visual antara transaksi yang sudah dikembalikan dan yang masih aktif dipinjam.
+### 3.3 Constraints
 
-Business Rules
-Data riwayat bersifat read-only dan tidak dapat diubah atau dihapus oleh guru melalui antarmuka sistem.
-Seluruh data riwayat tersedia sejak pertama kali sistem digunakan tanpa batasan periode waktu tampil.
+* Sistem hanya boleh digunakan pada satu unit sekolah (SD Negeri Tamanan) — tidak ada dukungan multi-sekolah.
+* Keamanan data transaksi bergantung penuh pada sesi login Guru yang aktif dan valid.
 
-# Feature ID: F006
-Feature Name: Akses Ketersediaan Buku untuk Siswa (Publik)
-Description
-Fitur ini memungkinkan siswa untuk melihat status ketersediaan buku dan mencari buku berdasarkan judul atau tema secara mandiri tanpa perlu melakukan login ke sistem.
+---
 
-Requirements
-Sistem harus menyediakan halaman publik (tanpa login) yang menampilkan daftar buku beserta status ketersediaannya.
-Sistem harus menyediakan kolom pencarian buku berdasarkan judul atau tema/kategori.
-Sistem harus menampilkan informasi minimal: Judul Buku, Penulis, Tema, Stok Tersedia, dan Status Buku.
-Sistem harus memperbarui informasi ketersediaan buku secara real-time mengikuti perubahan transaksi peminjaman dan pengembalian.
+## 4. In-Scope Features
 
-Business Rules
-Halaman akses siswa hanya bersifat read-only; tidak ada aksi penulisan data yang dapat dilakukan tanpa login.
-Informasi yang ditampilkan kepada siswa dibatasi hanya pada judul, penulis, tema, dan status ketersediaan — data peminjam tidak ditampilkan.
+Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirements, dan Business Rules berikut. AI coding assistant wajib mengacu pada detail per-fitur ini, bukan hanya judul fitur.
 
-### 4. DATA REQUIREMENTS
-4.1 Core Business Objects
-ObjectDescriptionBukuMenyimpan data master buku meliputi ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Stok, dan Status Buku.SiswaMenyimpan data siswa peminjam meliputi ID Siswa, Nama Siswa, dan Kelas.GuruMenyimpan data guru pengelola perpustakaan meliputi ID Guru, Nama Guru, Username, dan Password (hashed).PeminjamanMenyimpan data transaksi peminjaman meliputi ID Peminjaman, ID Siswa, ID Buku, Tanggal Pinjam, Tanggal Batas Pengembalian, dan Status Peminjaman.PengembalianMenyimpan data transaksi pengembalian meliputi ID Pengembalian, ID Peminjaman, Tanggal Pengembalian, Kondisi Buku, dan Status Pengembalian.RiwayatPeminjamanMenyimpan data riwayat transaksi peminjaman dan pengembalian meliputi ID Riwayat, Tanggal Riwayat, dan Status Peminjaman.
+---
 
-4.2 Ownership Rules
-ObjectOwnerBukuGuru (akses kelola penuh: tambah, ubah, hapus, cari). Siswa (hanya baca).SiswaGuru (akses tambah dan lihat data siswa).PeminjamanGuru (hanya memiliki akses membuat dan melihat).PengembalianGuru (hanya memiliki akses membuat dan melihat).RiwayatPeminjamanGuru (hanya akses baca/lihat; tidak dapat diubah atau dihapus).
+### Feature ID: F001 — Autentikasi Guru (Login)
 
-4.3 Data Retention Rules
-Data transaksi peminjaman dan pengembalian wajib disimpan secara permanen di database minimal selama 5 tahun untuk keperluan audit dan pelaporan sekolah.
-Data riwayat peminjaman tidak dapat dihapus oleh pengguna melalui antarmuka sistem.
-Log aktivitas pengelolaan data buku (tambah/ubah/hapus) dibersihkan secara berkala setiap 1 tahun sekali.
+**Description:** Fitur ini memungkinkan Guru login menggunakan username dan password untuk mengakses seluruh fitur manajemen perpustakaan.
 
-4.4 Data Validation Rules
-Stok buku harus berupa bilangan bulat positif (integer ≥ 0).
-Tanggal batas pengembalian harus selalu lebih besar atau sama dengan tanggal peminjaman.
-Judul buku dan nama siswa wajib berupa karakter alfanumerik yang bersih dari tag skrip berbahaya (XSS prevention).
-Password guru wajib disimpan dalam bentuk hash (bcrypt) dan tidak boleh disimpan dalam bentuk plaintext.
-ID Buku dan ID Siswa harus bersifat unik di dalam database.
+**Requirements:**
+* Sistem harus menyediakan form login dengan kolom username dan password.
+* Sistem harus memverifikasi kredensial ke backend sebelum memberikan akses ke halaman manajemen.
+* Sistem harus menampilkan pesan error yang jelas jika username atau password salah.
+* Sistem harus mengakhiri sesi secara otomatis setelah 30 menit tanpa aktivitas (idle timeout) dan mengarahkan pengguna kembali ke halaman login.
 
-5. EXTERNAL INTERFACES
-5.1 User Interface Requirements
-Layout responsif yang dioptimalkan untuk resolusi Desktop PC, Laptop, dan Tablet.
-Navigasi konsisten menggunakan sidebar menu (Data Buku, Peminjaman, Pengembalian, Riwayat, Logout) untuk guru; halaman publik untuk siswa.
-Formulir input dibuat sederhana dengan penanda field wajib (required fields) yang jelas.
-Indikator visual (warna merah/oranye) untuk buku dengan stok habis atau transaksi yang melewati batas pengembalian.
+**Business Rules:**
+* Akun Guru hanya dapat dibuat oleh administrator sistem, bukan melalui self-registration.
+* Sesi login wajib berakhir otomatis setelah 30 menit tidak aktif.
+* Seluruh fitur manajemen hanya dapat diakses setelah Guru berhasil login.
+* Password Guru wajib disimpan dalam bentuk hash (bcrypt), tidak boleh dalam bentuk plaintext.
 
-5.2 External Systems
-SystemPurposeWeb BrowserAntarmuka utama yang digunakan guru dan siswa untuk mengakses sistem via browser modern.
+---
 
-5.3 Communication Requirements
-Protocols
-HTTPS (untuk menjamin keamanan transmisi data antara client dan server)
-REST API (komunikasi utama antara frontend dan backend)
+### Feature ID: F002 — Manajemen Data Buku
 
+**Description:** Fitur ini memungkinkan Guru menambah, mengubah, menghapus, dan mencari data buku, termasuk informasi lokasi rak agar posisi fisik buku dapat diketahui secara pasti.
 
-Formats
-JSON (untuk pertukaran data objek buku, transaksi, dan siswa antara frontend dan backend)
-### 6. NON-FUNCTIONAL REQUIREMENTS
+**Requirements:**
+* Sistem harus menyediakan form tambah buku dengan field: ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, dan Status.
+* Sistem harus menyediakan fitur ubah dan hapus data buku.
+* Sistem harus menyediakan fitur pencarian buku berdasarkan judul, tema, atau ID Buku.
+* Sistem harus menolak penyimpanan apabila ID Buku sudah terdaftar sebelumnya.
+* Sistem harus menolak penyimpanan apabila field Lokasi Rak dikosongkan atau tidak sesuai format.
 
-6.1 Performance
-Sistem harus memuat halaman utama dalam waktu di bawah 2 detik pada koneksi internet standar.
-Proses penyimpanan transaksi peminjaman/pengembalian ke database harus selesai dalam waktu kurang dari 500 milidetik.
+**Business Rules:**
+* ID Buku harus unik; sistem wajib menolak penyimpanan jika ID sudah digunakan.
+* Nilai stok buku tidak boleh negatif (harus ≥ 0, bertipe integer).
+* Buku berstatus "Dipinjam" tidak boleh dihapus dari sistem sebelum dikembalikan.
+* Field Lokasi Rak wajib diisi saat buku ditambahkan dan tidak boleh kosong.
+* Format Lokasi Rak wajib berupa kombinasi kode rak (huruf) dan nomor (misal: "A1", "B3"); sistem wajib menolak input yang tidak mengikuti format ini.
+* Judul buku wajib divalidasi bersih dari tag skrip berbahaya (XSS prevention).
 
-6.2 Security
-Akses fitur manajemen wajib dilindungi dengan mekanisme autentikasi (Username & Password).
-Seluruh token sesi login harus dienkripsi dan disimpan dengan aman di sisi klien (HttpOnly Cookie).
-Password guru wajib disimpan dalam bentuk hash bcrypt dan tidak boleh tersimpan sebagai plaintext.
+---
 
-6.3 Availability
-Sistem perpustakaan berbasis web harus memiliki tingkat ketersediaan (uptime) minimal 99% selama jam operasional sekolah.
+### Feature ID: F003 — Pencatatan Peminjaman Buku
 
-6.4 Reliability
-Sistem harus mampu menangani kegagalan jaringan sementara tanpa menghilangkan data yang sedang diinput pada layar browser guru (local state retention).
+**Description:** Fitur ini memungkinkan Guru mencatat transaksi peminjaman buku oleh siswa secara digital.
 
-6.5 Scalability
-Struktur database harus mampu menangani pertumbuhan data hingga 5.000 transaksi peminjaman per tahun tanpa penurunan performa yang signifikan.
+**Requirements:**
+* Sistem harus menyediakan form peminjaman dengan pilihan siswa dan pilihan buku.
+* Sistem harus mengisi tanggal peminjaman secara otomatis berdasarkan tanggal hari ini.
+* Sistem harus menyediakan kolom tanggal batas pengembalian yang dapat diatur oleh Guru.
+* Sistem harus menyembunyikan buku dengan stok 0 dari daftar pilihan peminjaman.
+* Sistem harus memperbarui stok dan status buku segera setelah transaksi peminjaman berhasil disimpan.
 
-6.6 Maintainability
-baru di masa mendatang.
+**Business Rules:**
+* Buku dengan stok 0 (habis) tidak dapat dipilih untuk transaksi peminjaman.
+* Satu transaksi peminjaman hanya berlaku untuk satu eksemplar buku per siswa per waktu.
+* Tanggal peminjaman diisi otomatis oleh sistem berdasarkan tanggal hari ini dan tidak dapat diubah manual.
+* Tanggal batas pengembalian harus selalu lebih besar atau sama dengan tanggal peminjaman.
+* Stok buku berkurang otomatis saat peminjaman berhasil dicatat, dan status buku berubah menjadi "Dipinjam".
+* Nama siswa wajib divalidasi bersih dari tag skrip berbahaya (XSS prevention).
 
-6.7 Usability
-Antarmuka sistem harus mudah dipahami oleh guru tanpa latar belakang teknis, dengan waktu pelatihan maksimal 15 menit.
+---
 
-### 7. PERMISSIONS AND ACCESS CONTROL
-CapabilityGuru (Login)Siswa (Publik)Login ke sistemALLOWEDDENIEDMenambahkan data bukuALLOWEDDENIEDMengubah data bukuALLOWEDDENIEDMenghapus data bukuALLOWEDDENIEDMencatat transaksi peminjamanALLOWEDDENIEDMencatat pengembalian bukuALLOWEDDENIEDMelihat riwayat transaksiALLOWEDDENIEDMelihat ketersediaan bukuALLOWEDALLOWEDMencari buku (publik)ALLOWEDALLOWEDMengubah riwayat transaksi lampauDENIEDDENIED
+### Feature ID: F004 — Pencatatan Pengembalian Buku
 
-### 8. FEATURE INVENTORY
-Feature IDFeature NamePriorityF001Autentikasi Guru (Login)HighF002Manajemen Data Buku (Tambah, Ubah, Hapus, Cari)HighF003Pencatatan Transaksi Peminjaman BukuHighF004Pencatatan Pengembalian BukuHighF005Riwayat Peminjaman dan PengembalianHighF006Akses Ketersediaan Buku untuk Siswa (Publik)Medium
+**Description:** Fitur ini memungkinkan Guru mencatat pengembalian buku oleh siswa, termasuk kondisi fisik buku dan status keterlambatan.
 
-### 9. OPEN QUESTIONS
-Q01 — Apakah sistem perlu menampilkan notifikasi atau pengingat kepada guru untuk buku yang mendekati atau telah melewati batas pengembalian?
-Q02 — Apakah data siswa perlu dimasukkan secara manual oleh guru ke master data, atau cukup diisi saat mencatat transaksi peminjaman?
-Q03 — Apakah laporan rekap bulanan atau tahunan diperlukan sebagai fitur tersendiri di masa mendatang?
+**Requirements:**
+* Sistem harus menyediakan form pengembalian yang terhubung ke ID Peminjaman terkait.
+* Sistem harus menyediakan pilihan kondisi buku: Baik, Rusak Ringan, atau Rusak Berat.
+* Sistem harus mengisi tanggal pengembalian secara otomatis berdasarkan tanggal hari ini.
+* Sistem harus menghitung dan menampilkan jumlah hari keterlambatan secara otomatis, apabila ada.
+* Sistem harus memperbarui stok dan status buku segera setelah transaksi pengembalian berhasil disimpan.
 
-### 10. FUTURE CONSIDERATIONS
-Pengembangan sistem notifikasi otomatis (email/SMS) kepada guru untuk pengingat batas pengembalian buku.
-Fitur laporan rekap bulanan dan tahunan untuk kebutuhan pelaporan kepada kepala sekolah atau dinas pendidikan.
-Pengembangan modul manajemen multi-role (pemisahan peran Kepala Sekolah, Guru, dan Siswa dengan hak akses berbeda).
-Integrasi dengan sistem Dapodik untuk sinkronisasi data siswa secara otomatis.
-Fitur barcode/QR code untuk mempercepat proses pencatatan peminjaman dan pengembalian buku.
-Sinkronisasi data lokal (Offline-first mode) jika koneksi internet di sekolah sewaktu-waktu terputus.
+**Business Rules:**
+* Tanggal pengembalian diisi otomatis oleh sistem berdasarkan tanggal hari ini.
+* Sistem menampilkan informasi keterlambatan (jumlah hari) secara informatif, tanpa menerapkan denda.
+* Data pengembalian disimpan terpisah dari data peminjaman, namun tetap terhubung melalui ID Peminjaman.
+* Stok buku bertambah kembali dan status berubah menjadi "Tersedia" setelah pengembalian berhasil dicatat.
 
-### 11. REVISION HISTORY
-VersionDateAuthorDescription1.02026-06-25Kelompok DPSI BRAYYYInitial Draft — SRS Sistem Informasi Perpustakaan SD Negeri Tamanan berdasarkan hasil analisis kebutuhan, Praktikum 1 & 2, dan metodologi Chain of Truth (Suryanto & Athoillah, 2026).
+---
+
+### Feature ID: F005 — Riwayat Peminjaman
+
+**Description:** Fitur ini memungkinkan Guru melihat dan mencari seluruh riwayat transaksi peminjaman dan pengembalian buku.
+
+**Requirements:**
+* Sistem harus menampilkan daftar seluruh transaksi peminjaman dan pengembalian secara kronologis.
+* Sistem harus menyediakan pencarian riwayat berdasarkan nama siswa, judul buku, atau rentang tanggal.
+* Sistem harus menampilkan status setiap transaksi (Dipinjam/Dikembalikan/Terlambat).
+
+**Business Rules:**
+* Data riwayat bersifat read-only dan tidak dapat diubah atau dihapus oleh Guru melalui antarmuka sistem.
+
+---
+
+### Feature ID: F006 — Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik)
+
+**Description:** Fitur ini menyediakan akses publik tanpa login bagi siswa untuk melihat status ketersediaan dan lokasi rak buku, serta mencari buku berdasarkan judul/tema.
+
+**Requirements:**
+* Sistem harus menampilkan daftar buku beserta status ketersediaan (Tersedia/Dipinjam) dan lokasi rak tanpa memerlukan login.
+* Sistem harus menyediakan fitur pencarian buku berdasarkan judul atau tema untuk pengguna publik.
+* Sistem tidak boleh menampilkan data peminjam (nama siswa yang meminjam) pada halaman publik.
+
+**Business Rules:**
+* Halaman akses siswa hanya bersifat read-only; tidak ada aksi penulisan data tanpa login.
+* Informasi yang ditampilkan ke siswa dibatasi pada judul, penulis, tema, lokasi rak, dan status ketersediaan — data peminjam tidak ditampilkan.
+
+---
+
+### Feature ID: F007 — Sinkronisasi Stok & Status Otomatis
+
+**Description:** Fitur ini menjamin bahwa stok dan status buku (Tersedia/Dipinjam) selalu konsisten dan diperbarui otomatis setiap kali transaksi peminjaman (F003) atau pengembalian (F004) berhasil dicatat, tanpa intervensi manual dari Guru.
+
+**Requirements:**
+* Sistem harus mengurangi stok buku sebanyak satu unit dan mengubah status menjadi "Dipinjam" segera setelah transaksi peminjaman berhasil disimpan.
+* Sistem harus menambah stok buku sebanyak satu unit dan mengubah status menjadi "Tersedia" segera setelah transaksi pengembalian berhasil disimpan.
+* Sistem harus memastikan perubahan stok dan status tercermin secara real-time pada halaman manajemen Guru maupun halaman publik siswa.
+
+**Business Rules:**
+* Perubahan stok dan status wajib terjadi dalam satu transaksi database yang sama dengan pencatatan peminjaman/pengembalian (tidak boleh terpisah/tertunda).
+* Guru tidak diperbolehkan mengubah nilai stok secara manual di luar mekanisme peminjaman/pengembalian, kecuali melalui fitur Manajemen Data Buku (F002) saat menambah/mengoreksi data buku.
+
+---
+
+## 5. Out-of-Scope Features
+
+1. Tidak ada fitur registrasi mandiri (self-registration) untuk akun Guru — akun hanya dibuat oleh administrator sistem.
+2. Tidak ada fitur forgot password.
+3. Tidak ada sistem denda/sanksi atas keterlambatan pengembalian buku (kebijakan sekolah negeri tidak memberlakukan denda).
+4. Buku dipinjam untuk digunakan di lingkungan sekolah; batas waktu pengembalian ditentukan oleh Guru saat mencatat transaksi peminjaman, dan tidak wajib dikembalikan pada hari yang sama — selama masih dalam periode yang ditentukan Guru.
+5. Tidak ada login atau akun untuk Siswa — akses siswa selalu bersifat publik dan read-only.
+6. Tidak ada integrasi dengan sistem Data Pokok Pendidikan (Dapodik) atau sistem dinas pendidikan — data siswa yang sudah terintegrasi pusat tidak dikelola ulang oleh sistem ini.
+7. Tidak ada modul pendataan aset sekolah, penyusunan jadwal pelajaran, atau peminjaman fasilitas non-buku (misal: ruang kelas, alat olahraga) — sistem ini hanya mencakup domain perpustakaan.
+8. Tidak ada manajemen multi-cabang atau multi-perpustakaan.
+9. Tidak ada modul pemesanan/reservasi buku secara online oleh siswa.
+10. Tidak ada notifikasi otomatis (email/SMS) untuk pengingat batas pengembalian.
+11. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code, atau mode offline-first pada versi ini.
+12. Tidak ada algoritma penataan ulang rak secara otomatis — Lokasi Rak diinput manual oleh Guru sebagai metadata referensi, bukan sistem pemetaan fisik otomatis.
+
+---
+
+## 6. Business Rules (Master List — Lintas Fitur)
+
+Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule global yang berlaku lintas fitur dan wajib dipatuhi di seluruh sistem.
+
+**Autentikasi & Keamanan**
+1. Akun Guru hanya dapat dibuat oleh administrator sistem, bukan melalui self-registration.
+2. Sesi login wajib berakhir otomatis setelah 30 menit tidak aktif (idle timeout).
+3. Password Guru wajib disimpan dalam bentuk hash (bcrypt), tidak boleh dalam bentuk plaintext.
+4. Seluruh input teks (judul buku, nama siswa, lokasi rak) wajib divalidasi bersih dari tag skrip berbahaya (XSS prevention).
+5. ID Buku dan ID Siswa harus bersifat unik di dalam database.
+
+**Integritas Data**
+6. Nilai stok buku tidak boleh negatif (harus ≥ 0, bertipe integer).
+7. Data riwayat peminjaman/pengembalian bersifat read-only dan tidak dapat diubah atau dihapus melalui antarmuka sistem.
+8. Data pengembalian disimpan terpisah dari data peminjaman, namun tetap terhubung melalui ID Peminjaman.
+
+**Akses Publik**
+9. Halaman akses siswa hanya bersifat read-only; tidak ada aksi penulisan data tanpa login.
+10. Data peminjam (nama siswa) tidak boleh ditampilkan pada halaman akses publik.
+
+---
+
+## 7. Data Requirements
+
+### 7.1 Core Business Objects
+
+| Object | Description |
+|---|---|
+| Buku | Menyimpan data master buku meliputi ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, dan Status. |
+| Siswa | Menyimpan data identitas siswa (Nama, Kelas) yang digunakan sebagai referensi transaksi peminjaman — bukan akun login. |
+| Peminjaman | Menyimpan data transaksi peminjaman meliputi ID Peminjaman, ID Siswa, ID Buku, Tanggal Pinjam, dan Tanggal Batas Kembali. |
+| Pengembalian | Menyimpan data transaksi pengembalian meliputi ID Pengembalian, ID Peminjaman (referensi), Tanggal Kembali, Kondisi Buku, dan Status Keterlambatan. |
+
+### 7.2 Ownership Rules
+
+| Object | Owner |
+|---|---|
+| Buku | Guru (akses kelola penuh: tambah, ubah, hapus). |
+| Siswa | Guru (akses kelola penuh sebagai data referensi transaksi). |
+| Peminjaman | Guru (akses buat dan lihat; tidak dapat diubah/dihapus setelah tersimpan). |
+| Pengembalian | Guru (akses buat dan lihat; tidak dapat diubah/dihapus setelah tersimpan). |
+
+### 7.3 Data Retention Rules
+
+* Data peminjaman dan pengembalian wajib disimpan secara permanen di database selama minimal 3 tahun ajaran untuk keperluan audit dan pelaporan sekolah.
+* Data buku yang sudah tidak aktif (misal rusak berat dan ditarik dari sirkulasi) tidak dihapus, melainkan diberi status "Tidak Aktif" agar riwayat historisnya tetap tersimpan.
+
+### 7.4 Data Validation Rules
+
+* ID Buku dan ID Siswa wajib unik dan tidak boleh kosong.
+* Stok buku harus berupa bilangan bulat ≥ 0.
+* Tanggal batas pengembalian harus ≥ tanggal peminjaman.
+* Judul buku, nama siswa, dan lokasi rak wajib berupa karakter alfanumerik yang bersih dari tag skrip berbahaya.
+
+---
+
+## 8. External Interfaces
+
+### 8.1 User Interface Requirements
+
+* Layout responsif, dioptimalkan untuk desktop/laptop (halaman manajemen Guru) dan tablet/mobile (halaman publik siswa).
+* Navigasi Guru menggunakan sidebar menu (Manajemen Buku, Peminjaman, Pengembalian, Riwayat).
+* Halaman publik siswa dibuat sederhana dengan kolom pencarian sebagai elemen utama.
+
+### 8.2 External Systems
+
+Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (lihat Section 5 — Out-of-Scope, poin 6).
+
+### 8.3 Communication Requirements
+
+**Protocols:**
+* HTTPS (untuk menjamin keamanan transmisi data).
+* REST API (komunikasi utama frontend ke backend).
+
+**Formats:**
+* JSON (untuk pertukaran data buku, siswa, peminjaman, dan pengembalian).
+
+---
+
+## 9. Non-Functional Requirements
+
+### 9.1 Performance
+* Sistem harus memuat halaman daftar buku dalam waktu di bawah 2 detik pada koneksi internet standar sekolah.
+* Proses pencatatan transaksi peminjaman/pengembalian harus selesai dalam waktu kurang dari 1 detik.
+
+### 9.2 Security
+* Hak akses ke halaman manajemen wajib dilindungi dengan mekanisme autentikasi (username & password).
+* Token sesi login harus disimpan secara aman di sisi klien (HttpOnly Cookie).
+
+### 9.3 Availability
+* Sistem harus memiliki tingkat ketersediaan (uptime) minimal 99% selama jam operasional sekolah.
+
+### 9.4 Reliability
+* Sistem harus mampu menangani kegagalan jaringan sementara tanpa menghilangkan data form yang sedang diisi Guru (local state retention sebelum submit).
+
+### 9.5 Scalability
+* Struktur database harus mampu menangani pertumbuhan data hingga 5.000 judul buku dan 2.000 transaksi per tahun ajaran tanpa penurunan performa signifikan.
+
+### 9.6 Maintainability
+* Source code aplikasi wajib ditulis menggunakan standar penamaan yang bersih dan modular untuk memudahkan pengembangan fitur baru di masa mendatang.
+
+### 9.7 Usability
+* Antarmuka Guru harus mudah dipahami oleh pengguna baru dengan waktu pelatihan maksimal 15 menit, mengingat Guru bukan tenaga IT.
+
+---
+
+## 10. Permissions and Access Control
+
+| Capability | Guru | Siswa (Publik) |
+|---|---|---|
+| Login ke sistem | AKSI (ALLOWED) | DITOLAK (DENIED) — tidak ada akun |
+| Tambah/Ubah/Hapus Data Buku | AKSI (ALLOWED) | DITOLAK (DENIED) |
+| Mencatat Peminjaman | AKSI (ALLOWED) | DITOLAK (DENIED) |
+| Mencatat Pengembalian | AKSI (ALLOWED) | DITOLAK (DENIED) |
+| Melihat Riwayat Transaksi | AKSI (ALLOWED) | DITOLAK (DENIED) |
+| Melihat Ketersediaan & Lokasi Buku | AKSI (ALLOWED) | AKSI (ALLOWED) |
+| Mengubah/Menghapus Riwayat Transaksi | DITOLAK (DENIED) | DITOLAK (DENIED) |
+
+---
+
+## 11. Feature Inventory
+
+| Feature ID | Feature Name | Priority |
+|---|---|---|
+| F001 | Autentikasi Guru (Login) | High |
+| F002 | Manajemen Data Buku | High |
+| F003 | Pencatatan Peminjaman Buku | High |
+| F004 | Pencatatan Pengembalian Buku | High |
+| F005 | Riwayat Peminjaman | Medium |
+| F006 | Akses Ketersediaan & Lokasi Buku untuk Siswa | High |
+| F007 | Sinkronisasi Stok & Status Otomatis | High |
+
+---
+
+## 12. Open Questions
+
+* Belum ada pertanyaan terbuka saat ini.
+
+---
+
+## 13. Future Considerations
+
+* Pengembangan fitur laporan rekap bulanan/tahunan peminjaman buku.
+* Integrasi barcode/QR code pada buku untuk mempercepat proses pencatatan transaksi.
+* Mode offline-first apabila koneksi internet sekolah sewaktu-waktu terputus.
+
+---
+
+## 14. Revision History
+
+| Version | Date | Author | Description |
+| --- | --- | --- | --- |
+| **1.0** | 2026-06-30 | Kelompok DPSI BRAYYY | Draft awal sesuai struktur dasar tutorial SoT. |
+| **2.0** | 2026-06-30 | Kelompok DPSI BRAYYY | Restrukturisasi sesuai Tutorial SoT (6 section wajib). |
+| **2.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Penyelarasan dengan Problem Statement — penambahan field Lokasi Rak dan klarifikasi Out-of-Scope. |
+| **3.0** | 2026-07-01 | Kelompok DPSI BRAYYY | Ekspansi kedalaman dokumen: Feature ID per fitur (Requirements & Business Rules), penambahan Data Requirements, External Interfaces, NFR, Permission Matrix, Feature Inventory, Open Questions, Future Considerations. |
+| **3.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Perbaikan kontradiksi internal: revisi Out-of-Scope poin #4 (Section 5) agar selaras dengan Feature F003 — peminjaman tidak lagi dibatasi "dikembalikan pada hari yang sama". Perubahan dipicu temuan konsistensi dari design_system.md v1.2 Section 10. |
+---
+
+## Lampiran: Referensi
+- Problem Statement — Observasi SD Negeri Tamanan, Yogyakarta (2026)
+- Laporan Analisis Kebutuhan — Kelompok DPSI BRAYYY (2026)
+- Praktikum 1 — Use Case Diagram Sistem Perpustakaan SD Negeri Tamanan
+- Praktikum 2 — Class Diagram Sistem Perpustakaan SD Negeri Tamanan
+- Chain of Truth: A Source-of-Truth Workflow for AI-Assisted Software Development — Suryanto & Athoillah (2026)

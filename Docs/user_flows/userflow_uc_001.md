@@ -31,7 +31,13 @@ Guru berhasil masuk ke dalam sistem perpustakaan menggunakan username dan passwo
 
 ---
 
-## 3. TRIGGER
+## 3. AKTOR
+
+**ACT-01 — Guru.** Guru bertindak sebagai administrator/pengelola tunggal sistem (tidak ada petugas perpustakaan tetap).
+
+---
+
+## 4. TRIGGER
 
 Salah satu dari kondisi berikut memicu use case ini:
 
@@ -41,7 +47,7 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 ---
 
-## 4. PRECONDITIONS
+## 5. PRE-CONDITION
 
 - Akun guru (username dan password) telah dibuat dan tersimpan di database sistem oleh administrator.
 - Sistem dalam kondisi aktif dan dapat diakses melalui browser.
@@ -49,19 +55,19 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 ---
 
-## 5. POSTCONDITIONS
+## 6. POST-CONDITION
 
-### 5.1 Success Postcondition
+### 6.1 Success Postcondition
 - Guru berhasil terautentikasi; sesi aktif dibuat dan disimpan sebagai HttpOnly Cookie yang terenkripsi.
 - Guru diarahkan otomatis ke halaman `/buku` (PAGE-003: Manajemen Data Buku).
 
-### 5.2 Failure Postcondition
+### 6.2 Failure Postcondition
 - Guru tidak berhasil login; tidak ada sesi yang dibuat.
 - Sistem tetap berada di halaman `/login` dan menampilkan pesan error yang informatif.
 
 ---
 
-## 6. MAIN FLOW (Happy Path)
+## 7. MAIN FLOW (Happy Path)
 
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
@@ -75,17 +81,13 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 ---
 
-## 7. ALTERNATIVE FLOW
+## 8. ALTERNATIVE/EXCEPTION FLOW
 
 ### AF-001: Guru Sudah Memiliki Sesi Aktif
 
 | Step | Condition | Action |
 | --- | --- | --- |
 | 1A | Guru mengakses `/login` namun sudah memiliki sesi aktif yang valid. | Sistem mendeteksi sesi aktif dan langsung me-redirect guru ke `/buku` tanpa menampilkan form login. |
-
----
-
-## 8. EXCEPTION FLOW
 
 ### EF-001: Username atau Password Salah
 
@@ -116,7 +118,7 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 ---
 
-## 10. RELATED PAGES & COMPONENTS (DS v1.0)
+## 10. RELATED PAGES & COMPONENTS (DS v1.3)
 
 | Element | DS Component | Notes |
 | --- | --- | --- |
@@ -124,7 +126,7 @@ Salah satu dari kondisi berikut memicu use case ini:
 | Form Password | Text Input — Default & Focus State | Type: password (masking aktif) |
 | Tombol "Masuk" | Primary Button — semua states | Loading state saat proses validasi berlangsung |
 | Pesan Error | Validation — Error State (merah, 12px) | Muncul di bawah form atau di bawah field yang gagal |
-| Layout Halaman | Halaman minimalis terpusat, tanpa Sidebar | Sesuai ketentuan IA v1.0 PAGE-001 |
+| Layout Halaman | Halaman minimalis terpusat, tanpa Sidebar | Sesuai ketentuan IA PAGE-001 |
 
 ---
 
@@ -145,13 +147,5 @@ Salah satu dari kondisi berikut memicu use case ini:
 ## 12. NOTES
 
 - Tidak ada fitur self-registration; akun guru hanya dapat dibuat oleh administrator sistem (sesuai Business Rule SRS F001).
-- Tidak ada fitur "Lupa Password" pada versi ini (berada di luar cakupan SRS v1.0).
+- Tidak ada fitur "Lupa Password" pada versi ini (berada di luar cakupan SRS).
 - Password disimpan dalam bentuk hash bcrypt di database; tidak pernah tersimpan sebagai plaintext.
-
----
-
-## 13. REVISION HISTORY
-
-| Version | Date | Author | Description |
-| --- | --- | --- | --- |
-| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft. |

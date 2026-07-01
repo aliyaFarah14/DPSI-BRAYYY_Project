@@ -1,10 +1,10 @@
-# User Flow — UC-006: Akses Ketersediaan Buku (Publik — Siswa)
+# User Flow — UC-006: Akses Ketersediaan & Lokasi Buku (Publik)
 
 Document Version: v1.0
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-06-25
+Last Updated: 2026-07-01
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -15,104 +15,94 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Field | Value |
 | --- | --- |
 | UC ID | UC-006 |
-| Use Case Name | Akses Ketersediaan Buku (Publik — Siswa) |
+| Use Case Name | Akses Ketersediaan & Lokasi Buku (Publik) |
 | Actor | ACT-02 — Siswa |
 | Feature ID (SRS) | F006 |
 | Page ID (IA) | PAGE-002 |
-| Route | / (root) |
-| Priority | Medium |
+| Route | `/` |
+| Priority | High |
 | Status | Draft |
 
 ---
 
 ## 2. GOAL
 
-Siswa dapat melihat status ketersediaan buku dan mencari buku berdasarkan judul atau tema secara mandiri tanpa perlu login — sehingga siswa tidak perlu bertanya kepada guru untuk mengetahui apakah buku yang diinginkan tersedia atau sedang dipinjam.
+Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta mencari buku berdasarkan judul atau tema secara mandiri, tanpa harus bertanya langsung ke Guru dan tanpa memerlukan login.
 
 ---
 
-## 3. TRIGGER
+## 3. AKTOR
 
-Salah satu dari kondisi berikut memicu use case ini:
-
-- Siswa membuka URL root (`/`) aplikasi di browser komputer perpustakaan sekolah.
-- Siswa menerima tautan publik halaman perpustakaan dan membukanya.
+**ACT-02 — Siswa.** Pengguna publik tanpa akun/login; akses bersifat read-only sepenuhnya.
 
 ---
 
-## 4. PRECONDITIONS
+## 4. TRIGGER
 
-- Sistem dalam kondisi aktif dan dapat diakses.
-- Komputer di area perpustakaan terhubung ke internet.
-- Siswa tidak perlu memiliki akun atau melakukan login.
-- (Opsional) Data buku telah dimasukkan ke sistem melalui UC-002 oleh guru.
+- Siswa membuka URL root `/` secara langsung di browser (desktop, tablet, atau mobile).
+- Siswa mengakses tautan publik yang dibagikan oleh Guru/sekolah.
 
 ---
 
-## 5. POSTCONDITIONS
+## 5. PRE-CONDITION
 
-### 5.1 Success Postcondition
-- Siswa berhasil melihat daftar buku beserta status ketersediaannya.
-- Siswa berhasil menemukan informasi buku yang dicari (judul, penulis, tema, stok, status).
-
-### 5.2 No Data Postcondition
-- Jika katalog buku belum terisi, halaman menampilkan empty state yang informatif.
+- Sistem dalam kondisi aktif dan dapat diakses melalui browser.
+- Tidak diperlukan akun atau sesi login apa pun.
 
 ---
 
-## 6. MAIN FLOW (Happy Path)
+## 6. POST-CONDITION
+
+### 6.1 Success Postcondition
+- Siswa melihat daftar buku beserta status ketersediaan dan lokasi rak, dapat mencari buku berdasarkan judul/tema.
+- Tidak ada data yang ditulis atau diubah oleh siswa (murni read-only).
+
+### 6.2 Failure Postcondition
+- Halaman gagal memuat data buku karena kegagalan koneksi; sistem menampilkan Inline Alert Banner error.
+
+---
+
+## 7. MAIN FLOW (Happy Path)
 
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
-| 1 | Siswa | Membuka browser dan mengakses URL `/` (root) aplikasi perpustakaan. | Sistem menampilkan halaman publik "Perpustakaan SD Negeri Tamanan" (PAGE-002) tanpa sidebar. Tampil judul halaman, kolom pencarian, daftar buku, dan tombol "Login Guru" di pojok kanan atas. |
-| 2 | Siswa | Melihat daftar buku yang ditampilkan dalam tabel atau format kartu. | Sistem menampilkan daftar seluruh buku dengan kolom: Judul Buku, Penulis, Tema, Stok Tersedia, dan Status Buku. Badge hijau (Tersedia) atau merah (Stok Habis/Dipinjam). |
-| 3 | Siswa | Menelusuri daftar buku untuk menemukan buku yang diinginkan. | Tabel dapat di-scroll jika data buku banyak. Tidak ada aksi penulisan data yang dapat dilakukan siswa. |
-| 4 | Siswa | Menemukan buku yang diinginkan dan melihat status ketersediaannya. | Sistem menampilkan stok tersedia dan status buku secara real-time sesuai data transaksi terkini. |
-| 5 | Siswa | Selesai mencari informasi; menutup browser atau tetap di halaman. | Sistem tidak melakukan perubahan apapun. Halaman tetap dapat diakses. |
+| 1 | Siswa | Membuka URL `/` melalui browser (tablet/mobile/desktop). | Sistem menampilkan Topbar Publik ("Perpustakaan SD Negeri Tamanan" + tombol "Login Guru") dan daftar buku dalam format Card/Table (Judul, Penulis, Tema, **Lokasi Rak**, Stok Tersedia, Status). |
+| 2 | Siswa | Mengetik kata kunci judul atau tema pada kolom pencarian. | Sistem memfilter daftar buku secara live sesuai kata kunci. |
+| 3 | Siswa | Meninjau Badge Status (Hijau: Tersedia, Merah: Dipinjam/Stok Habis) dan chip Lokasi Rak pada buku yang dicari. | Sistem menampilkan informasi lengkap tanpa memerlukan interaksi tambahan (tanpa login). |
 
 ---
 
-## 7. ALTERNATIVE FLOW
+## 8. ALTERNATIVE/EXCEPTION FLOW
 
-### AF-001: Siswa Mencari Buku Berdasarkan Judul
-
-| Step | Condition | Action |
-| --- | --- | --- |
-| 3A | Siswa ingin mencari buku tertentu berdasarkan judul. | Siswa mengetikkan kata kunci judul buku pada kolom pencarian. Sistem memfilter daftar secara real-time, menampilkan hanya buku yang judulnya cocok dengan kata kunci. |
-
-### AF-002: Siswa Mencari Buku Berdasarkan Tema/Kategori
-
-| Step | Condition | Action |
-| --- | --- | --- |
-| 3A | Siswa ingin mencari buku berdasarkan kategori (contoh: "Sains", "Dongeng", "Sejarah"). | Siswa mengetikkan tema/kategori pada kolom pencarian. Sistem memfilter daftar menampilkan buku yang temanya sesuai. |
-
-### AF-003: Guru Mengakses Halaman Publik
-
-| Step | Condition | Action |
-| --- | --- | --- |
-| 1A | Guru (bukan siswa) mengakses URL root (`/`). | Sistem tetap menampilkan halaman publik. Guru dapat mengklik tombol **"Login Guru"** di pojok kanan atas untuk beralih ke halaman `/login` (PAGE-001) dan masuk ke sistem manajemen. |
-
----
-
-## 8. EXCEPTION FLOW
-
-### EF-001: Katalog Buku Masih Kosong
+### AF-001: Akses via Perangkat Mobile/Tablet
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 2E | Guru belum memasukkan data buku apapun ke sistem. | Halaman menampilkan Empty State di area daftar buku: ikon buku dan teks: *"Katalog buku perpustakaan belum tersedia. Silakan kunjungi kembali nanti."* |
+| 1A | Siswa mengakses `/` dari perangkat dengan lebar layar < 768px. | Sistem menampilkan daftar buku dalam format kartu satu kolom (Viewport Mobile — Section 12 DS); tidak ada sidebar. |
 
-### EF-002: Pencarian Tidak Menemukan Hasil
-
-| Step | Condition | System Response |
-| --- | --- | --- |
-| 3E | Kata kunci yang dimasukkan siswa tidak cocok dengan judul atau tema buku manapun. | Sistem menampilkan Empty State di area daftar: ikon kaca pembesar dan teks: *"Buku tidak ditemukan. Pastikan ejaan judul atau tema sudah benar."* |
-
-### EF-003: Koneksi Internet Terputus
+### AF-002: Siswa Ingin Beralih ke Area Guru
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 1E | Komputer di perpustakaan kehilangan koneksi internet saat siswa mencoba mengakses halaman. | Browser menampilkan halaman error koneksi bawaan. Sistem tidak dapat menampilkan data. Siswa perlu menunggu koneksi pulih atau menghubungi guru. |
+| 1B | Siswa (atau Guru yang membuka halaman publik) mengklik tombol **"Login Guru"** di Topbar. | Sistem mengarahkan ke `/login` (PAGE-001, UC-001). |
+
+### EF-001: Pencarian Tidak Menemukan Hasil
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 2E | Kata kunci judul/tema tidak cocok dengan data buku manapun. | Sistem menampilkan ikon `Search` dengan tanda tanya + teks: *"Buku tidak ditemukan. Pastikan ejaan judul atau tema sudah benar."* |
+
+### EF-002: Belum Ada Data Buku di Katalog
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 1E | Katalog buku masih kosong (belum ada data dari UC-002). | Sistem menampilkan Empty State: ikon `BookOpen` + teks informatif bahwa katalog belum tersedia. |
+
+### EF-003: Koneksi Jaringan Gagal
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 1E | Request API gagal (timeout/server down) saat memuat daftar buku. | Inline Alert Banner: *"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."* dengan tombol "Coba Lagi". |
 
 ---
 
@@ -120,25 +110,22 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 | Data Object | Fields Used | Source |
 | --- | --- | --- |
-| Buku | judulBuku, penulis, temaBuku, stok, statusBuku | Database → tabel `buku` (read-only; real-time sesuai transaksi terkini) |
+| Buku | Judul, Penulis, Tema, Lokasi Rak, Stok, Status | Database → tabel `buku` (read-only, terbatas field publik) |
 
-> Catatan: Halaman ini **tidak menampilkan** data identitas peminjam (nama siswa, kelas), nomor ID peminjaman, atau riwayat transaksi apapun — sesuai business rule SRS F006 untuk menjaga privasi data siswa.
+> Catatan: Data peminjam (Nama Siswa yang meminjam) **tidak** ditampilkan pada halaman ini, sesuai Business Rule Master List poin 10.
 
 ---
 
-## 10. RELATED PAGES & COMPONENTS (DS v1.0)
+## 10. RELATED PAGES & COMPONENTS (DS v1.3)
 
 | Element | DS Component | Notes |
 | --- | --- | --- |
-| Layout Halaman Publik | Halaman tanpa Sidebar, header dengan nama sekolah | Nuansa hijau segar, ramah anak |
-| Tombol "Login Guru" | Secondary Button — pojok kanan atas | Mengarahkan ke `/login` (PAGE-001) |
-| Kolom Pencarian Buku | Text Input — Search | Placeholder: "Cari judul atau tema buku..." |
-| Tabel Buku Publik | Table Component — read-only, zebra striping | Kolom: Judul, Penulis, Tema, Stok, Status |
-| Badge "Tersedia" | Badge — Hijau (`bg-green-100 text-green-700`) | Stok buku > 0 |
-| Badge "Stok Habis" | Badge — Merah (`bg-red-100 text-red-700`) | Stok buku = 0 |
-| Card Buku (opsional tampilan alternatif) | Card Component — Buku Publik | Tampilan grid kartu buku untuk UX lebih ramah anak |
-| Empty State — Katalog Kosong | Ilustrasi ikon buku + teks informatif | Muncul jika belum ada data buku |
-| Empty State — Pencarian Kosong | Ilustrasi ikon Search + teks informatif | Muncul jika pencarian tidak menemukan hasil |
+| Topbar | Header/Topbar — varian Publik (9.9) | Nama sistem + tombol Secondary "Login Guru". |
+| Daftar Buku | Card Component — Buku Publik (9.6) / Table Component (9.4) | Chip Lokasi Rak wajib tampil konsisten (IA Section 3.4). |
+| Badge Status | Badge/Status Indicator (9.5) | Hijau: Tersedia; Merah: Dipinjam/Stok Habis. |
+| Kolom Pencarian | Text Input (9.2) | Elemen utama halaman, sesuai IA Section 8.1. |
+| Empty/No-Result State | Empty State (11.2) / Search No-Result State (11.3) | Ikon + teks informatif. |
+| Error Koneksi | System Error State (11.7) | Inline Alert Banner dengan tombol "Coba Lagi". |
 
 ---
 
@@ -146,29 +133,17 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 | AC ID | Criteria |
 | --- | --- |
-| AC-006-01 | Halaman dapat diakses tanpa login di URL `/`. |
-| AC-006-02 | Daftar buku menampilkan kolom: Judul, Penulis, Tema, Stok Tersedia, dan Status Buku. |
-| AC-006-03 | Badge hijau (Tersedia) dan merah (Stok Habis) ditampilkan dengan benar sesuai stok aktual. |
-| AC-006-04 | Pencarian berdasarkan judul memfilter daftar buku sesuai kata kunci. |
-| AC-006-05 | Pencarian berdasarkan tema memfilter daftar buku sesuai kata kunci. |
-| AC-006-06 | Pencarian yang tidak menemukan hasil menampilkan empty state yang informatif. |
-| AC-006-07 | Data identitas peminjam (nama siswa) tidak ditampilkan di halaman publik. |
-| AC-006-08 | Tidak ada tombol atau aksi penulisan data (tambah, edit, hapus) yang tersedia untuk siswa. |
-| AC-006-09 | Status ketersediaan buku mencerminkan kondisi real-time sesuai transaksi terakhir. |
-| AC-006-10 | Tombol "Login Guru" mengarahkan ke halaman `/login`. |
+| AC-006-01 | Siswa dapat mengakses `/` tanpa login dan melihat daftar buku beserta status ketersediaan dan lokasi rak. |
+| AC-006-02 | Siswa dapat mencari buku berdasarkan judul atau tema secara live. |
+| AC-006-03 | Halaman publik tidak menampilkan data peminjam (nama siswa yang meminjam). |
+| AC-006-04 | Tidak ada aksi penulisan data pada halaman publik (murni read-only). |
+| AC-006-05 | Tombol "Login Guru" mengarahkan ke `/login` dengan benar. |
+| AC-006-06 | Halaman responsif: tampilan kartu satu kolom pada layar < 768px. |
 
 ---
 
 ## 12. NOTES
 
-- Halaman ini sepenuhnya bersifat **read-only** dan tidak memerlukan autentikasi apapun.
-- Informasi yang ditampilkan dibatasi pada data buku saja — tidak ada data transaksi atau data pribadi siswa yang ditampilkan.
-- Halaman ini merupakan satu-satunya halaman yang dapat diakses oleh aktor Siswa (ACT-02) pada sistem ini.
-
----
-
-## 13. REVISION HISTORY
-
-| Version | Date | Author | Description |
-| --- | --- | --- | --- |
-| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft. |
+- Halaman akses siswa hanya bersifat read-only; tidak ada aksi penulisan data tanpa login (Business Rule F006 & Master List poin 9).
+- Informasi yang ditampilkan dibatasi pada: judul, penulis, tema, lokasi rak, dan status ketersediaan (Business Rule F006).
+- Tidak ada akun/login untuk siswa pada versi ini — akses siswa selalu bersifat publik dan read-only (Out-of-Scope poin #5).

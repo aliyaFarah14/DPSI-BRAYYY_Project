@@ -4,7 +4,7 @@ Document Version: v1.0
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-06-25
+Last Updated: 2026-07-01
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -19,7 +19,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Actor | ACT-01 — Guru |
 | Feature ID (SRS) | F002 |
 | Page ID (IA) | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 |
-| Route | /buku |
+| Route | `/buku` |
 | Priority | High |
 | Status | Draft |
 
@@ -27,182 +27,156 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 ## 2. GOAL
 
-Guru dapat mengelola katalog buku perpustakaan secara penuh: menambah buku baru, mengubah data buku yang sudah ada, menghapus buku dari katalog, dan mencari buku berdasarkan kata kunci — sehingga data buku di sistem selalu akurat dan terkini.
+Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk field Lokasi Rak — agar katalog perpustakaan selalu akurat dan posisi fisik buku dapat diketahui secara pasti.
 
 ---
 
-## 3. TRIGGER
+## 3. AKTOR
 
-Salah satu dari kondisi berikut memicu use case ini:
-
-- Guru berhasil login (UC-001 selesai) → sistem otomatis menampilkan PAGE-003.
-- Guru mengklik menu **"Data Buku"** pada Sidebar navigasi dari halaman lain.
+**ACT-01 — Guru.** Guru bertindak sebagai pengelola tunggal katalog buku (tidak ada petugas perpustakaan tetap), dengan hak akses penuh: tambah, ubah, hapus, dan cari data buku.
 
 ---
 
-## 4. PRECONDITIONS
+## 4. TRIGGER
 
-- Guru telah berhasil login ke sistem (UC-001 selesai, sesi aktif).
-- Sistem menampilkan halaman `/buku` (PAGE-003: Manajemen Data Buku).
-
----
-
-## 5. POSTCONDITIONS
-
-### 5.1 Success Postcondition — Tambah Buku
-- Data buku baru tersimpan di database; tabel katalog diperbarui dan menampilkan buku yang baru ditambahkan.
-
-### 5.2 Success Postcondition — Edit Buku
-- Perubahan data buku tersimpan; tabel katalog menampilkan data terbaru.
-
-### 5.3 Success Postcondition — Hapus Buku
-- Data buku dihapus secara permanen dari database; buku tidak lagi muncul di tabel katalog.
-
-### 5.4 Success Postcondition — Cari Buku
-- Tabel katalog menampilkan daftar buku yang sesuai dengan kata kunci pencarian.
+- Guru mengklik menu **"Data Buku"** pada sidebar setelah login (UC-001).
+- Guru mengakses langsung route `/buku` dengan sesi aktif.
 
 ---
 
-## 6. MAIN FLOW — 6A: TAMBAH BUKU BARU (Happy Path)
+## 5. PRE-CONDITION
+
+- Guru telah berhasil login dan memiliki sesi aktif (UC-001 selesai).
+- Guru berada di halaman PAGE-003 (Manajemen Data Buku).
+
+---
+
+## 6. POST-CONDITION
+
+### 6.1 Success Postcondition
+- Data buku baru tersimpan / data buku yang diubah ter-update / data buku terhapus dari database.
+- Tabel katalog pada PAGE-003 dan halaman publik siswa (PAGE-002) diperbarui secara instan, sesuai F007.
+
+### 6.2 Failure Postcondition
+- Data tidak tersimpan/terubah/terhapus; modal form tetap terbuka dengan pesan error yang informatif, data isian tidak hilang (NFR 9.4).
+
+---
+
+## 7. MAIN FLOW — Tambah Buku Baru (Happy Path)
 
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
-| 1 | Guru | Berada di halaman `/buku`. Mengklik tombol **"Tambah Buku Baru"**. | Sistem menampilkan Modal Dialog (PAGE-003-SUB-01) dengan form kosong Tambah Buku Baru di atas halaman. |
-| 2 | Guru | Mengisi field **ID Buku** (alfanumerik, unik). | Sistem menampilkan karakter yang diketik. |
-| 3 | Guru | Mengisi field **Judul Buku**. | — |
-| 4 | Guru | Mengisi field **Penulis**. | — |
-| 5 | Guru | Mengisi field **Penerbit**. | — |
-| 6 | Guru | Mengisi field **Tema/Kategori Buku**. | — |
-| 7 | Guru | Mengisi field **Tahun Terbit** (numerik). | — |
-| 8 | Guru | Mengisi field **Stok Awal** (integer ≥ 0). | — |
-| 9 | Guru | Mengklik tombol **"Simpan"**. | Tombol berubah ke state `[Loading]`. Sistem memvalidasi seluruh field wajib dan mengirim request POST ke API. |
-| 10 | — | — | Validasi berhasil. Data buku baru tersimpan di database. |
-| 11 | — | — | Modal tertutup. Tabel katalog diperbarui dan menampilkan buku baru yang ditambahkan. Notifikasi sukses singkat muncul: *"Buku berhasil ditambahkan."* |
+| 1 | Guru | Berada di PAGE-003, mengklik tombol **"Tambah Buku Baru"**. | Sistem membuka Modal Dialog (PAGE-003-SUB-01) dengan backdrop blur, judul "Tambah Buku Baru". |
+| 2 | Guru | Mengisi field: ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, **Lokasi Rak** (contoh: "A1"), Stok Awal (≥ 0). | Sistem menampilkan input real-time; label required ditandai (*). |
+| 3 | Guru | Mengklik tombol **"Simpan"**. | Tombol berubah ke state `[Loading]` (spinner, disabled). Sistem mengirim request POST ke API. |
+| 4 | — | — | Sistem memvalidasi: ID Buku belum terdaftar, Lokasi Rak terisi & sesuai format (huruf + nomor), Stok bertipe integer ≥ 0, Judul bersih dari tag skrip (XSS). |
+| 5 | — | — | Validasi lolos. Sistem menyimpan data buku baru dengan Status default "Tersedia". |
+| 6 | — | — | Modal tertutup otomatis; tabel katalog pada PAGE-003 diperbarui menampilkan buku baru; toast notifikasi sukses muncul. |
 
 ---
 
-## 7. MAIN FLOW — 6B: EDIT DATA BUKU (Happy Path)
+## 8. ALTERNATIVE FLOW
 
-| Step | Actor | Action | System Response |
-| --- | --- | --- | --- |
-| 1 | Guru | Di tabel katalog, mengklik tombol **"Edit"** (ikon Pencil) pada baris buku yang ingin diubah. | Sistem menampilkan Modal Dialog (PAGE-003-SUB-02) berisi form Edit Data Buku dengan data buku yang dipilih sudah terisi pada setiap field. |
-| 2 | Guru | Mengubah satu atau beberapa field data buku yang perlu diperbarui. | Sistem menampilkan perubahan karakter secara langsung. |
-| 3 | Guru | Mengklik tombol **"Simpan"**. | Tombol berubah ke state `[Loading]`. Sistem mengirim request PUT/PATCH ke API. |
-| 4 | — | — | Perubahan data tersimpan. Modal tertutup. Tabel katalog menampilkan data terbaru. Notifikasi sukses: *"Data buku berhasil diperbarui."* |
+### AF-001: Ubah Data Buku
 
----
-
-## 8. MAIN FLOW — 6C: HAPUS BUKU (Happy Path)
-
-| Step | Actor | Action | System Response |
-| --- | --- | --- | --- |
-| 1 | Guru | Di tabel katalog, mengklik tombol **"Hapus"** (ikon Trash2, merah) pada baris buku yang ingin dihapus. | Sistem menampilkan Modal Dialog konfirmasi: *"Apakah Anda yakin ingin menghapus buku ini secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan."* Tombol: "Ya, Hapus" (Danger) dan "Batal" (Secondary). |
-| 2 | Guru | Mengklik tombol **"Ya, Hapus"**. | Tombol berubah ke state `[Loading]`. Sistem mengirim request DELETE ke API. |
-| 3 | — | — | Data buku dihapus dari database. Modal tertutup. Buku menghilang dari tabel. Notifikasi sukses: *"Buku berhasil dihapus dari sistem."* |
-
----
-
-## 9. MAIN FLOW — 6D: CARI BUKU (Happy Path)
-
-| Step | Actor | Action | System Response |
-| --- | --- | --- | --- |
-| 1 | Guru | Di halaman `/buku`, mengetikkan kata kunci pada **kolom pencarian** (berdasarkan judul atau tema). | Sistem memfilter tabel secara real-time (atau on-submit) menampilkan buku yang sesuai kata kunci. |
-| 2 | Guru | Melihat hasil pencarian pada tabel. | Tabel menampilkan hanya buku yang cocok dengan kata kunci. |
-| 3 | Guru | Menghapus isi kolom pencarian. | Tabel kembali menampilkan seluruh data buku. |
-
----
-
-## 10. ALTERNATIVE FLOW
-
-### AF-001: Guru Membatalkan Tambah/Edit Buku
-
-| Step | Condition | Action |
+| Step | Action | System Response |
 | --- | --- | --- |
-| 9A | Guru mengklik tombol **"Batal"** atau ikon **X** di pojok kanan modal sebelum menyimpan. | Modal tertutup tanpa menyimpan perubahan apapun ke database. Tabel katalog tidak berubah. |
+| 1A | Guru mengklik ikon **Edit (Pencil)** pada baris buku di tabel. | Sistem membuka Modal Dialog (PAGE-003-SUB-02) "Form Edit Data Buku" terisi otomatis dengan data buku terkait. |
+| 2A | Guru mengubah field yang diperlukan (termasuk Lokasi Rak) lalu mengklik "Simpan". | Sistem menjalankan validasi yang sama seperti Main Flow step 4–6; data buku ter-update di tabel. |
 
-### AF-002: Guru Membatalkan Hapus Buku
+### AF-002: Hapus Data Buku
 
-| Step | Condition | Action |
+| Step | Action | System Response |
 | --- | --- | --- |
-| 2A | Guru mengklik tombol **"Batal"** pada modal konfirmasi hapus. | Modal tertutup. Data buku tidak dihapus. |
+| 1B | Guru mengklik ikon **Hapus (Trash2)** pada baris buku berstatus "Tersedia". | Sistem menampilkan modal konfirmasi: *"Apakah Anda yakin ingin menghapus buku ini secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan."* dengan tombol "Ya, Hapus" (Danger) dan "Batal" (Secondary). |
+| 2B | Guru mengklik "Ya, Hapus". | Sistem menghapus data buku; tabel katalog diperbarui; toast notifikasi sukses muncul. |
+
+### AF-003: Pencarian Buku
+
+| Step | Action | System Response |
+| --- | --- | --- |
+| 1C | Guru mengetik kata kunci pada kolom pencarian (Judul/Tema/ID Buku). | Sistem memfilter tabel katalog secara live sesuai kata kunci. |
+| 2C | Kata kunci tidak menemukan hasil. | Sistem menampilkan ikon `Search` dengan teks: *"Buku tidak ditemukan. Pastikan ejaan judul atau tema sudah benar."* |
 
 ---
 
-## 11. EXCEPTION FLOW
+## 9. EXCEPTION FLOW
 
-### EF-001: Field Wajib Kosong Saat Simpan
+### EF-001: ID Buku Sudah Terdaftar
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 9E | Guru mengklik "Simpan" dengan satu atau lebih field wajib masih kosong. | Sistem menampilkan pesan error merah di bawah setiap field yang kosong. Request tidak dikirim ke server. Fokus kursor berpindah ke field pertama yang gagal validasi. |
+| 4E | Sistem menemukan ID Buku yang diinput sudah ada di database. | Modal tetap terbuka, tombol "Simpan" kembali aktif. Pesan error di bawah field ID Buku: *"ID Buku sudah terdaftar, gunakan ID lain."* |
 
-### EF-002: ID Buku Sudah Terdaftar (Duplikat)
-
-| Step | Condition | System Response |
-| --- | --- | --- |
-| 10E | ID Buku yang dimasukkan sudah digunakan oleh buku lain di database. | Sistem menampilkan pesan error merah di bawah field ID Buku: *"ID Buku ini sudah digunakan. Gunakan ID yang berbeda."* Data tidak disimpan. |
-
-### EF-003: Stok Bernilai Negatif
+### EF-002: Lokasi Rak Kosong atau Format Salah
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 9E | Guru memasukkan nilai negatif pada field Stok Awal. | Sistem menampilkan pesan validasi: *"Stok buku tidak boleh bernilai negatif (minimal 0)."* |
+| 4E | Field Lokasi Rak kosong, atau tidak sesuai format kode huruf + nomor. | Pesan error spesifik di bawah field: *"Format Lokasi Rak tidak valid. Gunakan kombinasi kode rak (huruf) dan nomor, contoh: A1, B3."* Fokus kursor otomatis berpindah ke field ini. |
 
-### EF-004: Tombol Hapus Dinonaktifkan — Buku Masih Dipinjam
-
-| Step | Condition | System Response |
-| --- | --- | --- |
-| 1E | Buku yang akan dihapus berstatus "Dipinjam" (stok aktif dipinjam). | Tombol "Hapus" pada baris tersebut ditampilkan dalam kondisi `[Disabled]` (abu-abu, kursor dilarang). Tooltip muncul saat hover: *"Buku tidak dapat dihapus karena sedang dipinjam."* |
-
-### EF-005: Pencarian Tidak Menemukan Hasil
+### EF-003: Stok Bernilai Negatif atau Bukan Integer
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 1E | Kata kunci pencarian tidak cocok dengan judul atau tema buku manapun di katalog. | Tabel menampilkan ilustrasi ikon Search dengan tanda tanya dan teks: *"Buku tidak ditemukan. Pastikan ejaan judul atau tema sudah benar."* |
+| 4E | Field Stok diisi nilai negatif atau bukan bilangan bulat. | Pesan error: *"Stok buku tidak boleh bernilai negatif (minimal 0)."* Request tidak dikirim ke server. |
+
+### EF-004: Judul Buku Mengandung Tag Skrip Berbahaya
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 4E | Sistem mendeteksi tag skrip (XSS) pada field Judul. | Input ditolak; pesan error: *"Judul buku mengandung karakter yang tidak diperbolehkan."* |
+
+### EF-005: Hapus Buku Berstatus "Dipinjam"
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 1E | Guru mencoba menghapus buku dengan Status "Dipinjam". | Tombol "Hapus" dalam keadaan `disabled` pada baris tersebut (tidak dapat diklik), sesuai Business Rule F002: *"Buku berstatus 'Dipinjam' tidak boleh dihapus dari sistem sebelum dikembalikan."* |
+
+### EF-006: Koneksi Jaringan Gagal Saat Simpan
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 3E | Request API gagal (timeout/server down). | Modal/form tetap terbuka, data isian tidak hilang. Pesan error singkat di atas tombol aksi: *"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."* |
 
 ---
 
-## 12. RELATED DATA
+## 10. RELATED DATA
 
 | Data Object | Fields Used | Source |
 | --- | --- | --- |
-| Buku | idBuku, judulBuku, penulis, penerbit, temaBuku, tahunTerbit, stok, statusBuku | Database → tabel `buku` |
+| Buku | ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, Status | Database → tabel `buku` |
 
 ---
 
-## 13. RELATED PAGES & COMPONENTS (DS v1.0)
+## 11. RELATED PAGES & COMPONENTS (DS v1.3)
 
 | Element | DS Component | Notes |
 | --- | --- | --- |
-| Tabel Katalog Buku | Table Component — zebra striping, hover state | Kolom: ID, Judul, Penulis, Tema, Tahun, Stok, Status, Aksi |
-| Badge Status Stok | Badge — Hijau (Tersedia) / Merah (Stok Habis) | Stok = 0 → badge merah "Stok Habis" |
-| Tombol Tambah | Primary Button | Memicu Modal PAGE-003-SUB-01 |
-| Tombol Edit | Secondary / Icon Button (Pencil) | Memicu Modal PAGE-003-SUB-02 |
-| Tombol Hapus | Danger Button (Trash2) | Disabled jika buku berstatus Dipinjam |
-| Modal Form Tambah/Edit | Modal Dialog — header, body form, footer tombol | max-w-md, rounded-xl, shadow-lg |
-| Kolom Pencarian | Text Input — Search | Placeholder: "Cari judul atau tema buku..." |
-| Empty State | Ilustrasi ikon + teks informatif | Muncul jika tabel kosong atau pencarian tidak ditemukan |
+| Tabel Katalog | Table Component (9.4) | Zebra striping, badge status stok, badge "Tidak Aktif" untuk buku non-sirkulasi. |
+| Modal Tambah/Edit | Modal Dialog (9.3) | Backdrop blur, `max-w-md`, `shadow-lg`. |
+| Field Lokasi Rak | Text Input (9.2) | Placeholder "Contoh: A1, B3"; validasi format khusus (Section 10 DS). |
+| Tombol Hapus | Danger Button (9.1) + Destructive Action Pattern (11.5) | Disabled jika Status "Dipinjam". |
+| Pesan Error | Validation — Error State | Merah, 12px, spesifik per field. |
 
 ---
 
-## 14. ACCEPTANCE CRITERIA
+## 12. ACCEPTANCE CRITERIA
 
 | AC ID | Criteria |
 | --- | --- |
-| AC-002-01 | Guru berhasil menambah buku baru; buku muncul di tabel katalog setelah modal ditutup. |
-| AC-002-02 | ID Buku yang duplikat ditolak dengan pesan error yang informatif. |
-| AC-002-03 | Stok negatif ditolak dengan pesan validasi. |
-| AC-002-04 | Guru berhasil mengubah data buku; perubahan tercermin di tabel katalog. |
-| AC-002-05 | Guru berhasil menghapus buku setelah mengonfirmasi pada modal konfirmasi. |
-| AC-002-06 | Tombol "Hapus" dinonaktifkan untuk buku yang sedang berstatus "Dipinjam". |
-| AC-002-07 | Pencarian buku berhasil memfilter tabel berdasarkan judul atau tema. |
-| AC-002-08 | Pencarian yang tidak menemukan hasil menampilkan empty state yang informatif. |
-| AC-002-09 | Membatalkan tambah/edit menutup modal tanpa menyimpan perubahan. |
+| AC-002-01 | Guru berhasil menambah buku baru dengan data lengkap dan valid; buku muncul di tabel katalog. |
+| AC-002-02 | Sistem menolak penyimpanan jika ID Buku sudah terdaftar. |
+| AC-002-03 | Sistem menolak penyimpanan jika Lokasi Rak kosong atau format tidak sesuai. |
+| AC-002-04 | Sistem menolak penyimpanan jika Stok bernilai negatif. |
+| AC-002-05 | Guru berhasil mengubah data buku, termasuk Lokasi Rak. |
+| AC-002-06 | Tombol Hapus dinonaktifkan untuk buku berstatus "Dipinjam". |
+| AC-002-07 | Guru berhasil menghapus buku berstatus "Tersedia" setelah konfirmasi modal. |
+| AC-002-08 | Pencarian buku memfilter tabel secara live berdasarkan Judul/Tema/ID Buku. |
 
 ---
 
-## 15. REVISION HISTORY
+## 13. NOTES
 
-| Version | Date | Author | Description |
-| --- | --- | --- | --- |
-| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft. |
+- Field Lokasi Rak wajib diisi saat buku ditambahkan dan tidak boleh kosong (SRS F002).
+- Perubahan stok di luar mekanisme peminjaman/pengembalian hanya diperbolehkan melalui fitur ini (F002), sesuai Business Rule F007.
+- Data buku yang ditarik dari sirkulasi (misal rusak berat) tidak dihapus permanen, melainkan diberi Status "Tidak Aktif" (SRS Section 7.3 — Data Retention Rules).

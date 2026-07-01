@@ -4,7 +4,7 @@ Document Version: v1.0
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-06-25
+Last Updated: 2026-07-01
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -17,9 +17,9 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | UC ID | UC-004 |
 | Use Case Name | Pencatatan Pengembalian Buku |
 | Actor | ACT-01 — Guru |
-| Feature ID (SRS) | F004 |
+| Feature ID (SRS) | F004 (memicu F007 di background) |
 | Page ID (IA) | PAGE-005 |
-| Route | /pengembalian |
+| Route | `/pengembalian` |
 | Priority | High |
 | Status | Draft |
 
@@ -27,94 +27,80 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 ## 2. GOAL
 
-Guru berhasil memproses pengembalian buku dari siswa — memilih transaksi peminjaman yang aktif, mencatat kondisi buku saat dikembalikan, dan mengonfirmasi pengembalian — sehingga stok buku diperbarui otomatis dan data pengembalian tersimpan di sistem.
+Guru dapat mencatat pengembalian buku oleh siswa, termasuk kondisi fisik buku dan status keterlambatan (informatif, tanpa denda), sehingga stok dan status buku otomatis tersinkronisasi.
 
 ---
 
-## 3. TRIGGER
+## 3. AKTOR
 
-- Guru mengklik menu **"Pengembalian"** pada Sidebar navigasi.
-- Siswa datang ke perpustakaan untuk mengembalikan buku dan guru perlu memproses pengembaliannya.
-
----
-
-## 4. PRECONDITIONS
-
-- Guru telah berhasil login ke sistem (UC-001 selesai, sesi aktif).
-- Terdapat minimal satu transaksi peminjaman aktif yang belum dikembalikan (UC-003 sudah dijalankan sebelumnya).
-- Guru berada di halaman `/pengembalian` (PAGE-005).
+**ACT-01 — Guru.** Guru memproses pengembalian buku yang sebelumnya dicatat pada UC-003.
 
 ---
 
-## 5. POSTCONDITIONS
+## 4. TRIGGER
 
-### 5.1 Success Postcondition
-- Data pengembalian tersimpan di database (tabel `pengembalian`) terhubung dengan ID Peminjaman.
-- Status transaksi peminjaman berubah menjadi "Sudah Dikembalikan".
-- Stok buku bertambah 1 secara otomatis.
-- Status buku diperbarui menjadi "Tersedia".
-- Baris transaksi tersebut menghilang dari daftar peminjaman aktif di PAGE-005.
-
-### 5.2 Failure Postcondition
-- Data pengembalian tidak tersimpan; status buku dan stok tidak berubah.
+- Guru mengklik menu **"Pengembalian"** pada sidebar setelah login.
+- Guru mengakses langsung route `/pengembalian` dengan sesi aktif.
 
 ---
 
-## 6. MAIN FLOW (Happy Path)
+## 5. PRE-CONDITION
+
+- Guru telah berhasil login dan memiliki sesi aktif (UC-001 selesai).
+- Terdapat minimal satu transaksi Peminjaman berstatus "Dipinjam" (belum dikembalikan) dari UC-003.
+
+---
+
+## 6. POST-CONDITION
+
+### 6.1 Success Postcondition
+- Data Pengembalian tersimpan (ID Pengembalian, ID Peminjaman referensi, Tanggal Kembali, Kondisi Buku, Status Keterlambatan).
+- Stok buku terkait bertambah 1 unit dan Status berubah menjadi "Tersedia" dalam transaksi database yang sama (F007), tercermin instan di PAGE-003, PAGE-004, dan PAGE-002.
+
+### 6.2 Failure Postcondition
+- Pengembalian tidak tersimpan; form konfirmasi tetap terbuka; pesan error informatif ditampilkan.
+
+---
+
+## 7. MAIN FLOW (Happy Path)
 
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
-| 1 | Guru | Mengklik menu **"Pengembalian"** pada Sidebar. | Sistem menampilkan halaman `/pengembalian` (PAGE-005) berisi tabel daftar seluruh transaksi peminjaman yang masih aktif (belum dikembalikan). |
-| 2 | Guru | Melihat tabel peminjaman aktif dan mencari transaksi siswa yang akan mengembalikan buku. Menggunakan kolom pencarian jika diperlukan. | Tabel menampilkan: Nama Siswa, Kelas, Judul Buku, Tanggal Pinjam, Tanggal Batas Kembali, dan Status (badge Terlambat / On-Time). |
-| 3 | Guru | Menemukan baris transaksi yang relevan dan mengklik tombol **"Proses Pengembalian"** pada baris tersebut. | Sistem menampilkan Modal Dialog konfirmasi pengembalian berisi ringkasan data: nama siswa, kelas, judul buku, tanggal pinjam, tanggal batas kembali, tanggal pengembalian (hari ini, otomatis), dan informasi keterlambatan jika ada. |
-| 4 | Guru | Memeriksa ringkasan data pada modal. Memilih **Kondisi Buku** menggunakan Radio Button: **Baik** / **Rusak Ringan** / **Rusak Berat**. | Sistem menampilkan pilihan kondisi; radio button "Baik" dipilih sebagai default. |
-| 5 | Guru | Mengklik tombol **"Konfirmasi Pengembalian"**. | Tombol berubah ke state `[Loading]`. Sistem mengirim request POST ke API pengembalian. |
-| 6 | — | — | Data pengembalian tersimpan. Stok buku bertambah 1. Status transaksi berubah "Sudah Dikembalikan". Status buku berubah "Tersedia". |
-| 7 | — | — | Modal tertutup. Baris transaksi menghilang dari tabel peminjaman aktif. Notifikasi sukses: *"Pengembalian buku berhasil dicatat."* |
+| 1 | Guru | Membuka `/pengembalian`. | Sistem menampilkan tabel Peminjaman Aktif (belum dikembalikan): Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali; indikator keterlambatan (badge merah) jika melewati batas. |
+| 2 | Guru | Mengklik tombol **"Proses Pengembalian"** pada baris transaksi terkait. | Sistem membuka Modal Konfirmasi Pengembalian berisi ringkasan data peminjaman. |
+| 3 | Guru | Modal menampilkan **Tanggal Pengembalian** otomatis (Read-Only, tanggal hari ini) dan info keterlambatan (jumlah hari, jika ada). | Sistem menghitung otomatis selisih hari antara Tanggal Pengembalian dan Tanggal Batas Kembali. |
+| 4 | Guru | Memilih **Kondisi Buku** melalui Radio Button Group: "Baik" (default), "Rusak Ringan", atau "Rusak Berat". | Tombol "Konfirmasi Pengembalian" aktif (non-disabled) setelah salah satu opsi terpilih. |
+| 5 | Guru | Mengklik tombol **"Konfirmasi Pengembalian"**. | Tombol ke state `[Loading]`. Sistem mengirim request POST ke API. |
+| 6 | — | — | Sistem menyimpan data Pengembalian (terhubung ke ID Peminjaman), lalu menjalankan F007: Stok buku +1, Status buku → "Tersedia", dalam satu transaksi database. |
+| 7 | — | — | Modal tertutup; tabel Peminjaman Aktif diperbarui (baris terkait hilang dari daftar aktif); toast notifikasi sukses muncul. |
 
 ---
 
-## 7. ALTERNATIVE FLOW
+## 8. ALTERNATIVE/EXCEPTION FLOW
 
-### AF-001: Pengembalian Terlambat — Informasi Ditampilkan
-
-| Step | Condition | Action |
-| --- | --- | --- |
-| 2A | Tanggal hari ini sudah melewati tanggal batas pengembalian buku. | Baris transaksi ditampilkan dengan badge merah **"Terlambat X hari"** pada kolom status di tabel. Ketika modal konfirmasi dibuka (langkah 3), informasi keterlambatan juga ditampilkan secara jelas: *"Terlambat: 3 hari dari batas pengembalian."* Tidak ada denda — hanya informasi (sesuai business rule SRS F004). Alur berlanjut normal. |
-
-### AF-002: Guru Membatalkan Proses Pengembalian
-
-| Step | Condition | Action |
-| --- | --- | --- |
-| 5A | Guru mengklik tombol **"Batal"** atau ikon X pada modal sebelum mengonfirmasi. | Modal tertutup. Data pengembalian tidak disimpan. Status buku dan stok tidak berubah. Transaksi tetap aktif di tabel. |
-
-### AF-003: Guru Mencari Transaksi Tertentu
-
-| Step | Condition | Action |
-| --- | --- | --- |
-| 2A | Daftar transaksi aktif panjang; guru ingin menemukan transaksi siswa tertentu dengan cepat. | Guru menggunakan kolom pencarian di atas tabel (berdasarkan nama siswa atau judul buku). Sistem memfilter tabel secara real-time. |
-
----
-
-## 8. EXCEPTION FLOW
-
-### EF-001: Tidak Ada Transaksi Peminjaman Aktif
+### AF-001: Pengembalian Terlambat
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 1E | Tidak ada transaksi peminjaman yang berstatus aktif (semua buku sudah dikembalikan). | Tabel menampilkan Empty State: ikon buku dengan centang dan teks: *"Tidak ada peminjaman aktif saat ini. Semua buku telah dikembalikan."* |
+| 1A | Tanggal hari ini melewati Tanggal Batas Kembali transaksi terkait. | Baris transaksi ditandai badge merah "Terlambat" pada tabel Peminjaman Aktif; modal konfirmasi menampilkan jumlah hari keterlambatan secara informatif — **tanpa denda**, sesuai Out-of-Scope SRS poin #3. |
 
-### EF-002: Kondisi Buku Tidak Dipilih Saat Konfirmasi
-
-| Step | Condition | System Response |
-| --- | --- | --- |
-| 5E | Guru mengklik "Konfirmasi Pengembalian" tanpa memilih kondisi buku (jika default radio tidak terpilih). | Sistem menampilkan pesan validasi: *"Kondisi buku wajib dipilih sebelum mengonfirmasi pengembalian."* Request tidak dikirim. |
-
-### EF-003: Koneksi Jaringan Gagal Saat Menyimpan
+### AF-002: Tidak Ada Peminjaman Aktif
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 6E | Request ke API gagal karena koneksi internet terputus. | Tombol kembali ke state `[Default]`. Modal tetap terbuka. Sistem menampilkan pesan error: *"Gagal menyimpan data pengembalian. Periksa koneksi internet dan coba lagi."* |
+| 1B | Belum ada transaksi peminjaman berstatus "Dipinjam". | Sistem menampilkan Empty State: ikon `BookOpen` + teks *"Tidak ada peminjaman aktif saat ini."* |
+
+### EF-001: Kondisi Buku Belum Dipilih
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 4E | Guru mencoba mengklik "Konfirmasi Pengembalian" tanpa memilih Kondisi Buku. | Tombol tetap dalam state `disabled`; Radio Button Group wajib dipilih terlebih dahulu (Business Rule DS 9.7). |
+
+### EF-002: Koneksi Jaringan Gagal
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 5E | Request API gagal (timeout/server down). | Modal tetap terbuka, data pilihan (kondisi buku) tidak hilang. Pesan error singkat di atas tombol aksi: *"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."* Tombol submit kembali aktif. |
 
 ---
 
@@ -122,25 +108,21 @@ Guru berhasil memproses pengembalian buku dari siswa — memilih transaksi pemin
 
 | Data Object | Fields Used | Source |
 | --- | --- | --- |
-| Peminjaman | idPeminjaman, namaSiswa, kelasSiswa, idBuku, tglPeminjaman, tglBatasPengembalian, statusPeminjaman | Database → tabel `peminjaman` (read untuk daftar; update status setelah konfirmasi) |
-| Pengembalian | idPengembalian (auto), idPeminjaman, tglPengembalian (auto: hari ini), kondisiBuku, statusPengembalian | Database → tabel `pengembalian` (insert baru) |
-| Buku | idBuku, stok, statusBuku | Database → tabel `buku` (update stok +1 dan status setelah konfirmasi) |
+| Peminjaman | ID Peminjaman, ID Siswa, ID Buku, Tanggal Pinjam, Tanggal Batas Kembali | Database → tabel `peminjaman` |
+| Pengembalian | ID Pengembalian, ID Peminjaman (referensi), Tanggal Kembali, Kondisi Buku, Status Keterlambatan | Database → tabel `pengembalian` |
+| Buku | Stok, Status | Database → tabel `buku` |
 
 ---
 
-## 10. RELATED PAGES & COMPONENTS (DS v1.0)
+## 10. RELATED PAGES & COMPONENTS (DS v1.3)
 
 | Element | DS Component | Notes |
 | --- | --- | --- |
-| Tabel Peminjaman Aktif | Table Component — zebra striping, hover state | Kolom: Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Status, Aksi |
-| Badge Terlambat | Badge — Merah (`bg-red-100 text-red-700 font-semibold`) | Muncul jika hari ini > tgl batas kembali |
-| Badge On-Time | Badge — Hijau (`bg-green-100 text-green-700`) | Muncul jika masih dalam batas waktu |
-| Tombol "Proses Pengembalian" | Primary Button — per baris tabel | Memicu Modal Konfirmasi |
-| Modal Konfirmasi Pengembalian | Modal Dialog — header, ringkasan data, radio button, footer | max-w-md, rounded-xl, shadow-lg |
-| Radio Button Kondisi Buku | Radio Button Group | Pilihan: Baik / Rusak Ringan / Rusak Berat; default: Baik |
-| Field Tanggal Pengembalian | Text Input — Read-Only (bg-slate-100) | Otomatis terisi tanggal hari ini |
-| Kolom Pencarian | Text Input — Search | Filter tabel berdasarkan nama siswa atau judul buku |
-| Empty State | Ilustrasi ikon + teks informatif | Muncul jika tidak ada transaksi aktif |
+| Tabel Peminjaman Aktif | Table Component (9.4) | Badge Terlambat (merah) jika melewati batas kembali. |
+| Modal Konfirmasi | Modal Dialog (9.3) + Confirmation Pattern (11.4) | Ringkasan data + info keterlambatan. |
+| Kondisi Buku | Radio Button Group (9.7) | "Baik" / "Rusak Ringan" / "Rusak Berat"; wajib dipilih sebelum submit. |
+| Field Tanggal Kembali | Date Picker — varian Read-Only (9.10) | Otomatis terisi tanggal hari ini. |
+| Error Koneksi | System Error State (11.7) | Data pilihan modal tidak hilang saat gagal submit. |
 
 ---
 
@@ -148,19 +130,17 @@ Guru berhasil memproses pengembalian buku dari siswa — memilih transaksi pemin
 
 | AC ID | Criteria |
 | --- | --- |
-| AC-004-01 | Guru berhasil memproses pengembalian; data tersimpan, stok buku bertambah 1, baris menghilang dari tabel aktif. |
-| AC-004-02 | Transaksi yang terlambat menampilkan badge merah dan informasi jumlah hari keterlambatan di modal. |
-| AC-004-03 | Tidak ada denda yang dikenakan; keterlambatan hanya bersifat informatif. |
-| AC-004-04 | Tanggal pengembalian terisi otomatis dan tidak dapat diubah guru. |
-| AC-004-05 | Kondisi buku (Baik/Rusak Ringan/Rusak Berat) wajib dipilih sebelum konfirmasi. |
-| AC-004-06 | Membatalkan proses menutup modal tanpa menyimpan data apapun. |
-| AC-004-07 | Jika tidak ada transaksi aktif, halaman menampilkan empty state yang informatif. |
-| AC-004-08 | Jika jaringan gagal, modal tetap terbuka dan pesan error ditampilkan. |
+| AC-004-01 | Guru dapat memproses pengembalian dari daftar Peminjaman Aktif. |
+| AC-004-02 | Tanggal Pengembalian terisi otomatis dan tidak dapat diubah manual. |
+| AC-004-03 | Sistem menghitung dan menampilkan jumlah hari keterlambatan tanpa menerapkan denda. |
+| AC-004-04 | Tombol "Konfirmasi Pengembalian" hanya aktif setelah Kondisi Buku dipilih. |
+| AC-004-05 | Setelah pengembalian tersimpan, Stok buku bertambah 1 dan Status berubah menjadi "Tersedia" secara instan (F007). |
+| AC-004-06 | Data Pengembalian tersimpan terpisah namun tetap terhubung ke ID Peminjaman terkait. |
 
 ---
 
-## 12. REVISION HISTORY
+## 12. NOTES
 
-| Version | Date | Author | Description |
-| --- | --- | --- | --- |
-| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft. |
+- Tidak ada sistem denda/sanksi atas keterlambatan pengembalian — kebijakan sekolah negeri tidak memberlakukan denda (Out-of-Scope poin #3).
+- Data Pengembalian disimpan terpisah dari data Peminjaman, namun tetap terhubung melalui ID Peminjaman (Business Rule Master List poin 8).
+- Perubahan stok dan status wajib terjadi dalam satu transaksi database yang sama dengan pencatatan pengembalian (Business Rule F007).
