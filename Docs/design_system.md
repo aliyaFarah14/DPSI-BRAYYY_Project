@@ -1,10 +1,10 @@
 # Design System (DS) - Source of Truth #3
 
-Document Version: v1.3 (Revisi — penyelarasan dengan SRS v3.1, penghapusan catatan kontradiksi Tanggal Batas Pengembalian)
+Document Version: v1.4 (Revisi — pergantian palet warna brand, penambahan komponen Image Upload, penambahan fitur Denda Keterlambatan)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-01
+Last Updated: 2026-07-03
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -16,7 +16,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 Dokumen ini mendefinisikan bahasa visual, standar interaksi, dan komponen UI yang dapat digunakan kembali (reusable UI components) pada seluruh antarmuka Sistem Informasi Perpustakaan SD Negeri Tamanan (Web-Based LMS).
 
-Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (SRS v3.0) dan SoT-2 (Information Architecture, sinkron SRS v3.0), serta akan digunakan sebagai landasan mutlak untuk:
+Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (SRS v3.1) dan SoT-2 (Information Architecture, sinkron SRS v3.1), serta akan digunakan sebagai landasan mutlak untuk:
 
 - Pembuatan High-Fidelity Prototype (SoT-5).
 - Panduan penulisan kode komponen Frontend (React, HTML/CSS).
@@ -27,16 +27,19 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 | Artifact | Reference | Description |
 | --- | --- | --- |
-| SoT-1 | SRS v3.0 | Spesifikasi Kebutuhan Perangkat Lunak — struktur Feature ID (F001–F007), Business Rules Master List, Data Requirements, NFR, Permission Matrix. |
-| SoT-2 | Information Architecture (Revisi — sinkron SRS v3.0) | Struktur navigasi, peta situs, dan pemetaan routing. |
+| SoT-1 | SRS v3.1 | Spesifikasi Kebutuhan Perangkat Lunak — struktur Feature ID (F001–F007), Business Rules Master List, Data Requirements, NFR, Permission Matrix. |
+| SoT-2 | Information Architecture (Revisi — sinkron SRS v3.1) | Struktur navigasi, peta situs, dan pemetaan routing. |
 | SoT-4 | User Flows | Rangkaian langkah interaksi pengguna per use-case. |
 | SoT-5 | HiFi Prototype | Representasi visual interaktif akhir. |
 
-> **Catatan revisi v1.2:** SRS versi v3.0 (restrukturisasi lengkap) memperkenalkan kembali section **Non-Functional Requirements** (Section 9), termasuk **NFR 9.7 — Usability**, yang menetapkan target waktu pelatihan Guru maksimal 15 menit. Sebelumnya, DS v1.1 menghapus klaim ini karena SRS v2.0 (versi sebelum restrukturisasi) belum memiliki section NFR. Karena requirement tersebut kini benar-benar ada dan bernomor jelas di SRS v3.0, klaim waktu pelatihan **dikembalikan** ke Section 2.1 di bawah ini dengan sitasi yang akurat.
+> **⚠️ CATATAN KRITIS v1.4 — KONFLIK BELUM DISELESAIKAN DI SISI SRS:**
+> DS v1.4 ini memperkenalkan **Fitur Denda Keterlambatan** (lihat Section 11.8 dan pembaruan F004 pada Traceability Matrix, Section 15) atas permintaan langsung tim proyek. Fitur ini **bertentangan** dengan SRS v3.1 Feature F004 (Business Rules) yang saat ini masih menyatakan secara eksplisit: *"Tidak ada denda — hanya informasi."*
+>
+> Mengikuti pola penyelesaian kontradiksi yang sama seperti revisi v1.2→v1.3 (kasus Tanggal Batas Pengembalian), DS tetap ditulis maju mengikuti keputusan tim, **namun kontradiksi ini WAJIB diselesaikan di sisi sumber** — yaitu `srs.md` perlu direvisi ke v3.2 agar Business Rule F004 disinkronkan (mengizinkan denda, mendefinisikan formula resmi, dan memperbarui Permission Matrix jika relevan — misal siapa yang berwenang menghapus/mengubah catatan denda). Sampai srs.md direvisi, DS v1.4 dan SRS v3.1 berada dalam kondisi **tidak sinkron** secara sengaja, atas keputusan tim proyek.
+>
+> Selain itu, **besaran nominal denda pada Section 11.8 masih berupa ASUMSI PLACEHOLDER** karena belum ada angka resmi dari tim. Wajib dikonfirmasi sebelum masuk ke HiFi Prototype (SoT-5).
 
-> **Catatan revisi v1.2 (lanjutan):** Beberapa sitasi nomor Business Rule di dokumen v1.1 mengacu ke penomoran SRS versi lama yang sudah tidak berlaku setelah restrukturisasi ke sistem Feature ID (F001–F007). Sitasi-sitasi tersebut telah diperbaiki di seluruh dokumen ini (lihat Section 10, 11.5, 11.6, 11.7, dan 15).
-
-> **Catatan revisi v1.3:** Kontradiksi antara SRS Out-of-Scope poin #4 dan Feature F003 yang tercatat pada DS v1.2 Section 10 telah diselesaikan di sisi sumber — `srs.md` v3.1 merevisi Out-of-Scope poin #4 agar selaras dengan F003 (peminjaman multi-hari kini didukung penuh, tidak lagi terbatas same-day return). Catatan peringatan pada Section 10 dihapus karena sumber kontradiksinya sudah tidak ada.
+> **Catatan revisi v1.3 (dipertahankan):** Kontradiksi antara SRS Out-of-Scope poin #4 dan Feature F003 yang tercatat pada DS v1.2 Section 10 telah diselesaikan di sisi sumber — `srs.md` v3.1 merevisi Out-of-Scope poin #4 agar selaras dengan F003 (peminjaman multi-hari kini didukung penuh, tidak lagi terbatas same-day return).
 
 ---
 
@@ -44,14 +47,14 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 ### 2.1 Design Goals
 
-- **Kesederhanaan Operasional (Operational Simplicity):** Antarmuka dirancang agar dapat dipahami dan dioperasikan oleh guru tanpa latar belakang teknis, mengingat perpustakaan tidak memiliki petugas tetap (lihat SRS v3.0, Section 1 — Tujuan Sistem). Target ini selaras dengan **NFR 9.7 (Usability)** pada SRS v3.0, yang menetapkan waktu pelatihan Guru maksimal 15 menit untuk pengguna baru.
-- **Kejelasan Informasi (Visual Clarity):** Elemen penting seperti status ketersediaan buku, indikator stok habis, dan peringatan keterlambatan pengembalian harus langsung terlihat tanpa perlu interpretasi tambahan. Ini mendukung **NFR 9.1 (Performance)** pada SRS v3.0 — halaman daftar buku dimuat di bawah 2 detik, dan proses pencatatan transaksi selesai di bawah 1 detik.
-- **Ramah Pengguna Muda (Child-Friendly Accessibility):** Tampilan halaman publik (siswa) menggunakan nuansa warna hijau segar yang hangat dan tidak mengintimidasi, mendukung semangat literasi anak.
+- **Kesederhanaan Operasional (Operational Simplicity):** Antarmuka dirancang agar dapat dipahami dan dioperasikan oleh guru tanpa latar belakang teknis, mengingat perpustakaan tidak memiliki petugas tetap (lihat SRS v3.1, Section 1 — Tujuan Sistem). Target ini selaras dengan **NFR 9.7 (Usability)** pada SRS v3.1, yang menetapkan waktu pelatihan Guru maksimal 15 menit untuk pengguna baru.
+- **Kejelasan Informasi (Visual Clarity):** Elemen penting seperti status ketersediaan buku, indikator stok habis, dan peringatan keterlambatan pengembalian — termasuk **besaran denda** — harus langsung terlihat tanpa perlu interpretasi tambahan. Ini mendukung **NFR 9.1 (Performance)** pada SRS v3.1 — halaman daftar buku dimuat di bawah 2 detik, dan proses pencatatan transaksi selesai di bawah 1 detik.
+- **Ramah Pengguna Muda (Child-Friendly Accessibility):** Tampilan halaman publik (siswa) menggunakan nuansa warna hangat namun tegas — kombinasi navy, biru, dan merah di atas latar krem lembut — yang tetap mengundang tanpa terasa generik.
 
 ### 2.2 UX Principles
 
 - **Fokus pada Tugas (Task-Focused Layout):** Setiap halaman didedikasikan pada satu tugas utama (catat peminjaman, catat pengembalian, kelola buku) untuk meminimalkan distraksi.
-- **Umpan Balik Instan (Instant Feedback):** Setiap aksi penyimpanan, penghapusan, atau pembaruan data harus memicu perubahan status visual instan tanpa memuat ulang seluruh halaman.
+- **Umpan Balik Instan (Instant Feedback):** Setiap aksi penyimpanan, penghapusan, atau pembaruan data harus memicu perubahan status visual instan tanpa memuat ulang seluruh halaman. Ini termasuk **perhitungan denda yang tampil live** saat Guru memilih tanggal pengembalian dan kondisi buku (lihat Section 11.8).
 - **Toleransi Kesalahan (Error Tolerance):** Konfirmasi berlapis diberikan hanya pada aksi destruktif seperti menghapus data buku. Formulir menyediakan pesan validasi yang informatif dan mudah dipahami.
 
 ---
@@ -60,7 +63,7 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 ### 3.1 Brand Personality
 
-- **Hangat & Ramah:** Menggunakan nuansa hijau segar yang mengundang dan tidak kaku, mencerminkan suasana perpustakaan sekolah yang terbuka untuk semua siswa.
+- **Tegas & Hangat:** Navy sebagai warna struktural utama memberi kesan tertib dan tepercaya; krem lembut sebagai latar memberi kehangatan tanpa jatuh ke kesan generik.
 - **Terpercaya & Tertib:** Struktur layout yang bersih dan konsisten mencerminkan kerapian pengelolaan data perpustakaan.
 - **Sederhana & Fungsional:** Bebas dari elemen dekoratif berlebihan; mengutamakan kemudahan akses informasi buku dan transaksi bagi guru maupun siswa.
 
@@ -68,59 +71,61 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 - **Bentuk Sudut:** Membulat sedang (Rounded 8px atau `rounded-lg`) untuk kesan modern namun tetap rapi dan mudah dipindai secara visual.
 - **Kedalaman Visual:** Menggunakan bayangan lembut (soft shadows) pada komponen mengambang seperti kartu buku, modal form, dan panel konfirmasi untuk menegaskan hierarki tumpukan layar.
+- **Motif Kartu Katalog:** Kartu buku pada halaman publik menggunakan strip warna solid di sisi kiri (menyerupai punggung buku di rak), bukan ikon generik — lihat Section 9.6.
 
 ---
 
 ## 4. COLOR SYSTEM
 
-Skema warna dirancang agar nyaman di mata, segar, dan ramah anak — sesuai dengan konteks penggunaan di sekolah dasar.
+**Perubahan besar di v1.4:** seluruh palet hijau/slate pada v1.3 digantikan dengan palet navy–biru–merah di atas latar krem. Warna oranye yang sempat dieksplorasi pada tahap draf **tidak digunakan** — keputusan final tim adalah 3 warna inti (navy, biru, merah) plus krem sebagai latar netral.
 
-### 4.1 Primary Colors (Green Brand)
+### 4.1 Primary Colors (Navy Brand)
 
-Digunakan untuk elemen tindakan utama, status aktif, dan identitas merek aplikasi perpustakaan.
+Digunakan untuk elemen tindakan utama, struktur navigasi, dan identitas merek aplikasi perpustakaan.
 
-| Token | Hex Value | Tailwind Class | Usage |
-| --- | --- | --- | --- |
-| color-primary | #16A34A | bg-green-600 | Tombol aksi utama, teks aktif sidebar, ikon utama, badge "Tersedia". |
-| color-primary-hover | #15803D | hover:bg-green-700 | Sesi hover pada tombol utama. |
-| color-primary-active | #166534 | active:bg-green-800 | Sesi tekan/klik pada tombol utama. |
-| color-primary-light | #DCFCE7 | bg-green-100 | Background badge status tersedia, sorotan ringan item aktif sidebar. |
+| Token | Hex Value | Usage |
+| --- | --- | --- |
+| color-primary | #003049 | Tombol aksi utama ("Simpan", "Masuk", "Konfirmasi"), sidebar Guru, teks judul, strip punggung buku, ikon utama. |
+| color-primary-hover | #012840 | Sesi hover pada tombol utama dan item sidebar. |
+| color-primary-active | #001A2B | Sesi tekan/klik pada tombol utama. |
+| color-primary-light | #DCE8ED | Background badge netral, sorotan ringan item aktif sidebar. |
 
-### 4.2 Secondary Colors (Slate Structure)
+### 4.2 Secondary Colors (Info / Netral-Positif)
 
-Digunakan untuk elemen navigasi sekunder, border, dan teks pendukung.
+Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendukung.
 
-| Token | Hex Value | Tailwind Class | Usage |
-| --- | --- | --- | --- |
-| color-secondary | #475569 | bg-slate-600 | Tombol batal/sekunder, ikon non-aktif. |
-| color-secondary-hover | #334155 | hover:bg-slate-700 | Sesi hover tombol sekunder. |
-| color-secondary-active | #1E293B | active:bg-slate-800 | Sesi tekan tombol sekunder. |
+| Token | Hex Value | Usage |
+| --- | --- | --- |
+| color-secondary | #669BBC | Badge "Tersedia", badge "Dipinjam" (status normal, bukan terlambat), badge "Sudah Dikembalikan", ikon info. |
+| color-secondary-hover | #4F84A6 | Sesi hover elemen sekunder. |
+| color-secondary-light | #E1EEF3 | Background badge status netral-positif. |
 
 ### 4.3 Semantic Colors (Status & Alerts)
 
-| Token | Hex Value | Tailwind Class | Usage |
-| --- | --- | --- | --- |
-| color-success | #22C55E | bg-green-500 | Badge "Tersedia", badge "Baik" (kondisi buku), notifikasi sukses simpan data. |
-| color-warning | #F59E0B | bg-amber-500 | Badge "Masih Dipinjam", badge "Rusak Ringan" (kondisi buku), indikator buku mendekati batas kembali, peringatan sesi akan berakhir. |
-| color-error | #EF4444 | bg-red-500 | Badge "Stok Habis", badge "Terlambat", badge "Rusak Berat" (kondisi buku), pesan error form, pesan error koneksi sistem, tombol hapus. |
-| color-info | #3B82F6 | bg-blue-500 | Informasi panduan interaksi, status informatif netral. |
-| color-neutral-muted | #94A3B8 | bg-slate-200 / text-slate-600 | Badge "Tidak Aktif" untuk buku yang ditarik dari sirkulasi (lihat Section 9.5). |
+| Token | Hex Value | Usage |
+| --- | --- | --- |
+| color-danger | #C1121F | Badge "Stok Habis", badge "Terlambat", badge "Rusak Berat", **badge Denda**, tombol hapus, pesan error form/koneksi. |
+| color-danger-dark | #780000 | Teks pada badge merah (kontras tinggi di atas `color-danger-light`), penekanan pada nominal denda yang besar. |
+| color-danger-light | #FBE1E3 | Background badge status kritis. |
+| color-warning | #CA8A04 | Badge "Rusak Ringan", indikator buku mendekati batas kembali, peringatan sesi akan berakhir. Catatan: ini adalah **token semantik fungsional**, berbeda dari warna oranye dekoratif yang sudah tidak dipakai — dipertahankan karena "Rusak Ringan"/"mendekati batas" butuh level urgensi di antara netral dan kritis. |
+| color-warning-light | #FDF1D9 | Background badge warning. |
+| color-neutral-muted | #A8A196 | Badge "Tidak Aktif" untuk buku yang ditarik dari sirkulasi (lihat Section 9.5). |
 
 ### 4.4 Neutral Colors (Backgrounds & Text)
 
-| Token | Hex Value | Tailwind Class | Usage |
-| --- | --- | --- | --- |
-| color-bg-app | #F8FAFC | bg-slate-50 | Latar belakang aplikasi keseluruhan. |
-| color-bg-card | #FFFFFF | bg-white | Latar belakang tabel, panel, modal, dan kartu buku. |
-| color-text-main | #0F172A | text-slate-900 | Teks judul utama, nama buku, label form. |
-| color-text-muted | #64748B | text-slate-500 | Teks deskripsi, kode buku, penanda tanggal. |
-| color-border | #E2E8F0 | border-slate-200 | Garis pembatas tabel, pembatas panel, border input. |
+| Token | Hex Value | Usage |
+| --- | --- | --- |
+| color-bg-app | #FCF6E8 | Latar belakang aplikasi keseluruhan — publik maupun area Guru. |
+| color-bg-card | #FFFFFF | Latar belakang tabel, panel, modal, dan kartu buku. |
+| color-text-main | #003049 | Teks judul utama, nama buku, label form (memakai warna navy langsung, kontras tinggi di atas krem). |
+| color-text-muted | #6B6355 | Teks deskripsi, kode buku, penanda tanggal. |
+| color-border | #E4D8BE | Garis pembatas tabel, pembatas panel, border input (turunan krem gelap, bukan abu-abu netral). |
 
 ---
 
 ## 5. TYPOGRAPHY
 
-Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahasa Indonesia dan angka tetap tinggi pada layar komputer sekolah berkualitas standar.
+*(Tidak berubah dari v1.3.)* Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahasa Indonesia dan angka tetap tinggi pada layar komputer sekolah berkualitas standar.
 
 | Text Style | Font Family | Weight | Size (px/rem) | Line Height | Usage |
 | --- | --- | --- | --- | --- | --- |
@@ -130,12 +135,13 @@ Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahas
 | Body Large | Noto Sans | Regular (400) | 16px (1rem) | 1.5 | Label input form, teks nominal stok buku, nama siswa dalam tabel. |
 | Body Medium | Noto Sans | Regular (400) | 14px (0.875rem) | 1.5 | Deskripsi buku, teks menu sidebar, konten baris tabel. |
 | Body Small/Muted | Noto Sans | Regular (400) | 12px (0.75rem) | 1.4 | ID Buku, sub-info tambahan, keterangan tanggal. |
+| **Nominal Denda** | Noto Sans | Bold (700) | 20px (1.25rem) | 1.3 | **(Baru v1.4)** Angka total denda pada Modal Konfirmasi Pengembalian — dibuat besar dan tebal agar Guru tidak salah baca nominal. |
 
 ---
 
 ## 6. ELEVATION & SHADOWS
 
-Kedalaman visual digunakan untuk membantu guru memahami hierarki elemen pada layar secara intuitif.
+*(Tidak berubah dari v1.3.)*
 
 - **Shadow None (`shadow-none`):** Seluruh elemen input teks dan tabel datar (flat).
 - **Shadow Small (`shadow-sm`):** Kartu buku pada halaman publik siswa dan panel daftar buku di halaman peminjaman.
@@ -146,33 +152,33 @@ Kedalaman visual digunakan untuk membantu guru memahami hierarki elemen pada lay
 
 ## 7. GRID & LAYOUT
 
-Aplikasi dioptimalkan untuk perangkat layar Desktop PC dan Laptop di lingkungan sekolah, sesuai asumsi satu unit komputer di area perpustakaan (lihat Analisis Kebutuhan — hasil wawancara).
+*(Tidak berubah dari v1.3.)* Aplikasi dioptimalkan untuk perangkat layar Desktop PC dan Laptop di lingkungan sekolah.
 
 ### 7.1 Desktop Grid (Width ≥ 1024px)
-
 - **Layout Style:** Flexbox / Grid Split Layout.
-- **Main Container:** Lebar penuh (100vw) tanpa margin luar berlebih.
-- **Sidebar Width:** Tetap 260px (dapat diciutkan menjadi 80px via tombol toggle). Sidebar hanya muncul pada area Guru (terautentikasi), sesuai IA Section 1.1(C).
-- **Content Padding:** 24px (`p-6`) di sekeliling area kerja konten.
-- **Gutter Grid:** 16px (`gap-4`) antar elemen kartu buku di halaman publik siswa.
+- **Sidebar Width:** Tetap 260px (dapat diciutkan menjadi 80px via tombol toggle).
+- **Content Padding:** 24px (`p-6`).
+- **Gutter Grid:** 16px (`gap-4`).
 
 ### 7.2 Tablet Grid (Width 768px – 1023px)
-
-- **Layout Style:** Modul satu kolom responsif atau sidebar disembunyikan (collapsible off-canvas), sesuai IA Section 1.1(C) — Mobile/Tablet Navigation.
-- **Sidebar Behavior:** Disembunyikan otomatis; dapat ditarik via tombol hamburger di pojok kiri atas.
+- **Sidebar Behavior:** Disembunyikan otomatis; dapat ditarik via tombol hamburger.
 - **Gutter Grid:** 12px (`gap-3`).
 
 ### 7.3 Halaman Catat Peminjaman — Split Layout Khusus
-
-Sesuai IA (PAGE-004), halaman ini menggunakan split layout dua panel:
-- **Panel Kiri (60%):** Daftar buku tersedia (stok > 0), dapat dipilih guru.
+- **Panel Kiri (60%):** Daftar buku tersedia.
 - **Panel Kanan (40%):** Form isian data peminjam dan detail transaksi.
 
 ---
 
 ## 8. ICONOGRAPHY
 
-Aplikasi menggunakan pustaka ikon **Lucide React** (atau inline SVG setara) dengan gaya ikon Outline (stroke 2px) yang konsisten.
+Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline SVG setara), gaya **Outline, stroke 2px**, monokrom mengikuti token warna teks/status yang berlaku di konteksnya.
+
+**Aturan tegas (baru v1.4 — memperbaiki temuan icon generik/emoji):**
+- **Dilarang** mencampur emoji dengan ikon SVG di layar manapun, termasuk pada toast, badge, dan empty state.
+- Setiap ikon fungsional dipetakan ke **satu fungsi spesifik** (tabel di bawah) — tidak ada ikon dekoratif tanpa fungsi.
+- Warna ikon mengikuti token semantik konteksnya (`color-text-main` untuk netral, `color-danger` untuk aksi hapus/error, dst.) — bukan warna acak/pelangi.
+- Ukuran ikon konsisten: 16px untuk ikon inline pada teks/badge, 20px untuk ikon tombol, 24px maksimum untuk ikon dekoratif (mis. logo header).
 
 | Icon Function | Lucide Icon Name | Visual Representation |
 | --- | --- | --- |
@@ -187,10 +193,12 @@ Aplikasi menggunakan pustaka ikon **Lucide React** (atau inline SVG setara) deng
 | Hapus Data Buku | Trash2 | Ikon Tempat Sampah |
 | Pencarian Buku | Search | Ikon Kaca Pembesar |
 | Informasi Keterlambatan | AlertCircle | Ikon Lingkaran Seru |
+| **Denda / Biaya** | **CircleDollarSign** | **(Baru v1.4)** Ikon lingkaran dengan simbol mata uang, dipakai di badge dan ringkasan denda. |
+| **Unggah Gambar** | **ImagePlus** | **(Baru v1.4)** Ikon gambar dengan tanda plus, dipakai pada komponen Image Upload (Section 9.11). |
 | Akun Guru Aktif | User | Ikon Siluet Orang |
-| Peringatan Sesi Berakhir | Clock | Ikon Jam (digunakan pada idle timeout warning) |
-| Kegagalan Koneksi Sistem | WifiOff | Ikon Sinyal Terputus (digunakan pada Error State sistem) |
-| Buku Tidak Aktif | Archive | Ikon Kotak Arsip (digunakan pada Badge "Tidak Aktif", lihat 9.5) |
+| Peringatan Sesi Berakhir | Clock | Ikon Jam |
+| Kegagalan Koneksi Sistem | WifiOff | Ikon Sinyal Terputus |
+| Buku Tidak Aktif | Archive | Ikon Kotak Arsip |
 
 ---
 
@@ -200,260 +208,296 @@ Aplikasi menggunakan pustaka ikon **Lucide React** (atau inline SVG setara) deng
 
 **Variants & Visual Tokens**
 
-- **Primary Button:** `bg-green-600`, `text-white`, `rounded-lg` (8px). Digunakan untuk: "Simpan", "Simpan Peminjaman", "Konfirmasi Pengembalian", "Masuk".
-- **Secondary Button:** `bg-slate-200`, `text-slate-800`, `rounded-lg` (8px). Digunakan untuk: "Batal".
-- **Danger Button:** `bg-red-600`, `text-white`, `rounded-lg` (8px). Digunakan untuk: "Hapus", "Ya, Hapus".
+- **Primary Button:** `bg-[#003049]`, `text-white`, `rounded-lg` (8px). Digunakan untuk: "Simpan", "Simpan Peminjaman", "Konfirmasi Pengembalian", "Masuk".
+- **Secondary Button:** border `#003049` 1px, teks `#003049`, latar transparan, `rounded-lg` (8px). Digunakan untuk: "Batal".
+- **Danger Button:** `bg-[#C1121F]`, `text-white`, `rounded-lg` (8px). Digunakan untuk: "Hapus", "Ya, Hapus".
 
 **States Representation**
 
 | Button State | Visual |
 | --- | --- |
-| [Default] | `bg-green-600`, `text-white` |
-| [Hover] | `bg-green-700` (kursor berubah menjadi pointer) |
-| [Active] | `bg-green-800` (transform skala tekan 98%) |
-| [Disabled] | `bg-slate-300`, `text-slate-500` (kursor dilarang) |
-| [Loading] | `bg-green-600` dengan animasi spinner berputar di dalam tombol |
+| [Default] | `bg-[#003049]`, `text-white` |
+| [Hover] | `bg-[#012840]` |
+| [Active] | `bg-[#001A2B]` (transform skala tekan 98%) |
+| [Disabled] | `bg-[#E4D8BE]`, `text-[#A8A196]` (kursor dilarang) |
+| [Loading] | `bg-[#003049]` dengan animasi spinner berputar di dalam tombol |
 
 ### 9.2 Text Input
 
-Komponen utama untuk formulir tambah/edit buku, form peminjaman, dan kolom pencarian.
-
-- **Default State:** Border `border-slate-300`, latar `bg-white`, teks `text-slate-900`, placeholder `text-slate-400`.
-- **Focus State:** Border berubah `border-green-500` dengan outline tipis hijau terang (`ring-2 ring-green-200`).
-- **Validation — Success State:** Border `border-green-500`, dilengkapi ikon centang hijau di sisi kanan input.
-- **Validation — Error State:** Border `border-red-500`, disertai pesan teks error berwarna merah di bawah input (ukuran 12px).
+- **Default State:** Border `#E4D8BE`, latar `#FFFFFF`, teks `#003049`, placeholder `#A8A196`.
+- **Focus State:** Border berubah `#003049` dengan outline tipis (`ring-2`, warna `#DCE8ED`).
+- **Validation — Success State:** Border `#669BBC`, ikon centang di sisi kanan input.
+- **Validation — Error State:** Border `#C1121F`, disertai pesan teks error berwarna `#C1121F` di bawah input (12px).
 
 ### 9.3 Modal Dialog
 
-Digunakan untuk form Tambah Buku Baru, Edit Data Buku, dan Form Konfirmasi Pengembalian — tanpa memindahkan guru dari halaman utama sesuai ketentuan IA.
-
-- **Overlay Backdrop:** `bg-slate-900/50` dengan efek blur tipis (`backdrop-blur-sm`).
-- **Card Container:** Tepat di tengah layar, latar `bg-white`, lebar maksimal 500px (`max-w-md`), sudut membulat `rounded-xl` (12px), bayangan tebal `shadow-lg`.
-- **Header:** Berisi judul form (contoh: "Tambah Buku Baru", "Konfirmasi Pengembalian") dan tombol silang X di pojok kanan untuk menutup modal.
-- **Footer:** Berisi dua tombol sejajar kanan: "Batal" (Secondary) dan "Simpan" / "Konfirmasi" (Primary atau Danger sesuai konteks).
+- **Overlay Backdrop:** `rgba(0,48,73,0.5)` (navy transparan) dengan efek blur tipis (`backdrop-blur-sm`).
+- **Card Container:** Tepat di tengah layar, latar `#FFFFFF`, lebar maksimal 500px (`max-w-md`), sudut membulat `rounded-xl` (12px), bayangan tebal `shadow-lg`.
+- **Header:** Judul form dan tombol silang X di pojok kanan.
+- **Footer:** Dua tombol sejajar kanan: "Batal" (Secondary) dan "Simpan"/"Konfirmasi" (Primary atau Danger sesuai konteks).
 
 ### 9.4 Table Component
 
-Digunakan di PAGE-003 (Katalog Buku), PAGE-005 (Peminjaman Aktif), PAGE-006 (Riwayat), dan PAGE-002 (Halaman Publik Siswa).
-
-- **Header Row (`thead`):** Latar `bg-slate-100`, teks `text-slate-700` tebal (14px/Bold).
-- **Body Rows (`tbody`):** Zebra striping — baris ganjil `bg-white`, baris genap `bg-slate-50/50`.
-- **Hover Row State:** Baris yang ditunjuk kursor berubah `hover:bg-green-50/30` untuk memperjelas baris yang sedang dilihat guru.
-- **Empty State:** Jika tabel kosong, tampilkan ilustrasi ikon sederhana dan teks informatif di tengah area tabel.
-- **Baris Buku "Tidak Aktif":** Ditampilkan dengan opasitas sedikit diredupkan (`opacity-70`) dan Badge "Tidak Aktif" (lihat 9.5) untuk membedakan dari buku yang masih aktif bersirkulasi, sesuai SRS v3.0 Section 7.3 (Data Retention Rules).
+- **Header Row (`thead`):** Latar `#DCE8ED`, teks `#003049` tebal (14px/Bold).
+- **Body Rows (`tbody`):** Zebra striping — baris ganjil `#FFFFFF`, baris genap `#FCF6E8`.
+- **Hover Row State:** `hover:bg-[#E1EEF3]`.
+- **Empty State:** Ilustrasi ikon sederhana (rak buku kosong, bukan "BookOpen + tanda tanya" generik) dan teks informatif di tengah area tabel.
+- **Baris Buku "Tidak Aktif":** `opacity-70` dan Badge "Tidak Aktif" (lihat 9.5).
 
 ### 9.5 Badge / Status Indicator
 
-Digunakan untuk menampilkan status buku, status transaksi, dan kondisi buku secara visual di seluruh tabel.
-
-| Badge Type | Visual | Usage |
+| Badge Type | Visual (bg / text) | Usage |
 | --- | --- | --- |
-| Tersedia | `bg-green-100 text-green-700` | Stok buku masih tersedia (stok > 0). |
-| Dipinjam / Stok Habis | `bg-red-100 text-red-700` | Stok buku 0 atau semua eksemplar sedang dipinjam. |
-| **Tidak Aktif** | `bg-slate-200 text-slate-600` | Buku ditarik dari sirkulasi (misal rusak berat) namun tidak dihapus agar riwayat historis tetap tersimpan, sesuai SRS v3.0 Section 7.3 — Data Retention Rules. |
-| Masih Dipinjam | `bg-amber-100 text-amber-700` | Status transaksi pada tabel riwayat yang belum dikembalikan. |
-| Sudah Dikembalikan | `bg-green-100 text-green-700` | Status transaksi pada tabel riwayat yang sudah selesai. |
-| Terlambat | `bg-red-100 text-red-700 font-semibold` | Indikator keterlambatan pengembalian pada PAGE-005. |
-| **Baik** | `bg-green-100 text-green-700` | Kondisi buku saat dikembalikan dalam keadaan baik (field `kondisiBuku`, Class Pengembalian). |
-| **Rusak Ringan** | `bg-amber-100 text-amber-700` | Kondisi buku saat dikembalikan dengan kerusakan ringan. |
-| **Rusak Berat** | `bg-red-100 text-red-700 font-semibold` | Kondisi buku saat dikembalikan dengan kerusakan berat. |
+| Tersedia | `#E1EEF3` / `#003049` | Stok buku tersedia (stok > 0). |
+| Stok Habis | `#FBE1E3` / `#780000` | Stok buku 0. |
+| Tidak Aktif | `#EFEAE0` / `#6B6355` | Buku ditarik dari sirkulasi (SRS Section 7.3 — Data Retention). |
+| Masih Dipinjam | `#E1EEF3` / `#003049` | Status transaksi belum dikembalikan (tepat waktu). |
+| Sudah Dikembalikan | `#E1EEF3` / `#003049` | Status transaksi selesai. |
+| Terlambat | `#FBE1E3` / `#780000`, `font-semibold` | Indikator keterlambatan pengembalian pada PAGE-005. |
+| **Denda (Baru v1.4)** | `#FBE1E3` / `#780000`, `font-semibold` | Menampilkan nominal denda pada baris riwayat/pengembalian, mis. "Denda Rp 3.000". Ikon `CircleDollarSign` di sisi kiri teks. |
+| Baik | `#E1EEF3` / `#003049` | Kondisi buku baik saat dikembalikan. |
+| Rusak Ringan | `#FDF1D9` / `#8A5A00` | Kondisi buku rusak ringan. |
+| Rusak Berat | `#FBE1E3` / `#780000`, `font-semibold` | Kondisi buku rusak berat. |
 
 ### 9.6 Card Component (Buku — Halaman Publik Siswa)
 
-Digunakan pada PAGE-002 untuk menampilkan buku dalam format kartu kepada siswa.
+Digunakan pada PAGE-002 untuk menampilkan buku dalam format kartu kepada siswa. **Direvisi total di v1.4** — motif kartu diubah dari "kartu generik + ikon buku" menjadi motif **punggung buku di rak**, supaya terasa spesifik ke subjek perpustakaan alih-alih template kartu umum.
 
-- **Visual:** Border tipis `border-slate-200`, layout grid vertikal, sudut `rounded-lg`.
-- **Top:** Placeholder inisial judul buku berukuran besar dengan latar `bg-green-100`, teks `text-green-700`.
-- **Body:** Judul buku tebal (14px, `text-slate-900`), nama penulis (12px, `text-slate-500`), tema buku, dan **chip Lokasi Rak** (lihat Section 3.4 pada IA — label lokasi rak wajib tampil konsisten di setiap tempat buku ditampilkan).
+- **Struktur:** Kartu berbentuk baris horizontal (bukan kotak vertikal), terdiri dari dua bagian:
+  - **Strip Kiri (32px):** Latar solid `#003049` (atau `#780000` untuk variasi visual antar kartu — lihat catatan di bawah), berisi **judul buku dituliskan vertikal** (`writing-mode: vertical-rl`) dengan teks putih/krem — meniru tulisan di punggung buku fisik.
+  - **Badan Kartu:** Latar `#FFFFFF`, berisi **thumbnail sampul buku** (lihat Section 9.11 — Image Upload untuk sumber gambar ini; jika Guru belum mengunggah sampul, tampilkan placeholder inisial judul di atas `color-primary-light`), judul buku (14px, `#003049`), nama penulis (12px, `#6B6355`), tema buku, dan **chip Lokasi Rak** bergaya stiker nomor panggil (border 1px `#003049`, sedikit rotasi -2°, bukan badge mengambang biasa).
 - **Footer:** Badge status ketersediaan (Tersedia / Stok Habis) dan informasi stok tersisa.
+- **Variasi warna strip:** Untuk menghindari monotone, strip kiri boleh bervariasi antara `#003049` dan `#780000` secara non-semantik (murni dekoratif per-buku, seperti warna sampul buku berbeda-beda di rak sungguhan) — **bukan** indikator status, supaya tidak tertukar makna dengan badge status.
 
 ### 9.7 Radio Button Group (Kondisi Buku)
 
-Digunakan secara spesifik pada Modal Konfirmasi Pengembalian (PAGE-005, F004) untuk memilih kondisi fisik buku sesuai field `kondisiBuku` pada Class Pengembalian (Praktikum 2).
+Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
 
-- **Layout:** Tiga opsi sejajar horizontal (atau vertikal jika lebar modal sempit), masing-masing dengan label teks dan lingkaran radio.
+- **Layout:** Tiga opsi sejajar horizontal (atau vertikal jika lebar modal sempit).
 - **Opsi:** "Baik" (default terpilih), "Rusak Ringan", "Rusak Berat".
-- **Default State:** Lingkaran kosong `border-slate-300`.
-- **Selected State:** Lingkaran terisi `bg-green-600` dengan border `border-green-600`; label terkait berubah `font-semibold text-slate-900`.
-- **Hover State:** Latar belakang opsi `bg-slate-50` saat kursor diarahkan.
-- **Wajib Pilih:** Salah satu opsi harus terpilih sebelum tombol "Konfirmasi Pengembalian" aktif (non-disabled).
+- **Default State:** Lingkaran kosong `border-[#E4D8BE]`.
+- **Selected State:** Lingkaran terisi `bg-[#003049]` dengan border `#003049`; label terkait `font-semibold text-[#003049]`.
+- **Hover State:** Latar belakang opsi `#FCF6E8`.
+- **Wajib Pilih:** Salah satu opsi harus terpilih sebelum tombol "Konfirmasi Pengembalian" aktif.
+- **(Baru v1.4) Pemicu Kalkulasi Denda:** Perubahan pilihan pada komponen ini **memicu perhitungan ulang otomatis** pada Panel Ringkasan Denda (Section 11.8) — karena kondisi buku adalah salah satu variabel formula denda.
 
 ### 9.8 Filter Bar (Riwayat Peminjaman)
 
-Digunakan pada PAGE-006 (Riwayat Peminjaman) untuk memenuhi kebutuhan **SRS v3.0 Feature F005 — Riwayat Peminjaman**, khususnya requirement "Sistem harus menyediakan pencarian riwayat berdasarkan nama siswa, judul buku, atau rentang tanggal."
-
-- **Layout:** Baris horizontal di atas Table Component, latar `bg-white`, border bawah `border-slate-200`, padding `p-4`.
-- **Elemen:**
-  - Text Input "Cari nama siswa atau judul buku" dengan ikon `Search` di sisi kiri input.
-  - Dua Date Picker berdampingan untuk rentang tanggal ("Dari Tanggal" — "Sampai Tanggal").
-  - Primary Button kecil "Terapkan Filter" dan Secondary Button kecil "Reset".
-- **Behavior:** Filter diterapkan secara instan (live filtering) saat teks pencarian diketik (debounce 300ms), tanpa perlu menekan tombol "Terapkan Filter" — tombol tersebut hanya digunakan untuk filter rentang tanggal yang dipilih dari Date Picker.
+- **Layout:** Baris horizontal di atas Table Component, latar `#FFFFFF`, border bawah `#E4D8BE`, padding `p-4`.
+- **Elemen:** Text Input pencarian dengan ikon `Search`, dua Date Picker rentang tanggal, Primary Button "Terapkan Filter", Secondary Button "Reset".
+- **Behavior:** Live filtering pada teks (debounce 300ms); tombol filter hanya untuk rentang tanggal.
 
 ### 9.9 Header / Topbar (Publik vs Guru)
 
 **Topbar Publik (Siswa — PAGE-002):**
-- Latar `bg-white`, `shadow-md`, tanpa sidebar.
-- Kiri: Nama sistem ("Perpustakaan SD Negeri Tamanan") dengan Display Title style.
-- Kanan: Tombol Secondary "Login Guru" (ikon `LogIn`) yang mengarahkan ke halaman Login.
+- Latar `#FFFFFF`, `shadow-md`, tanpa sidebar.
+- Kiri: Nama sistem dengan Display Title style, warna `#003049`.
+- Kanan: Tombol Primary "Login Guru" (ikon `LogIn`).
 
 **Topbar Guru (Area Terautentikasi):**
-- Latar `bg-white`, `shadow-md`, berdampingan dengan Sidebar.
-- Kiri: Judul halaman aktif (Page Title style, contoh: "Data Buku Perpustakaan").
-- Kanan: Ikon `User` + nama Guru aktif, serta tombol ikon `LogOut` untuk keluar dari sesi.
+- Latar `#FFFFFF`, `shadow-md`, berdampingan dengan Sidebar (latar `#003049`, teks putih).
+- Kiri: Judul halaman aktif (Page Title style).
+- Kanan: Ikon `User` + nama Guru aktif, tombol ikon `LogOut`.
 
-### 9.10 Date Picker (Baru — v1.2)
+### 9.10 Date Picker
 
-**Ditambahkan pada v1.2** untuk melengkapi spesifikasi field "Tanggal Batas Pengembalian" pada F003 (lihat catatan penting di Section 10) — komponen ini sebelumnya belum didefinisikan secara eksplisit di Component Library meski sudah dirujuk di beberapa bagian dokumen.
+- **Default State:** Border `#E4D8BE`, ikon kalender di sisi kanan input, format `DD/MM/YYYY`.
+- **Constraint:** Mendukung atribut `min` untuk mencegah input tanggal yang melanggar business rule.
+- **Focus State:** Sama seperti Text Input (`border-[#003049]`, `ring-2` warna `#DCE8ED`).
+- **Disabled/Read-Only Variant:** Latar `#EFEAE0`, teks `#6B6355`, kursor `not-allowed` — dipakai untuk field tanggal otomatis (Tanggal Pinjam, Tanggal Pengembalian).
 
-- **Default State:** Border `border-slate-300`, ikon kalender di sisi kanan input, format tampilan `DD/MM/YYYY`.
-- **Constraint:** Mendukung atribut `min` (tanggal minimum yang dapat dipilih) untuk mencegah input tanggal yang melanggar business rule (contoh: tanggal batas pengembalian tidak boleh kurang dari tanggal peminjaman).
-- **Focus State:** Sama seperti Text Input (`border-green-500`, `ring-2 ring-green-200`).
-- **Disabled/Read-Only Variant:** Latar `bg-slate-100`, teks `text-slate-500`, kursor `not-allowed` — dipakai untuk field tanggal otomatis seperti Tanggal Pinjam dan Tanggal Pengembalian (lihat Section 10).
+### 9.11 Image Upload (Baru — v1.4)
+
+**Ditambahkan pada v1.4** untuk mendukung unggah gambar sampul buku pada Form Tambah/Edit Buku (F002), memenuhi permintaan tim agar Guru dapat mengunggah foto sampul untuk ditampilkan di Card Component (Section 9.6) dan Table Component.
+
+- **Default State (belum ada gambar):** Kotak dropzone rasio 3:4 (mengikuti proporsi sampul buku), border putus-putus (`dashed`) `#E4D8BE`, latar `#FCF6E8`, berisi ikon `ImagePlus` (24px, `#6B6355`) di tengah dan teks `"Klik atau seret gambar sampul ke sini"` (12px, `#6B6355`) serta keterangan format yang didukung, contoh: `"Format JPG/PNG, maksimal 2MB."`
+- **Hover/Drag-Over State:** Border berubah solid `#003049`, latar `#DCE8ED`.
+- **Uploading State:** Overlay spinner di atas preview gambar sementara (jika ada), progress diindikasikan dengan animasi spinner — konsisten dengan Loading State (Section 11.1).
+- **Filled State (gambar sudah terunggah):** Menampilkan preview gambar penuh pada area dropzone (`object-fit: cover`), dengan tombol ikon kecil di pojok kanan atas overlay (ikon `Trash2`, latar `rgba(0,48,73,0.6)`, ikon putih) untuk menghapus/mengganti gambar.
+- **Error State:** Jika file melebihi ukuran maksimal atau format tidak didukung, border `#C1121F`, pesan error spesifik di bawah dropzone, contoh: `"Ukuran file melebihi 2MB. Silakan kompres gambar terlebih dahulu."` — bukan pesan generik.
+- **Fallback:** Jika field ini dikosongkan (opsional, bukan wajib), sistem menggunakan placeholder inisial judul buku di Card Component (lihat 9.6) — konsisten dengan behavior sebelum fitur ini ada, supaya tidak memaksa Guru mengunggah gambar untuk buku lama yang sudah terlanjur dicatat.
 
 ---
 
 ## 10. FORM DESIGN RULES
 
-- **Labels:** Label selalu diletakkan di atas bidang input (top-aligned labels) untuk memudahkan pemindaian form secara vertikal.
-- **Required Fields:** Ditandai dengan karakter bintang merah (*) langsung di samping teks label (contoh: `Judul Buku *`).
-- **Read-Only Fields:** Field yang diisi otomatis oleh sistem dan **tidak dapat diubah** oleh Guru — yaitu **Tanggal Pinjam** (F003) dan **Tanggal Pengembalian** (F004) — ditampilkan dengan varian Read-Only pada Date Picker (Section 9.10): latar abu-abu `bg-slate-100`, tidak dapat diedit, disertai keterangan kecil "(Otomatis)".
-- **Validation Messages:** Pesan error harus informatif dan spesifik, tidak boleh hanya menampilkan kata "Input salah".
+- **Labels:** Label selalu diletakkan di atas bidang input (top-aligned labels).
+- **Required Fields:** Ditandai dengan karakter bintang merah (*) `#C1121F` di samping label.
+- **Read-Only Fields:** Tanggal Pinjam (F003) dan Tanggal Pengembalian (F004) ditampilkan dengan varian Read-Only Date Picker: latar `#EFEAE0`, tidak dapat diedit, disertai keterangan kecil "(Otomatis)".
+- **Validation Messages:** Pesan error harus informatif dan spesifik.
   - Benar: `"Stok buku tidak boleh bernilai negatif (minimal 0)."`
   - Salah: `"Stok salah!"`
 - **Error Presentation:** Fokus kursor otomatis berpindah ke field pertama yang gagal validasi saat tombol "Simpan" ditekan.
-- **Placeholder & Validasi Lokasi Rak (Baru — v1.2):** Field Lokasi Rak pada Form Tambah/Edit Buku (F002) menggunakan placeholder `"Contoh: A1, B3"`. Jika format tidak sesuai (bukan kombinasi kode rak huruf + nomor), sistem menampilkan pesan error spesifik: `"Format Lokasi Rak tidak valid. Gunakan kombinasi kode rak (huruf) dan nomor, contoh: A1, B3."` — bukan pesan generik seperti "Lokasi salah".
-- **Tanggal Batas Pengembalian:** Field ini **bukan** Read-Only. Sesuai **SRS v3.1 Feature F003** (Requirements: *"Sistem harus menyediakan kolom tanggal batas pengembalian yang dapat diatur oleh Guru"*; Business Rule: *"Tanggal batas pengembalian harus selalu lebih besar atau sama dengan tanggal peminjaman"*) dan `information_architecture.md` (PAGE-004: *"Tanggal Batas Pengembalian (date picker)"*), field ini menggunakan varian **Date Picker aktif** (Section 9.10) dengan constraint `min` = Tanggal Pinjam (hari ini). Tanggal Pinjam sendiri tetap Read-Only otomatis.
+- **Placeholder & Validasi Lokasi Rak:** Field Lokasi Rak (F002) menggunakan placeholder `"Contoh: A1, B3"`; error spesifik jika format tidak valid.
+- **Tanggal Batas Pengembalian:** Bukan Read-Only — Date Picker aktif (Section 9.10) dengan constraint `min` = Tanggal Pinjam, sesuai SRS v3.1 Feature F003.
+- **(Baru v1.4) Field Gambar Sampul:** Menggunakan komponen Image Upload (Section 9.11), diposisikan di bagian atas Form Tambah/Edit Buku (sebelum field teks), bersifat **opsional** — tidak ditandai bintang merah.
+
 ---
 
 ## 11. INTERACTION PATTERNS
 
 ### 11.1 Loading State
 
-Setiap kali sistem melakukan komunikasi REST API ke backend (menyimpan data buku, memuat riwayat, memproses transaksi):
-
-- Tombol aksi yang memicu proses menampilkan animasi spinner di samping tulisan tombol dan dinonaktifkan sementara (disabled) untuk mencegah double submit.
-- Sisa halaman dipasangi overlay transparan tipis agar guru tidak dapat menekan elemen lain sebelum proses selesai.
+- Tombol aksi menampilkan spinner dan dinonaktifkan sementara untuk mencegah double submit.
+- Overlay transparan tipis pada sisa halaman.
 
 ### 11.2 Empty State
 
-Jika tabel tidak memiliki data (contoh: belum ada buku terdaftar, atau belum ada transaksi aktif):
-
-- Tampilkan ilustrasi ikon sederhana (contoh: `BookOpen` dengan tanda tanya) di tengah area tabel.
-- Sertakan teks informatif sesuai konteks, contoh:
+- Ilustrasi ikon sederhana (rak buku kosong) di tengah area tabel, bukan icon generik bertumpuk tanda tanya.
+- Teks informatif sesuai konteks:
   - PAGE-003: `"Belum ada data buku. Klik 'Tambah Buku Baru' untuk mulai mengisi katalog perpustakaan."`
   - PAGE-005: `"Tidak ada peminjaman aktif saat ini."`
   - PAGE-006: `"Belum ada riwayat transaksi peminjaman."`
 
 ### 11.3 Search — No Result State
 
-Jika pencarian buku tidak menemukan hasil (berlaku di PAGE-002, PAGE-003, PAGE-006):
-
-- Tampilkan ikon `Search` dengan tanda tanya di tengah area hasil.
-- Sertakan teks: `"Buku tidak ditemukan. Pastikan ejaan judul atau tema sudah benar."`
+- Ikon `Search` di tengah area hasil.
+- Teks: `"Buku tidak ditemukan. Pastikan ejaan judul atau tema sudah benar."`
 
 ### 11.4 Confirmation Pattern
 
 Setiap kali guru menekan tombol "Proses Pengembalian" pada PAGE-005:
 
-- Sistem menampilkan modal konfirmasi yang meringkas data peminjaman yang akan diproses.
-- Guru memilih kondisi buku menggunakan **Radio Button Group** (lihat Section 9.7) dan mengklik "Konfirmasi Pengembalian" untuk menyelesaikan proses.
+- Modal konfirmasi meringkas data peminjaman.
+- Guru memilih kondisi buku (Radio Button Group, 9.7).
+- **(Baru v1.4)** Panel Ringkasan Denda (lihat 11.8) muncul dan diperbarui otomatis berdasarkan tanggal pengembalian aktual dan kondisi buku.
+- Guru mengklik "Konfirmasi Pengembalian" untuk menyelesaikan proses.
 
 ### 11.5 Destructive Action Pattern
 
-Ketika guru bermaksud menghapus data buku dari katalog (PAGE-003):
-
-1. Guru mengklik tombol "Hapus" (ikon `Trash2`, warna merah) pada baris data buku.
-2. Muncul modal konfirmasi: *"Apakah Anda yakin ingin menghapus buku ini secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan."*
-3. Pilihan tombol: **"Ya, Hapus"** (Danger — latar merah) dan **"Batal"** (Secondary — latar abu-abu).
-4. Catatan: Tombol "Hapus" dinonaktifkan (`disabled`) jika buku berstatus "Dipinjam", sesuai **SRS v3.0 Feature F002 (Business Rules)**: *"Buku berstatus 'Dipinjam' tidak boleh dihapus dari sistem sebelum dikembalikan."*
+1. Guru mengklik tombol "Hapus" (ikon `Trash2`, `#C1121F`) pada baris data buku.
+2. Modal konfirmasi: *"Apakah Anda yakin ingin menghapus buku ini secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan."*
+3. Tombol: **"Ya, Hapus"** (Danger) dan **"Batal"** (Secondary).
+4. Tombol "Hapus" dinonaktifkan jika buku berstatus "Dipinjam", sesuai SRS v3.1 Feature F002.
 
 ### 11.6 Idle Session Timeout Pattern
 
-Memenuhi **SRS v3.0 Feature F001 (Business Rules)** dan Business Rules Master List Section 6, poin 2: sesi login Guru wajib berakhir otomatis setelah 30 menit tidak aktif.
-
-1. Setelah 28 menit tidak ada interaksi (mendekati batas), sistem menampilkan **toast notification** non-blocking di pojok kanan atas: ikon `Clock`, latar `bg-amber-500`, teks `"Sesi Anda akan berakhir dalam 2 menit karena tidak ada aktivitas."` dengan tombol kecil "Tetap di Sini" untuk me-reset timer.
-2. Jika tidak ada respons hingga menit ke-30, sistem otomatis melakukan logout dan mengarahkan ke halaman Login.
-3. Halaman Login menampilkan pesan informatif: `"Sesi Anda telah berakhir karena tidak ada aktivitas. Silakan masuk kembali."` menggunakan style pesan info (`color-info`, ikon `AlertCircle`).
+1. Setelah 28 menit tidak ada interaksi: toast notification non-blocking pojok kanan atas, ikon `Clock`, latar `#FDF1D9`, teks `"Sesi Anda akan berakhir dalam 2 menit karena tidak ada aktivitas."`, tombol "Tetap di Sini".
+2. Jika tidak ada respons hingga menit ke-30: logout otomatis ke halaman Login.
+3. Halaman Login: `"Sesi Anda telah berakhir karena tidak ada aktivitas. Silakan masuk kembali."` (ikon `AlertCircle`, warna info `#669BBC`).
 
 ### 11.7 System Error State (Kegagalan Koneksi/API)
 
-Mengantisipasi kegagalan komunikasi antara Frontend dan Backend (dua project terpisah via REST API, sesuai **SRS v3.0 Section 3 — Tech Stack**), serta mendukung **NFR 9.4 (Reliability)**: *"Sistem harus mampu menangani kegagalan jaringan sementara tanpa menghilangkan data form yang sedang diisi Guru (local state retention sebelum submit)."*
+- Request API gagal: Inline Alert Banner, latar `#FBE1E3`, border kiri `#C1121F` (4px), ikon `WifiOff`, teks: `"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."`, tombol "Coba Lagi" (Secondary).
+- Aksi simpan/transaksi gagal: modal/form tetap terbuka (data tidak hilang), tombol submit aktif kembali, pesan error singkat warna `#C1121F`.
+- Berlaku konsisten di PAGE-003, PAGE-004, PAGE-005, PAGE-006.
 
-- **Saat request API gagal** (timeout, server down, atau response error 5xx): tampilkan **Inline Alert Banner** di atas konten halaman — latar `bg-red-50`, border kiri `border-red-500` (4px), ikon `WifiOff`, teks: `"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."` disertai tombol kecil "Coba Lagi" (Secondary).
-- **Pada aksi simpan/transaksi yang gagal** (mis. submit form): modal/form tetap terbuka (data isian tidak hilang — memenuhi NFR 9.4 di atas), tombol submit kembali aktif, dan pesan error singkat muncul di atas tombol aksi dengan warna `color-error`.
-- Pola ini berlaku konsisten di seluruh halaman yang melakukan komunikasi REST API: PAGE-003, PAGE-004, PAGE-005, PAGE-006.
+### 11.8 Kalkulasi & Ringkasan Denda Keterlambatan (Baru — v1.4)
+
+> ⚠️ **Lihat catatan konflik SRS di Section 1.2.** Fitur ini belum tercakup dalam SRS v3.1 F004 dan nominal di bawah adalah **ASUMSI PLACEHOLDER**, wajib dikonfirmasi tim sebelum implementasi.
+
+**Kapan muncul:** Di dalam Modal Konfirmasi Pengembalian (PAGE-005), tepat di bawah Radio Button Group Kondisi Buku (Section 9.7), sebagai **Panel Ringkasan Denda** — muncul otomatis begitu Tanggal Pengembalian ≥ Batas Kembali, atau kondisi buku bukan "Baik".
+
+**Formula (usulan, perlu konfirmasi nominal):**
+
+```
+Denda Keterlambatan = Rp 500 × jumlah hari terlambat
+                       (dihitung otomatis: Tanggal Pengembalian − Batas Kembali;
+                        jika ≤ 0 hari, komponen ini = Rp 0)
+
+Biaya Kondisi Buku   = Rp 0        jika kondisi "Baik"
+                       Rp 2.000    jika kondisi "Rusak Ringan"
+                       Rp 5.000    jika kondisi "Rusak Berat"
+
+Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
+```
+
+**Visual Panel Ringkasan Denda:**
+
+- Container dengan latar `#FBE1E3` jika Total Denda > 0 (atau `#E1EEF3` jika Rp 0 — netral, tidak terkesan "kritis" kalau tidak ada denda), border-radius 8px, padding 12px.
+- Baris rincian (2 baris kecil, 12px, `#6B6355`): "Keterlambatan: 3 hari × Rp 500 = Rp 1.500" dan "Kondisi buku: Rusak Ringan = Rp 2.000".
+- Baris Total (style **Nominal Denda**, Section 5): "Total Denda: Rp 3.500", warna `#780000` jika > 0, warna `#003049` jika Rp 0 (menampilkan "Tidak ada denda").
+- Ikon `CircleDollarSign` di sisi kiri baris Total.
+- Panel ini **read-only** — Guru tidak mengetik nominal denda secara manual, murni hasil kalkulasi otomatis, sesuai prinsip Instant Feedback (2.2) dan mencegah kesalahan input manual.
+
+**Setelah konfirmasi:** Nominal Total Denda tersimpan pada record transaksi dan ditampilkan sebagai Badge Denda (Section 9.5) pada Table Riwayat (PAGE-006) dan Table Peminjaman Aktif (PAGE-005), sehingga riwayat denda tetap terlihat tanpa perlu membuka ulang modal.
+
+**Pertanyaan terbuka untuk tim (perlu dijawab sebelum HiFi Prototype):**
+1. Apakah Rp 500/hari dan Rp 2.000/Rp 5.000 adalah angka final, atau perlu disesuaikan?
+2. Apakah ada batas maksimal denda (cap), supaya keterlambatan sangat lama tidak menghasilkan nominal tidak wajar?
+3. Siapa yang berwenang menghapus/membatalkan denda jika terjadi kekeliruan pencatatan (perlu masuk ke Permission Matrix SRS)?
+4. Apakah denda dicatat sebagai kewajiban yang perlu "dilunasi" dengan status terpisah (Lunas/Belum Lunas), atau cukup sebagai catatan informatif seperti pada versi F004 sebelumnya?
 
 ---
 
 ## 12. RESPONSIVE BEHAVIOR
 
-Sistem dirancang responsif untuk mendukung akses oleh guru menggunakan komputer di area perpustakaan maupun perangkat tablet jika tersedia, serta akses publik siswa via tablet/mobile (SRS v3.0 Section 3.1 — Operating Environment).
+*(Tidak berubah dari v1.3.)*
 
 **[Viewport: Mobile (< 768px)]**
-- Sidebar disembunyikan total; hanya diakses via drawer hamburger menu.
-- Tabel menampilkan kolom esensial saja; pengguna dapat scroll horizontal.
-- Halaman publik siswa menampilkan daftar buku dalam format kartu satu kolom.
+- Sidebar disembunyikan total; diakses via drawer hamburger menu.
+- Tabel menampilkan kolom esensial saja; scroll horizontal.
+- Halaman publik siswa: kartu satu kolom.
 
 **[Viewport: Tablet (768px – 1023px)]**
-- Sidebar terlipat menjadi ikon (lebar 80px) untuk memaksimalkan area konten.
-- Split layout PAGE-004 beralih menjadi satu kolom vertikal (panel daftar buku di atas, form di bawah).
-- Tabel menampilkan kolom penting saja.
+- Sidebar terlipat menjadi ikon (80px).
+- Split layout PAGE-004 menjadi satu kolom vertikal.
 
 **[Viewport: Desktop (≥ 1024px)]**
-- Sidebar terbuka penuh secara permanen (lebar 260px).
-- PAGE-004 menggunakan split layout dua panel berdampingan (60% / 40%).
-- Seluruh kolom tabel ditampilkan lengkap.
+- Sidebar terbuka penuh (260px).
+- PAGE-004 split layout dua panel (60% / 40%).
 
 ---
 
 ## 13. ACCESSIBILITY (a11y)
 
-- **Contrast Ratio:** Teks dan label form memenuhi standar WCAG 2.1 AA dengan rasio kontras minimal 4.5:1 terhadap latar belakang putih/terang.
-- **Keyboard Navigation:** Guru dapat berpindah antar field form menggunakan tombol Tab dan mengonfirmasi pilihan menggunakan tombol Enter pada modal dialog.
-- **Screen Reader Support:** Setiap ikon aksi (`Edit`, `Hapus`) dilengkapi atribut `aria-label` yang deskriptif.
-- **Focus Indicator:** Elemen yang sedang aktif/fokus memiliki outline visual yang jelas (`ring-2 ring-green-400`) agar mudah diidentifikasi tanpa bergantung pada warna saja.
+- **Contrast Ratio:** WCAG 2.1 AA, rasio kontras minimal 4.5:1. Navy `#003049` di atas krem `#FCF6E8` maupun putih memenuhi ini dengan baik; telah diverifikasi untuk seluruh kombinasi teks-di-atas-badge pada Section 9.5.
+- **Keyboard Navigation:** Tab dan Enter pada modal dialog, termasuk navigasi ke Panel Ringkasan Denda (11.8).
+- **Screen Reader Support:** Setiap ikon aksi dilengkapi `aria-label` deskriptif, termasuk ikon baru `ImagePlus` (aria-label: "Unggah gambar sampul buku") dan `CircleDollarSign` (aria-label: "Jumlah denda").
+- **Focus Indicator:** Outline visual jelas (`ring-2`, warna `#003049` pada 40% opacity) agar mudah diidentifikasi tanpa bergantung pada warna saja.
 
 ---
 
 ## 14. DESIGN TOKENS TABLE
 
-| Token Name | Token Category | Token Value | Mapped CSS / Tailwind |
-| --- | --- | --- | --- |
-| token-font-main | Typography | Noto Sans, sans-serif | font-sans |
-| token-color-primary | Color | #16A34A | bg-green-600 |
-| token-color-primary-hover | Color | #15803D | hover:bg-green-700 |
-| token-color-primary-light | Color | #DCFCE7 | bg-green-100 |
-| token-color-danger | Color | #EF4444 | bg-red-500 |
-| token-color-warning | Color | #F59E0B | bg-amber-500 |
-| token-color-neutral-muted | Color | #94A3B8 | bg-slate-200 |
-| token-color-bg-app | Color | #F8FAFC | bg-slate-50 |
-| token-color-bg-card | Color | #FFFFFF | bg-white |
-| token-color-text-main | Color | #0F172A | text-slate-900 |
-| token-color-text-muted | Color | #64748B | text-slate-500 |
-| token-color-border | Color | #E2E8F0 | border-slate-200 |
-| token-border-radius | Layout | 8px | rounded-lg |
-| token-border-radius-modal | Layout | 12px | rounded-xl |
-| token-shadow-modal | Depth | 0px 10px 15px -3px rgba(0,0,0,0.1) | shadow-lg |
-| token-shadow-sidebar | Depth | 0px 4px 6px -1px rgba(0,0,0,0.07) | shadow-md |
-| token-sidebar-width | Layout | 260px | w-64 |
-| token-sidebar-collapsed | Layout | 80px | w-20 |
-| token-content-padding | Layout | 24px | p-6 |
+| Token Name | Token Category | Token Value |
+| --- | --- | --- |
+| token-font-main | Typography | Noto Sans, sans-serif |
+| token-color-primary | Color | #003049 |
+| token-color-primary-hover | Color | #012840 |
+| token-color-primary-active | Color | #001A2B |
+| token-color-primary-light | Color | #DCE8ED |
+| token-color-secondary | Color | #669BBC |
+| token-color-secondary-hover | Color | #4F84A6 |
+| token-color-secondary-light | Color | #E1EEF3 |
+| token-color-danger | Color | #C1121F |
+| token-color-danger-dark | Color | #780000 |
+| token-color-danger-light | Color | #FBE1E3 |
+| token-color-warning | Color | #CA8A04 |
+| token-color-warning-light | Color | #FDF1D9 |
+| token-color-neutral-muted | Color | #A8A196 |
+| token-color-bg-app | Color | #FCF6E8 |
+| token-color-bg-card | Color | #FFFFFF |
+| token-color-text-main | Color | #003049 |
+| token-color-text-muted | Color | #6B6355 |
+| token-color-border | Color | #E4D8BE |
+| token-border-radius | Layout | 8px |
+| token-border-radius-modal | Layout | 12px |
+| token-shadow-modal | Depth | 0px 10px 15px -3px rgba(0,48,73,0.15) |
+| token-shadow-sidebar | Depth | 0px 4px 6px -1px rgba(0,48,73,0.1) |
+| token-sidebar-width | Layout | 260px |
+| token-sidebar-collapsed | Layout | 80px |
+| token-content-padding | Layout | 24px |
+| **token-denda-per-hari** | **Business Logic (placeholder)** | **Rp 500** |
+| **token-denda-rusak-ringan** | **Business Logic (placeholder)** | **Rp 2.000** |
+| **token-denda-rusak-berat** | **Business Logic (placeholder)** | **Rp 5.000** |
+| **token-image-upload-maxsize** | **Business Logic** | **2 MB** |
+| **token-image-upload-format** | **Business Logic** | **JPG, PNG** |
 
 ---
 
-## 15. TRACEABILITY MATRIX (SRS v3.1 → DS v1.3)
-Setiap elemen visual dan aturan komponen dalam dokumen ini diturunkan untuk menjamin terpenuhinya spesifikasi fungsional dari SRS v3.0. Kolom "Target Components" memastikan seluruh komponen yang dirujuk benar-benar terdefinisi di Section 9.
+## 15. TRACEABILITY MATRIX (SRS v3.1 → DS v1.4)
 
 | Feature ID | Feature Name | Design System Target Components | Applied Design / Interaction Rules |
 | --- | --- | --- | --- |
-| F001 | Autentikasi Guru (Login) | Halaman Login minimalis, Text Input (username & password), Primary Button "Masuk". | Layout terpusat tanpa sidebar. Pesan error merah jika kredensial salah. Tidak ada self-registration. Idle Session Timeout Pattern (11.6) aktif setelah login berhasil. |
-| F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif" (9.5). | Modal overlay backdrop-blur. Validasi real-time field input, termasuk format Lokasi Rak (lihat Section 10). Tombol Hapus dinonaktifkan jika buku berstatus "Dipinjam". Badge merah untuk stok habis; badge netral untuk buku "Tidak Aktif" (retensi data, Section 7.3 SRS). |
-| F003 | Pencatatan Peminjaman Buku | Split Layout Dua Panel, Card Buku (Panel Kiri), Text Input, Read-Only Date Picker (Tanggal Pinjam) & Date Picker aktif (Tanggal Batas Pengembalian) (9.10), Primary Button "Simpan Peminjaman". | Buku stok 0 ditampilkan non-selectable. Tanggal Pinjam read-only otomatis; Tanggal Batas Pengembalian adalah date picker aktif dengan constraint `min` = tanggal peminjaman (diperbarui v1.2, lihat Section 10 untuk catatan konsistensi dengan SRS). Feedback sukses/gagal instan. |
-| F004 | Pencatatan Pengembalian Buku | Table Peminjaman Aktif, Badge Terlambat (merah), Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku (9.7), Badge Kondisi Buku (9.5). | Indikator keterlambatan visual (badge merah + jumlah hari). Tidak ada denda — hanya informasi. Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
-| F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar (9.8) (Nama Siswa, Judul, Rentang Tanggal), Badge Status Transaksi. | Zebra striping tabel. Badge hijau (Sudah Dikembalikan), kuning (Masih Dipinjam). Live filtering pada pencarian teks. Data bersifat read-only sepenuhnya. |
-| F006 | Akses Ketersediaan Buku Siswa | Topbar Publik (9.9), Card Buku, Table Buku, Kolom Pencarian, Badge Ketersediaan. | Nuansa hijau segar ramah anak. Tombol "Login Guru" di pojok kanan atas Topbar Publik. Tidak ada aksi penulisan data. Informasi peminjam tidak ditampilkan. |
-| F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada komponen UI dedicated — logika berjalan otomatis di backend, terpicu saat submit form pada PAGE-004 (F003) dan PAGE-005 (F004). | Perubahan status/stok tercermin secara instan pada Badge (9.5) dan Table Component (9.4) di seluruh halaman terkait tanpa perlu refresh manual (Instant Feedback, Section 2.2). |
-| Lintas Fitur | Komunikasi REST API (FE–BE) | System Error State (11.7) — Inline Alert Banner. | Diterapkan pada seluruh halaman yang melakukan request API: PAGE-003, PAGE-004, PAGE-005, PAGE-006. Mendukung NFR 9.4 (Reliability). |
+| F001 | Autentikasi Guru (Login) | Halaman Login minimalis, Text Input, Primary Button "Masuk" (`#003049`). | Layout terpusat tanpa sidebar. Pesan error merah jika kredensial salah. Idle Session Timeout Pattern (11.6) aktif setelah login. |
+| F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif". | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
+| F003 | Pencatatan Peminjaman Buku | Split Layout Dua Panel, Card Buku bermotif punggung buku (9.6 — direvisi), Read-Only Date Picker (Tanggal Pinjam) & Date Picker aktif (Tanggal Batas Pengembalian). | Buku stok 0 non-selectable. Tanggal Batas Pengembalian date picker aktif, constraint `min` = tanggal peminjaman. Feedback sukses/gagal instan. |
+| **F004** | **Pencatatan Pengembalian Buku** | Table Peminjaman Aktif, Badge Terlambat, **Badge Denda (baru)**, Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku, **Panel Ringkasan Denda (11.8 — baru)**. | Indikator keterlambatan visual + jumlah hari. **Denda dihitung otomatis dari hari terlambat dan kondisi buku (⚠️ bertentangan dengan SRS v3.1 saat ini — lihat catatan Section 1.2, perlu sinkronisasi ke SRS v3.2).** Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
+| F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar, Badge Status Transaksi, **Badge Denda (baru, jika ada)**. | Zebra striping. Live filtering. Data read-only, termasuk riwayat denda yang sudah tercatat. |
+| F006 | Akses Ketersediaan Buku Siswa | Topbar Publik, Card Buku (motif punggung buku), Table Buku, Kolom Pencarian, Badge Ketersediaan. | Nuansa navy-krem ramah anak. Tombol "Login Guru" Primary di Topbar Publik. Tidak ada aksi penulisan data. |
+| F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada komponen UI dedicated — logika backend. | Perubahan status/stok tercermin instan pada Badge dan Table Component tanpa refresh manual. |
+| Lintas Fitur | Komunikasi REST API (FE–BE) | System Error State (11.7) — Inline Alert Banner. | Diterapkan di PAGE-003, PAGE-004, PAGE-005, PAGE-006. Mendukung NFR 9.4 (Reliability). |
 
 ---
 
@@ -461,7 +505,8 @@ Setiap elemen visual dan aturan komponen dalam dokumen ini diturunkan untuk menj
 
 | Version | Date | Author | Description |
 | --- | --- | --- | --- |
-| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft — DS Sistem Informasi Perpustakaan SD Negeri Tamanan berdasarkan SRS v1.0 dan IA v1.0 (Chain of Truth SoT-3). |
-| 1.1 | 2026-06-30 | Kelompok DPSI BRAYYY | Revisi kelengkapan: (1) menambahkan komponen Radio Button Group Kondisi Buku (9.7), (2) menambahkan komponen Filter Bar Riwayat (9.8), (3) menambahkan Badge Kondisi Buku — Baik/Rusak Ringan/Rusak Berat (9.5), (4) menghapus klaim referensi NFR-Usability yang tidak ada di SRS v2.0, (5) menambahkan Idle Session Timeout Pattern (11.6), (6) menambahkan komponen Header/Topbar Publik vs Guru (9.9), (7) mengubah Tanggal Batas Pengembalian menjadi Read-Only (asumsi same-day return), (8) menambahkan System Error State (11.7), (9) memperbarui Traceability Matrix. |
-| **1.2** | **2026-07-01** | **Kelompok DPSI BRAYYY** | **Sinkronisasi penuh terhadap SRS v3.0 (restrukturisasi Feature ID F001–F007) dan IA (sinkron SRS v3.0):** (1) mengembalikan referensi NFR-Usability (kini valid — SRS v3.0 Section 9.7) ke Design Goals (2.1); (2) **membatalkan aturan Read-Only "same-day return" pada Tanggal Batas Pengembalian** — dikembalikan menjadi Date Picker aktif sesuai SRS F003 & IA PAGE-004, disertai catatan kontradiksi Out-of-Scope #4 vs F003 yang perlu diselaraskan tim SRS; (3) menambahkan komponen **Date Picker (9.10)** yang sebelumnya belum terdefinisi; (4) menambahkan **Badge "Tidak Aktif" (9.5)** dan token warna netral (4.3) untuk buku yang ditarik dari sirkulasi (SRS Section 7.3 — Data Retention); (5) menambahkan aturan placeholder & pesan error untuk field Lokasi Rak (Section 10); (6) memperbaiki seluruh sitasi Business Rule yang salah nomor akibat restrukturisasi SRS ke sistem Feature ID (Section 10, 11.5, 11.6, 11.7); (7) memperbarui seluruh referensi versi "SRS v2.0" → "SRS v3.0" dan "IA v1.0" → "IA (sinkron SRS v3.0)"; (8) menambahkan baris F007 pada Traceability Matrix (15); (9) menambahkan catatan NFR 9.1 (Performance) dan NFR 9.4 (Reliability) sebagai landasan Design Goals dan System Error State. |
-| 1.3 | 2026-07-01 | Kelompok DPSI BRAYYY | Menghapus catatan peringatan kontradiksi pada Section 10 (Tanggal Batas Pengembalian) setelah srs.md v3.1 merevisi Out-of-Scope poin #4 agar selaras dengan F003. Tidak ada perubahan pada aturan visual/komponen — Date Picker aktif untuk Tanggal Batas Pengembalian tetap sesuai spesifikasi sebelumnya. |
+| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft. |
+| 1.1 | 2026-06-30 | Kelompok DPSI BRAYYY | Penambahan Radio Button Group, Filter Bar, Badge Kondisi Buku, Idle Session Timeout, Topbar Publik/Guru, System Error State. |
+| 1.2 | 2026-07-01 | Kelompok DPSI BRAYYY | Sinkronisasi penuh terhadap SRS v3.0 (Feature ID F001–F007), penambahan Date Picker, Badge "Tidak Aktif", aturan Lokasi Rak. |
+| 1.3 | 2026-07-01 | Kelompok DPSI BRAYYY | Penghapusan catatan kontradiksi Tanggal Batas Pengembalian setelah srs.md v3.1 merevisi Out-of-Scope poin #4. |
+| **1.4** | **2026-07-03** | **Kelompok DPSI BRAYYY** | **Revisi besar atas permintaan tim:** (1) **Pergantian total palet warna** dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) **penegasan aturan Iconography** (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) **komponen baru Image Upload (9.11)** untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) **fitur baru Denda Keterlambatan** (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) **revisi motif Card Component** (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik; (6) ⚠️ **kontradiksi terbuka dengan SRS v3.1 F004** dicatat eksplisit di Section 1.2 dan 15 — srs.md perlu direvisi ke v3.2 untuk menyinkronkan business rule denda; nominal denda pada Section 11.8/14 masih berupa placeholder yang perlu dikonfirmasi tim. |

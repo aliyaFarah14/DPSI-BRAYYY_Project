@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 67% 95%;
+    --foreground: 202 100% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 202 100% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 202 100% 14%;
+    --primary: 202 100% 14%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 202 97% 13%;
+    --primary-active: 202 100% 8%;
+    --primary-light: 198 27% 90%;
+    --secondary: 200 39% 57%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-hover: 200 35% 48%;
+    --secondary-light: 197 43% 92%;
+    --destructive: 356 82% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-dark: 0 100% 24%;
+    --destructive-light: 358 71% 93%;
+    --warning: 40 96% 40%;
+    --warning-light: 38 90% 92%;
+    --muted: 40 10% 60%;
+    --muted-foreground: 39 11% 38%;
+    --accent: 38 41% 82%;
+    --accent-foreground: 202 100% 14%;
+    --border: 38 41% 82%;
+    --input: 38 41% 82%;
+    --ring: 202 100% 14%;
+    --radius: 0.625rem;
+
+    --sidebar: 202 100% 14%;
+    --sidebar-foreground: 40 15% 90%;
+    --sidebar-muted: 202 20% 25%;
+    --sidebar-active: 200 39% 57%;
+
+    --shelf: 38 30% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+  }
+
+  .page-title {
+    @apply text-xl font-bold text-foreground;
+  }
+
+  .section-label {
+    @apply text-sm font-semibold text-muted-foreground tracking-wide;
+  }
+}
