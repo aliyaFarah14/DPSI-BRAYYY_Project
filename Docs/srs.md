@@ -157,18 +157,24 @@ Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirement
 
 ### Feature ID: F004 — Pencatatan Pengembalian Buku
 
-**Description:** Fitur ini memungkinkan Guru mencatat pengembalian buku oleh siswa, termasuk kondisi fisik buku dan status keterlambatan.
+**Description:** Fitur ini memungkinkan Guru mencatat pengembalian buku oleh siswa, termasuk kondisi fisik buku, status keterlambatan, dan denda keterlambatan yang dihitung otomatis oleh sistem.
 
 **Requirements:**
 * Sistem harus menyediakan form pengembalian yang terhubung ke ID Peminjaman terkait.
 * Sistem harus menyediakan pilihan kondisi buku: Baik, Rusak Ringan, atau Rusak Berat.
 * Sistem harus mengisi tanggal pengembalian secara otomatis berdasarkan tanggal hari ini.
 * Sistem harus menghitung dan menampilkan jumlah hari keterlambatan secara otomatis, apabila ada.
+* Sistem harus menghitung dan menampilkan nominal denda keterlambatan secara otomatis berdasarkan jumlah hari terlambat dan kondisi buku, sebelum Guru mengklik "Konfirmasi Pengembalian".
 * Sistem harus memperbarui stok dan status buku segera setelah transaksi pengembalian berhasil disimpan.
 
 **Business Rules:**
 * Tanggal pengembalian diisi otomatis oleh sistem berdasarkan tanggal hari ini.
-* Sistem menampilkan informasi keterlambatan (jumlah hari) secara informatif, tanpa menerapkan denda.
+* Sistem menerapkan denda keterlambatan dengan formula berikut:
+    * * Denda Keterlambatan = Rp 500 × jumlah hari terlambat (dihitung dari selisih Tanggal Pengembalian − Tanggal Batas Kembali; jika ≤ 0 hari, komponen ini Rp 0).
+    * * Biaya Kondisi Buku = Rp 0 (Baik) / Rp 2.000 (Rusak Ringan) / Rp 5.000 (Rusak Berat).
+    * *  Total Denda = Denda Keterlambatan + Biaya Kondisi Buku.
+* Denda bersifat pencatatan informatif sebagai bagian dari data pengembalian — sistem ini tidak menyediakan modul pembayaran/pelunasan digital (transfer, status Lunas/Belum Lunas, dsb). Mekanisme pembayaran denda dilakukan secara manual di luar sistem oleh pihak sekolah.
+* Sesuai Business Rule F005 (data riwayat read-only), nominal Total Denda yang sudah tersimpan tidak dapat diubah atau dihapus melalui antarmuka sistem setelah transaksi pengembalian dikonfirmasi — konsisten dengan sifat immutable data pengembalian yang sudah berlaku sejak v3.1. Jika terjadi kesalahan pencatatan kondisi buku, koreksi dilakukan secara manual oleh administrator langsung di database, bukan melalui antarmuka Guru.
 * Data pengembalian disimpan terpisah dari data peminjaman, namun tetap terhubung melalui ID Peminjaman.
 * Stok buku bertambah kembali dan status berubah menjadi "Tersedia" setelah pengembalian berhasil dicatat.
 
@@ -222,7 +228,7 @@ Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirement
 
 1. Tidak ada fitur registrasi mandiri (self-registration) untuk akun Guru — akun hanya dibuat oleh administrator sistem.
 2. Tidak ada fitur forgot password.
-3. Tidak ada sistem denda/sanksi atas keterlambatan pengembalian buku (kebijakan sekolah negeri tidak memberlakukan denda).
+3. Sistem menerapkan denda keterlambatan otomatis. 
 4. Buku dipinjam untuk digunakan di lingkungan sekolah; batas waktu pengembalian ditentukan oleh Guru saat mencatat transaksi peminjaman, dan tidak wajib dikembalikan pada hari yang sama — selama masih dalam periode yang ditentukan Guru.
 5. Tidak ada login atau akun untuk Siswa — akses siswa selalu bersifat publik dan read-only.
 6. Tidak ada integrasi dengan sistem Data Pokok Pendidikan (Dapodik) atau sistem dinas pendidikan — data siswa yang sudah terintegrasi pusat tidak dikelola ulang oleh sistem ini.
@@ -232,6 +238,7 @@ Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirement
 10. Tidak ada notifikasi otomatis (email/SMS) untuk pengingat batas pengembalian.
 11. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code, atau mode offline-first pada versi ini.
 12. Tidak ada algoritma penataan ulang rak secara otomatis — Lokasi Rak diinput manual oleh Guru sebagai metadata referensi, bukan sistem pemetaan fisik otomatis.
+13. Tidak ada mekanisme banding/pembatalan denda melalui antarmuka Guru — koreksi kesalahan pencatatan hanya dapat dilakukan oleh administrator sistem di luar antarmuka aplikasi.
 
 ---
 
@@ -255,6 +262,9 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 9. Halaman akses siswa hanya bersifat read-only; tidak ada aksi penulisan data tanpa login.
 10. Data peminjam (nama siswa) tidak boleh ditampilkan pada halaman akses publik.
 
+**Denda & Keuangan**
+11. Nominal denda dihitung otomatis oleh sistem (Rp 500/hari keterlambatan + biaya kondisi buku); tidak ada input.
+12. Data denda yang sudah tersimpan bersifat read-only, mengikuti sifat immutable data pengembalian
 ---
 
 ## 7. Data Requirements
@@ -288,7 +298,7 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 * Stok buku harus berupa bilangan bulat ≥ 0.
 * Tanggal batas pengembalian harus ≥ tanggal peminjaman.
 * Judul buku, nama siswa, dan lokasi rak wajib berupa karakter alfanumerik yang bersih dari tag skrip berbahaya.
-
+* Total Denda harus berupa nilai non-negatif (≥ 0), dihitung otomatis oleh sistem — tidak menerima input manual.
 ---
 
 ## 8. External Interfaces
@@ -352,7 +362,9 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 | Melihat Riwayat Transaksi | AKSI (ALLOWED) | DITOLAK (DENIED) |
 | Melihat Ketersediaan & Lokasi Buku | AKSI (ALLOWED) | AKSI (ALLOWED) |
 | Mengubah/Menghapus Riwayat Transaksi | DITOLAK (DENIED) | DITOLAK (DENIED) |
-
+| Melihat Nominal Denda pada Riwayat/Pengembalian | AKSI (ALLOWED) | DITOLAK (DENIED) |
+| --- | --- | --- |
+| Mengubah/Menghapus Nominal Denda via Antarmuka | DITOLAK (DENIED) — hanya administrator via database | DITOLAK (DENIED) |
 ---
 
 ## 11. Feature Inventory
@@ -371,7 +383,8 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 
 ## 12. Open Questions
 
-* Belum ada pertanyaan terbuka saat ini.
+1. Apakah nominal Rp 500/hari, Rp 2.000 (Rusak Ringan), dan Rp 5.000 (Rusak Berat) adalah angka final dari pihak sekolah, atau masih perlu disesuaikan sebelum go-live?
+2. Apakah diperlukan batas maksimal (cap) nominal denda untuk kasus keterlambatan yang sangat lama?
 
 ---
 
@@ -380,19 +393,19 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 * Pengembangan fitur laporan rekap bulanan/tahunan peminjaman buku.
 * Integrasi barcode/QR code pada buku untuk mempercepat proses pencatatan transaksi.
 * Mode offline-first apabila koneksi internet sekolah sewaktu-waktu terputus.
+* Modul pelunasan denda (status Lunas/Belum Lunas) dan integrasi pembayaran, apabila sekolah memutuskan denda perlu dikelola sebagai kewajiban finansial formal.
 
 ---
 
 ## 14. Revision History
-
-| Version | Date | Author | Description |
+| **Version** | **Date** | **Author** | **Description** |
 | --- | --- | --- | --- |
 | **1.0** | 2026-06-30 | Kelompok DPSI BRAYYY | Draft awal sesuai struktur dasar tutorial SoT. |
 | **2.0** | 2026-06-30 | Kelompok DPSI BRAYYY | Restrukturisasi sesuai Tutorial SoT (6 section wajib). |
 | **2.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Penyelarasan dengan Problem Statement — penambahan field Lokasi Rak dan klarifikasi Out-of-Scope. |
-| **3.0** | 2026-07-01 | Kelompok DPSI BRAYYY | Ekspansi kedalaman dokumen: Feature ID per fitur (Requirements & Business Rules), penambahan Data Requirements, External Interfaces, NFR, Permission Matrix, Feature Inventory, Open Questions, Future Considerations. |
-| **3.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Perbaikan kontradiksi internal: revisi Out-of-Scope poin #4 (Section 5) agar selaras dengan Feature F003 — peminjaman tidak lagi dibatasi "dikembalikan pada hari yang sama". Perubahan dipicu temuan konsistensi dari design_system.md v1.2 Section 10. |
----
+| **3.0** | 2026-07-01 | Kelompok DPSI BRAYYY | Ekspansi kedalaman dokumen: Feature ID per fitur, Data Requirements, External Interfaces, NFR, Permission Matrix, Feature Inventory, Open Questions, Future Considerations. |
+| **3.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Perbaikan kontradiksi internal Out-of-Scope poin #4 vs F003. |
+| **3.2** | 2026-07-06 | Kelompok DPSI BRAYYY | Sinkronisasi dengan Design System v1.4: merevisi Business Rule F004 untuk mengakomodasi fitur Denda Keterlambatan (formula Rp 500/hari + biaya kondisi buku), merevisi Out-of-Scope poin #3, menambah Business Rule Master List poin 11–12, menambah baris Permission Matrix untuk kontrol akses denda, menambah Open Question soal nominal final dan cap denda, menambah Future Consideration soal modul pelunasan. Nominal denda tetap berstatus placeholder menunggu konfirmasi sekolah — konsisten dengan catatan Design System v1.4 Section 1.2 & 11.8. |---
 
 ## Lampiran: Referensi
 - Problem Statement — Observasi SD Negeri Tamanan, Yogyakarta (2026)
