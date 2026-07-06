@@ -454,18 +454,19 @@ CREATE TABLE peminjaman (
 ) ENGINE=InnoDB;
 
 -- ============================================================
--- TABEL: pengembalian (Direvisi v1.2 — tambah kolom denda)
+-- TABEL: pengembalian
 -- ============================================================
 CREATE TABLE pengembalian (
     id_pengembalian     VARCHAR(20)    PRIMARY KEY,
     id_peminjaman       VARCHAR(20)    NOT NULL UNIQUE,
     tgl_pengembalian    DATE           NOT NULL DEFAULT (CURRENT_DATE),
     kondisi_buku        VARCHAR(20)    NOT NULL
+    
                         CHECK (kondisi_buku IN ('Baik', 'Rusak Ringan', 'Rusak Berat')),
     keterlambatan_hari  INTEGER        NOT NULL DEFAULT 0 CHECK (keterlambatan_hari >= 0),
-    denda_keterlambatan DECIMAL(10,2)  NOT NULL DEFAULT 0 CHECK (denda_keterlambatan >= 0),  -- Baru v1.2
-    biaya_kondisi       DECIMAL(10,2)  NOT NULL DEFAULT 0 CHECK (biaya_kondisi >= 0),          -- Baru v1.2
-    total_denda         DECIMAL(10,2)  NOT NULL DEFAULT 0 CHECK (total_denda >= 0),            -- Baru v1.2
+    denda_keterlambatan DECIMAL(10,2)  NOT NULL DEFAULT 0 CHECK (denda_keterlambatan >= 0),  
+    biaya_kondisi       DECIMAL(10,2)  NOT NULL DEFAULT 0 CHECK (biaya_kondisi >= 0),          
+    total_denda         DECIMAL(10,2)  NOT NULL DEFAULT 0 CHECK (total_denda >= 0),         
     created_at          TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_peminjaman) REFERENCES peminjaman(id_peminjaman)
 ) ENGINE=InnoDB;
