@@ -8,13 +8,6 @@ Last Updated: 2026-07-06
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
-> **Catatan revisi v1.2:** v1.1 belum memiliki kolom denda sama sekali di tabel `pengembalian`, karena saat itu srs.md masih v3.1 (tanpa denda). Setelah design_system.md direvisi ke v1.4 (menambahkan fitur Denda Keterlambatan) dan srs.md disinkronkan ke v3.2, Data Model ini diperbarui untuk menambahkan:
-> 1. Kolom `denda_keterlambatan`, `biaya_kondisi`, dan `total_denda` pada tabel `pengembalian` (Section 3.4).
-> 2. Section baru 3.7 — Konstanta Aplikasi, penjelasan nominal denda disimpan sebagai konfigurasi backend, bukan hardcode di skema database.
-> 3. Update DDL `CREATE TABLE pengembalian` dan `CREATE VIEW riwayat_peminjaman` (Section 6).
-> 4. BR-21 s.d. BR-23 pada Business Rules Traceability (Section 7).
-> Entity lain (guru, buku, peminjaman, session) tidak berubah dari v1.1.
-
 ---
 
 ## 1. DOCUMENT OVERVIEW
@@ -222,8 +215,6 @@ total_denda          = denda_keterlambatan + biaya_kondisi
 | Nama Siswa | `nama_siswa` | LIKE `%keyword%` |
 | Judul Buku | `judul_buku` | LIKE `%keyword%` |
 | Rentang Tanggal | `tgl_peminjaman` | BETWEEN `tgl_mulai` AND `tgl_akhir` |
-
-> Definisi SQL lengkap ada di Section 6 (DDL).
 
 ---
 

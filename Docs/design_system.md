@@ -32,17 +32,6 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 | SoT-4 | User Flows | Rangkaian langkah interaksi pengguna per use-case. |
 | SoT-5 | HiFi Prototype | Representasi visual interaktif akhir. |
 
-> **⚠️ CATATAN KRITIS v1.4 — KONFLIK BELUM DISELESAIKAN DI SISI SRS:**
-> DS v1.4 ini memperkenalkan **Fitur Denda Keterlambatan** (lihat Section 11.8 dan pembaruan F004 pada Traceability Matrix, Section 15) atas permintaan langsung tim proyek. Fitur ini **bertentangan** dengan SRS v3.1 Feature F004 (Business Rules) yang saat ini masih menyatakan secara eksplisit: *"Tidak ada denda — hanya informasi."*
->
-> Mengikuti pola penyelesaian kontradiksi yang sama seperti revisi v1.2→v1.3 (kasus Tanggal Batas Pengembalian), DS tetap ditulis maju mengikuti keputusan tim, **namun kontradiksi ini WAJIB diselesaikan di sisi sumber** — yaitu `srs.md` perlu direvisi ke v3.2 agar Business Rule F004 disinkronkan (mengizinkan denda, mendefinisikan formula resmi, dan memperbarui Permission Matrix jika relevan — misal siapa yang berwenang menghapus/mengubah catatan denda). Sampai srs.md direvisi, DS v1.4 dan SRS v3.1 berada dalam kondisi **tidak sinkron** secara sengaja, atas keputusan tim proyek.
->
-> Selain itu, **besaran nominal denda pada Section 11.8 masih berupa ASUMSI PLACEHOLDER** karena belum ada angka resmi dari tim. Wajib dikonfirmasi sebelum masuk ke HiFi Prototype (SoT-5).
-
-> **Catatan revisi v1.3 (dipertahankan):** Kontradiksi antara SRS Out-of-Scope poin #4 dan Feature F003 yang tercatat pada DS v1.2 Section 10 telah diselesaikan di sisi sumber — `srs.md` v3.1 merevisi Out-of-Scope poin #4 agar selaras dengan F003 (peminjaman multi-hari kini didukung penuh, tidak lagi terbatas same-day return).
-
----
-
 ## 2. DESIGN PRINCIPLES
 
 ### 2.1 Design Goals
@@ -77,7 +66,7 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 ## 4. COLOR SYSTEM
 
-**Perubahan besar di v1.4:** seluruh palet hijau/slate pada v1.3 digantikan dengan palet navy–biru–merah di atas latar krem. Warna oranye yang sempat dieksplorasi pada tahap draf **tidak digunakan** — keputusan final tim adalah 3 warna inti (navy, biru, merah) plus krem sebagai latar netral.
+**Perubahan besar di v1.4:** seluruh palet hijau/slate pada v1.3 digantikan dengan palet navy–biru–merah di atas latar krem.
 
 ### 4.1 Primary Colors (Navy Brand)
 
@@ -125,7 +114,7 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 
 ## 5. TYPOGRAPHY
 
-*(Tidak berubah dari v1.3.)* Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahasa Indonesia dan angka tetap tinggi pada layar komputer sekolah berkualitas standar.
+ Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahasa Indonesia dan angka tetap tinggi pada layar komputer sekolah berkualitas standar.
 
 | Text Style | Font Family | Weight | Size (px/rem) | Line Height | Usage |
 | --- | --- | --- | --- | --- | --- |
@@ -140,9 +129,6 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 ---
 
 ## 6. ELEVATION & SHADOWS
-
-*(Tidak berubah dari v1.3.)*
-
 - **Shadow None (`shadow-none`):** Seluruh elemen input teks dan tabel datar (flat).
 - **Shadow Small (`shadow-sm`):** Kartu buku pada halaman publik siswa dan panel daftar buku di halaman peminjaman.
 - **Shadow Medium (`shadow-md`):** Sidebar navigasi, Topbar, dan panel tabel utama.
@@ -151,9 +137,6 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 ---
 
 ## 7. GRID & LAYOUT
-
-*(Tidak berubah dari v1.3.)* Aplikasi dioptimalkan untuk perangkat layar Desktop PC dan Laptop di lingkungan sekolah.
-
 ### 7.1 Desktop Grid (Width ≥ 1024px)
 - **Layout Style:** Flexbox / Grid Split Layout.
 - **Sidebar Width:** Tetap 260px (dapat diciutkan menjadi 80px via tombol toggle).
@@ -173,8 +156,6 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 ## 8. ICONOGRAPHY
 
 Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline SVG setara), gaya **Outline, stroke 2px**, monokrom mengikuti token warna teks/status yang berlaku di konteksnya.
-
-**Aturan tegas (baru v1.4 — memperbaiki temuan icon generik/emoji):**
 - **Dilarang** mencampur emoji dengan ikon SVG di layar manapun, termasuk pada toast, badge, dan empty state.
 - Setiap ikon fungsional dipetakan ke **satu fungsi spesifik** (tabel di bawah) — tidak ada ikon dekoratif tanpa fungsi.
 - Warna ikon mengikuti token semantik konteksnya (`color-text-main` untuk netral, `color-danger` untuk aksi hapus/error, dst.) — bukan warna acak/pelangi.
@@ -193,8 +174,8 @@ Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline 
 | Hapus Data Buku | Trash2 | Ikon Tempat Sampah |
 | Pencarian Buku | Search | Ikon Kaca Pembesar |
 | Informasi Keterlambatan | AlertCircle | Ikon Lingkaran Seru |
-| **Denda / Biaya** | **CircleDollarSign** | **(Baru v1.4)** Ikon lingkaran dengan simbol mata uang, dipakai di badge dan ringkasan denda. |
-| **Unggah Gambar** | **ImagePlus** | **(Baru v1.4)** Ikon gambar dengan tanda plus, dipakai pada komponen Image Upload (Section 9.11). |
+| Denda / Biaya | CircleDollarSign | Ikon lingkaran dengan simbol mata uang, dipakai di badge dan ringkasan denda. |
+| Unggah Gambar | ImagePlus | (Baru v1.4) Ikon gambar dengan tanda plus, dipakai pada komponen Image Upload (Section 9.11). |
 | Akun Guru Aktif | User | Ikon Siluet Orang |
 | Peringatan Sesi Berakhir | Clock | Ikon Jam |
 | Kegagalan Koneksi Sistem | WifiOff | Ikon Sinyal Terputus |
@@ -254,14 +235,14 @@ Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline 
 | Masih Dipinjam | `#E1EEF3` / `#003049` | Status transaksi belum dikembalikan (tepat waktu). |
 | Sudah Dikembalikan | `#E1EEF3` / `#003049` | Status transaksi selesai. |
 | Terlambat | `#FBE1E3` / `#780000`, `font-semibold` | Indikator keterlambatan pengembalian pada PAGE-005. |
-| **Denda (Baru v1.4)** | `#FBE1E3` / `#780000`, `font-semibold` | Menampilkan nominal denda pada baris riwayat/pengembalian, mis. "Denda Rp 3.000". Ikon `CircleDollarSign` di sisi kiri teks. |
+| Denda | `#FBE1E3` / `#780000`, `font-semibold` | Menampilkan nominal denda pada baris riwayat/pengembalian, mis. "Denda Rp 3.000". Ikon `CircleDollarSign` di sisi kiri teks. |
 | Baik | `#E1EEF3` / `#003049` | Kondisi buku baik saat dikembalikan. |
 | Rusak Ringan | `#FDF1D9` / `#8A5A00` | Kondisi buku rusak ringan. |
 | Rusak Berat | `#FBE1E3` / `#780000`, `font-semibold` | Kondisi buku rusak berat. |
 
 ### 9.6 Card Component (Buku — Halaman Publik Siswa)
 
-Digunakan pada PAGE-002 untuk menampilkan buku dalam format kartu kepada siswa. **Direvisi total di v1.4** — motif kartu diubah dari "kartu generik + ikon buku" menjadi motif **punggung buku di rak**, supaya terasa spesifik ke subjek perpustakaan alih-alih template kartu umum.
+Digunakan pada PAGE-002 untuk menampilkan buku dalam format kartu kepada siswa. — motif kartu diubah dari "kartu generik + ikon buku" menjadi motif, supaya terasa spesifik ke subjek perpustakaan alih-alih template kartu umum.
 
 - **Struktur:** Kartu berbentuk baris horizontal (bukan kotak vertikal), terdiri dari dua bagian:
   - **Strip Kiri (32px):** Latar solid `#003049` (atau `#780000` untuk variasi visual antar kartu — lihat catatan di bawah), berisi **judul buku dituliskan vertikal** (`writing-mode: vertical-rl`) dengan teks putih/krem — meniru tulisan di punggung buku fisik.
@@ -306,9 +287,9 @@ Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
 - **Focus State:** Sama seperti Text Input (`border-[#003049]`, `ring-2` warna `#DCE8ED`).
 - **Disabled/Read-Only Variant:** Latar `#EFEAE0`, teks `#6B6355`, kursor `not-allowed` — dipakai untuk field tanggal otomatis (Tanggal Pinjam, Tanggal Pengembalian).
 
-### 9.11 Image Upload (Baru — v1.4)
+### 9.11 Image Upload
 
-**Ditambahkan pada v1.4** untuk mendukung unggah gambar sampul buku pada Form Tambah/Edit Buku (F002), memenuhi permintaan tim agar Guru dapat mengunggah foto sampul untuk ditampilkan di Card Component (Section 9.6) dan Table Component.
+**Ditambahkan** untuk mendukung unggah gambar sampul buku pada Form Tambah/Edit Buku (F002), memenuhi permintaan tim agar Guru dapat mengunggah foto sampul untuk ditampilkan di Card Component (Section 9.6) dan Table Component.
 
 - **Default State (belum ada gambar):** Kotak dropzone rasio 3:4 (mengikuti proporsi sampul buku), border putus-putus (`dashed`) `#E4D8BE`, latar `#FCF6E8`, berisi ikon `ImagePlus` (24px, `#6B6355`) di tengah dan teks `"Klik atau seret gambar sampul ke sini"` (12px, `#6B6355`) serta keterangan format yang didukung, contoh: `"Format JPG/PNG, maksimal 2MB."`
 - **Hover/Drag-Over State:** Border berubah solid `#003049`, latar `#DCE8ED`.
@@ -384,8 +365,6 @@ Setiap kali guru menekan tombol "Proses Pengembalian" pada PAGE-005:
 
 ### 11.8 Kalkulasi & Ringkasan Denda Keterlambatan (Baru — v1.4)
 
-> ⚠️ **Lihat catatan konflik SRS di Section 1.2.** Fitur ini belum tercakup dalam SRS v3.1 F004 dan nominal di bawah adalah **ASUMSI PLACEHOLDER**, wajib dikonfirmasi tim sebelum implementasi.
-
 **Kapan muncul:** Di dalam Modal Konfirmasi Pengembalian (PAGE-005), tepat di bawah Radio Button Group Kondisi Buku (Section 9.7), sebagai **Panel Ringkasan Denda** — muncul otomatis begitu Tanggal Pengembalian ≥ Batas Kembali, atau kondisi buku bukan "Baik".
 
 **Formula (usulan, perlu konfirmasi nominal):**
@@ -412,17 +391,9 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 
 **Setelah konfirmasi:** Nominal Total Denda tersimpan pada record transaksi dan ditampilkan sebagai Badge Denda (Section 9.5) pada Table Riwayat (PAGE-006) dan Table Peminjaman Aktif (PAGE-005), sehingga riwayat denda tetap terlihat tanpa perlu membuka ulang modal.
 
-**Pertanyaan terbuka untuk tim (perlu dijawab sebelum HiFi Prototype):**
-1. Apakah Rp 500/hari dan Rp 2.000/Rp 5.000 adalah angka final, atau perlu disesuaikan?
-2. Apakah ada batas maksimal denda (cap), supaya keterlambatan sangat lama tidak menghasilkan nominal tidak wajar?
-3. Siapa yang berwenang menghapus/membatalkan denda jika terjadi kekeliruan pencatatan (perlu masuk ke Permission Matrix SRS)?
-4. Apakah denda dicatat sebagai kewajiban yang perlu "dilunasi" dengan status terpisah (Lunas/Belum Lunas), atau cukup sebagai catatan informatif seperti pada versi F004 sebelumnya?
-
 ---
 
 ## 12. RESPONSIVE BEHAVIOR
-
-*(Tidak berubah dari v1.3.)*
 
 **[Viewport: Mobile (< 768px)]**
 - Sidebar disembunyikan total; diakses via drawer hamburger menu.
@@ -493,7 +464,7 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | F001 | Autentikasi Guru (Login) | Halaman Login minimalis, Text Input, Primary Button "Masuk" (`#003049`). | Layout terpusat tanpa sidebar. Pesan error merah jika kredensial salah. Idle Session Timeout Pattern (11.6) aktif setelah login. |
 | F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif". | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
 | F003 | Pencatatan Peminjaman Buku | Split Layout Dua Panel, Card Buku bermotif punggung buku (9.6 — direvisi), Read-Only Date Picker (Tanggal Pinjam) & Date Picker aktif (Tanggal Batas Pengembalian). | Buku stok 0 non-selectable. Tanggal Batas Pengembalian date picker aktif, constraint `min` = tanggal peminjaman. Feedback sukses/gagal instan. |
-| **F004** | **Pencatatan Pengembalian Buku** | Table Peminjaman Aktif, Badge Terlambat, **Badge Denda (baru)**, Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku, **Panel Ringkasan Denda (11.8 — baru)**. | Indikator keterlambatan visual + jumlah hari. **Denda dihitung otomatis dari hari terlambat dan kondisi buku (⚠️ bertentangan dengan SRS v3.1 saat ini — lihat catatan Section 1.2, perlu sinkronisasi ke SRS v3.2).** Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
+| **F004** | **Pencatatan Pengembalian Buku** | Table Peminjaman Aktif, Badge Terlambat, **Badge Denda (baru)**, Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku, **Panel Ringkasan Denda (11.8 — baru)**. | Indikator keterlambatan visual + jumlah hari. **Denda dihitung otomatis dari hari terlambat dan kondisi buku** Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
 | F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar, Badge Status Transaksi, **Badge Denda (baru, jika ada)**. | Zebra striping. Live filtering. Data read-only, termasuk riwayat denda yang sudah tercatat. |
 | F006 | Akses Ketersediaan Buku Siswa | Topbar Publik, Card Buku (motif punggung buku), Table Buku, Kolom Pencarian, Badge Ketersediaan. | Nuansa navy-krem ramah anak. Tombol "Login Guru" Primary di Topbar Publik. Tidak ada aksi penulisan data. |
 | F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada komponen UI dedicated — logika backend. | Perubahan status/stok tercermin instan pada Badge dan Table Component tanpa refresh manual. |
@@ -509,4 +480,4 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | 1.1 | 2026-06-30 | Kelompok DPSI BRAYYY | Penambahan Radio Button Group, Filter Bar, Badge Kondisi Buku, Idle Session Timeout, Topbar Publik/Guru, System Error State. |
 | 1.2 | 2026-07-01 | Kelompok DPSI BRAYYY | Sinkronisasi penuh terhadap SRS v3.0 (Feature ID F001–F007), penambahan Date Picker, Badge "Tidak Aktif", aturan Lokasi Rak. |
 | 1.3 | 2026-07-01 | Kelompok DPSI BRAYYY | Penghapusan catatan kontradiksi Tanggal Batas Pengembalian setelah srs.md v3.1 merevisi Out-of-Scope poin #4. |
-| **1.4** | **2026-07-03** | **Kelompok DPSI BRAYYY** | **Revisi besar atas permintaan tim:** (1) **Pergantian total palet warna** dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) **penegasan aturan Iconography** (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) **komponen baru Image Upload (9.11)** untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) **fitur baru Denda Keterlambatan** (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) **revisi motif Card Component** (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik; (6) ⚠️ **kontradiksi terbuka dengan SRS v3.1 F004** dicatat eksplisit di Section 1.2 dan 15 — srs.md perlu direvisi ke v3.2 untuk menyinkronkan business rule denda; nominal denda pada Section 11.8/14 masih berupa placeholder yang perlu dikonfirmasi tim. |
+| **1.4** | **2026-07-03** | **Kelompok DPSI BRAYYY** | **Revisi besar atas permintaan tim:** (1) **Pergantian total palet warna** dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) **penegasan aturan Iconography** (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) **komponen baru Image Upload (9.11)** untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) **fitur baru Denda Keterlambatan** (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) **revisi motif Card Component** (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik; 
