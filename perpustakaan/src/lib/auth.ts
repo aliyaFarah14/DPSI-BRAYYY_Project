@@ -25,9 +25,9 @@ function writeSession(s: Session) {
 
 export function login(username: string, password: string): LoginResult {
   const guru = db.findGuruByUsername(username)
-  if (!guru) return { success: false, error: "Username tidak ditemukan." }
+  if (!guru) return { success: false, error: "Username atau password salah." }
   const hash = btoa(password)
-  if (guru.password_hash !== hash) return { success: false, error: "Password salah." }
+  if (guru.password_hash !== hash) return { success: false, error: "Username atau password salah." }
   const now = new Date()
   const session: Session = {
     id_guru: guru.id_guru,
@@ -38,6 +38,22 @@ export function login(username: string, password: string): LoginResult {
   }
   writeSession(session)
   return { success: true }
+}
+
+export type SessionState = "authenticated" | "expired" | "none"
+
+export function getSessionState(): SessionState {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY)
+    if (!raw) return "none"
+    const s: Session = JSON.parse(raw)
+    if (new Date(s.expiresAt) < new Date()) {
+      return "expired"
+    }
+    return "authenticated"
+  } catch {
+    return "none"
+  }
 }
 
 export function logout() {

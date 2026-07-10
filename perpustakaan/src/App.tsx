@@ -3,7 +3,7 @@ import { useEffect, Component, type ReactNode } from "react"
 import { AlertTriangle } from "lucide-react"
 import GuruLayout from "@/components/layout/guru-layout"
 import PublicLayout from "@/components/layout/public-layout"
-import { isAuthenticated } from "@/lib/auth"
+import { getSessionState } from "@/lib/auth"
 import { db } from "@/lib/db"
 import LoginPage from "@/pages/login-page"
 import PublicPage from "@/pages/public-page"
@@ -13,7 +13,11 @@ import ReturnPage from "@/pages/return-page"
 import HistoryPage from "@/pages/history-page"
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
-  if (!isAuthenticated()) {
+  const state = getSessionState()
+  if (state === "none") {
+    return <Navigate to="/login" replace />
+  }
+  if (state === "expired") {
     return <Navigate to="/login?timeout=1" replace />
   }
   return <>{children}</>

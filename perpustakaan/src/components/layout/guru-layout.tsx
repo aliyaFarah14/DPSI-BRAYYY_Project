@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
 import { Menu } from "lucide-react"
 import Sidebar from "./sidebar"
-import { isAuthenticated, touchSession, getSession } from "@/lib/auth"
+import { getSessionState, touchSession, getSession } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 
 export default function GuruLayout() {
@@ -12,15 +12,27 @@ export default function GuruLayout() {
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
 
   useEffect(() => {
-    if (!isAuthenticated()) {
+    const state = getSessionState()
+    if (state === "none") {
+      navigate("/login", { replace: true })
+    } else if (state === "expired") {
       navigate("/login?timeout=1", { replace: true })
     }
   }, [navigate])
 
   const checkSession = useCallback(() => {
+    const state = getSessionState()
+    if (state === "none") {
+      navigate("/login", { replace: true })
+      return
+    }
+    if (state === "expired") {
+      navigate("/login?timeout=1", { replace: true })
+      return
+    }
     const session = getSession()
     if (!session) {
-      navigate("/login?timeout=1", { replace: true })
+      navigate("/login", { replace: true })
       return
     }
     const expiresAt = new Date(session.expiresAt).getTime()

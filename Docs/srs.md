@@ -274,18 +274,17 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 
 1. Tidak ada fitur registrasi mandiri (self-registration) untuk akun Guru — akun hanya dibuat oleh administrator sistem.
 2. Tidak ada fitur forgot password.
-3. Sistem menerapkan denda keterlambatan otomatis.
-4. Buku dipinjam untuk digunakan di lingkungan sekolah; batas waktu pengembalian ditentukan oleh Guru saat mencatat transaksi peminjaman, dan tidak wajib dikembalikan pada hari yang sama — selama masih dalam periode yang ditentukan Guru.
-5. Tidak ada login atau akun untuk Siswa — akses siswa selalu bersifat publik dan read-only.
-6. Tidak ada integrasi dengan sistem Data Pokok Pendidikan (Dapodik) atau sistem dinas pendidikan — data siswa yang sudah terintegrasi pusat tidak dikelola ulang oleh sistem ini.
-7. Tidak ada modul pendataan aset sekolah, penyusunan jadwal pelajaran, atau peminjaman fasilitas non-buku (misal: ruang kelas, alat olahraga) — sistem ini hanya mencakup domain perpustakaan.
-8. Tidak ada manajemen multi-cabang atau multi-perpustakaan.
-9. Tidak ada modul pemesanan/reservasi buku secara online oleh siswa.
-10. Tidak ada notifikasi otomatis (email/SMS) untuk pengingat batas pengembalian.
-11. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code pada versi ini.
-12. Tidak ada algoritma penataan ulang rak secara otomatis — Lokasi Rak diinput manual oleh Guru sebagai metadata referensi, bukan sistem pemetaan fisik otomatis.
-13. Tidak ada mekanisme banding/pembatalan denda melalui antarmuka Guru — koreksi kesalahan pencatatan hanya dapat dilakukan oleh administrator sistem di luar antarmuka aplikasi.
-14. Tidak ada akses multi-PC/jaringan (LAN) pada versi ini — sistem hanya berjalan pada satu unit PC perpustakaan (lihat Section 3.3).
+3. Buku dipinjam untuk digunakan di lingkungan sekolah; batas waktu pengembalian ditentukan oleh Guru saat mencatat transaksi peminjaman, dan tidak wajib dikembalikan pada hari yang sama — selama masih dalam periode yang ditentukan Guru.
+4. Tidak ada login atau akun untuk Siswa — akses siswa selalu bersifat publik dan read-only.
+5. Tidak ada integrasi dengan sistem Data Pokok Pendidikan (Dapodik) atau sistem dinas pendidikan — data siswa yang sudah terintegrasi pusat tidak dikelola ulang oleh sistem ini.
+6. Tidak ada modul pendataan aset sekolah, penyusunan jadwal pelajaran, atau peminjaman fasilitas non-buku (misal: ruang kelas, alat olahraga) — sistem ini hanya mencakup domain perpustakaan.
+7. Tidak ada manajemen multi-cabang atau multi-perpustakaan.
+8. Tidak ada modul pemesanan/reservasi buku secara online oleh siswa.
+9. Tidak ada notifikasi otomatis (email/SMS) untuk pengingat batas pengembalian.
+10. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code pada versi ini.
+11. Tidak ada algoritma penataan ulang rak secara otomatis — Lokasi Rak diinput manual oleh Guru sebagai metadata referensi, bukan sistem pemetaan fisik otomatis.
+12. Tidak ada mekanisme banding/pembatalan denda melalui antarmuka Guru — koreksi kesalahan pencatatan hanya dapat dilakukan oleh administrator sistem di luar antarmuka aplikasi.
+13. Tidak ada akses multi-PC/jaringan (LAN) pada versi ini — sistem hanya berjalan pada satu unit PC perpustakaan (lihat Section 3.3).
 
 ---
 
