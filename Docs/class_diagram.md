@@ -1,3 +1,4 @@
+# Class Diagram — Sistem Informasi Perpustakaan SD Negeri Tamanan 
 ```mermaid
 classDiagram
     class Guru {
@@ -23,12 +24,14 @@ classDiagram
         +String lokasi_rak
         +int stok
         +String status_buku
+        +String gambar_sampul
         +tambah()
         +ubah()
         +hapus()
         +cari(keyword)
         +kurangiStok()
         +tambahStok()
+        +uploadGambarSampul()
     }
 
     class Peminjaman {
@@ -49,9 +52,9 @@ classDiagram
         +Date tgl_pengembalian
         +String kondisi_buku
         +int keterlambatan_hari
-        +Decimal denda_keterlambatan
-        +Decimal biaya_kondisi
-        +Decimal total_denda
+        +int denda_keterlambatan
+        +int biaya_kondisi
+        +int total_denda
         +konfirmasi()
         +hitungKeterlambatan()
         +hitungDenda()
@@ -60,6 +63,7 @@ classDiagram
     class Session {
         +String id_session
         +String id_guru
+        +DateTime created_at
         +DateTime last_activity
         +DateTime expires_at
         +buatSesi()

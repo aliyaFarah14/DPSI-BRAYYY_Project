@@ -1,10 +1,11 @@
 # srs.md — Software Requirements Specification
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Document Version:** v3.1 (Perbaikan kontradiksi Out-of-Scope vs F003)**Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
+**Document Version:** v3.4 (Penambahan section eksplisit Kebutuhan Fungsional/FR-ID)
+**Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
 **Product:** Web-Based Library Management System
 **Status:** Draft
-**Last Updated:** 2026-07-01
+**Last Updated:** 2026-07-09
 **Author:** Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 **Supervisor:** Farid Suryanto, S.Pd., MT.
 
@@ -61,29 +62,36 @@ Sistem ini wajib menyediakan pencatatan transaksi peminjaman dan pengembalian bu
 
 Tech stack berikut bersifat final dan wajib digunakan apa adanya oleh AI coding assistant. Tidak ada alternatif/opsi lain.
 
+> **Konteks deployment:** Sistem dijalankan **secara lokal pada satu unit PC** di perpustakaan SD Negeri Tamanan (server dan client adalah PC yang sama). Guru dan siswa mengakses aplikasi melalui browser lokal di PC tersebut secara bergantian sesuai sesi yang aktif. Tidak ada hosting cloud maupun akses lintas jaringan pada versi ini.
+
 | Layer | Teknologi |
 |---|---|
-| Frontend | React (Vite) |
-| Backend | Express.js (Node.js) |
-| Database | MySQL |
-| Komunikasi Frontend–Backend | REST API, format JSON, protokol HTTPS |
+| Frontend | React (Vite), di-*build* menjadi static file (production build) |
+| Backend | Express.js (Node.js), berjalan sebagai server lokal di PC yang sama |
+| Database | SQLite (file-based, tidak memerlukan instalasi server database terpisah) |
+| Komunikasi Frontend–Backend | REST API, format JSON, protokol HTTP (localhost) |
 | Autentikasi | Username & password, password disimpan dalam bentuk hash (bcrypt) |
 
-Catatan arsitektur: Frontend dan backend wajib berjalan sebagai dua project terpisah (bukan satu framework gabungan). Frontend wajib menggunakan `fetch`/`axios` untuk memanggil REST API milik backend, dan backend wajib mengaktifkan CORS agar dapat diakses oleh frontend.
+Catatan arsitektur: Karena aplikasi berjalan pada satu PC yang sama (server dan client sama), hasil *build* frontend disajikan langsung oleh backend Express sebagai static file dari satu proses/origin yang sama — sehingga **tidak diperlukan dua server terpisah, tidak diperlukan konfigurasi CORS, dan tidak diperlukan HTTPS** (karena tidak melewati jaringan publik). Guru dan siswa mengakses aplikasi melalui browser dengan alamat `http://localhost:<port>` pada PC yang sama.
 
 ### 3.1 Operating Environment
 
-* **Browser Support:** Google Chrome, Mozilla Firefox, Microsoft Edge (versi terbaru).
-* **Device Support:** Desktop/laptop untuk Guru (input intensif); tablet/mobile untuk akses publik siswa (read-only).
-* **Deployment:** Frontend dan backend dapat di-deploy pada layanan hosting terpisah (misal: Vercel/Netlify untuk frontend, VPS/Railway untuk backend) — detail infrastruktur ditentukan pada dokumen arsitektur, bukan pada SRS ini.
+* **Operating System:** Windows (mengikuti OS yang terpasang pada PC perpustakaan sekolah).
+* **Browser Support:** Google Chrome, Microsoft Edge (versi terbaru), dibuka secara lokal di PC yang sama tempat aplikasi dijalankan.
+* **Device Support:** Satu unit PC desktop, digunakan bergantian oleh Guru (mode manajemen, login) dan siswa (mode publik, read-only) sesuai sesi yang aktif di browser.
+* **Deployment:** Aplikasi (backend Node.js, hasil *build* frontend, dan file database SQLite) diinstal dan dijalankan langsung di PC perpustakaan tersebut. Tidak menggunakan layanan hosting cloud (Vercel/Netlify/VPS/Railway) pada versi ini.
+* **Menjalankan Aplikasi:** Server backend dijalankan melalui skrip/*shortcut* lokal (mis. file `.bat` atau *Node script*) yang dijalankan setiap PC dinyalakan atau sebelum jam layanan perpustakaan dimulai.
 
 ### 3.2 Assumptions
 
-* Perangkat yang digunakan Guru dan siswa selalu terhubung ke jaringan internet sekolah yang stabil selama jam operasional.
-* Server backend dan database MySQL berjalan pada satu lingkungan hosting yang sama atau saling terhubung secara stabil.
+* Aplikasi **tidak bergantung pada koneksi internet** untuk beroperasi sehari-hari, karena backend, database, dan frontend berjalan pada PC yang sama (localhost). Internet sekolah yang stabil tersedia dan dapat dimanfaatkan untuk kebutuhan lain (mis. instalasi awal, pembaruan aplikasi), namun bukan syarat operasional harian sistem.
+* PC perpustakaan tetap menyala selama jam operasional agar server backend lokal tetap aktif dan dapat diakses.
 
 ### 3.3 Constraints
 
+* Sistem hanya berjalan pada **satu unit PC** perpustakaan SD Negeri Tamanan — tidak ada dukungan multi-PC/akses jaringan (LAN) pada versi ini.
+* Karena database berbentuk file lokal (SQLite), backup data menjadi tanggung jawab manual (menyalin file database secara berkala) oleh pihak sekolah/administrator sistem.
+* Jika PC dimatikan atau di-*restart*, server backend ikut berhenti; aplikasi perlu dijalankan ulang secara manual sebelum dapat diakses kembali.
 * Sistem hanya boleh digunakan pada satu unit sekolah (SD Negeri Tamanan) — tidak ada dukungan multi-sekolah.
 * Keamanan data transaksi bergantung penuh pada sesi login Guru yang aktif dan valid.
 
@@ -92,6 +100,44 @@ Catatan arsitektur: Frontend dan backend wajib berjalan sebagai dua project terp
 ## 4. In-Scope Features
 
 Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirements, dan Business Rules berikut. AI coding assistant wajib mengacu pada detail per-fitur ini, bukan hanya judul fitur.
+
+### 4.1 Kebutuhan Fungsional (Functional Requirements)
+
+Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requirements tiap fitur pada Section 4.2 agar dapat ditelusuri (*traceable*) ke Feature ID terkait.
+
+| FR-ID | Deskripsi Kebutuhan Fungsional | Fitur Terkait |
+|---|---|---|
+| FR-001 | Sistem harus menyediakan form login dengan kolom username dan password. | F001 |
+| FR-002 | Sistem harus memverifikasi kredensial ke backend sebelum memberikan akses ke halaman manajemen. | F001 |
+| FR-003 | Sistem harus menampilkan pesan error yang jelas jika username atau password salah. | F001 |
+| FR-004 | Sistem harus mengakhiri sesi secara otomatis setelah 30 menit tanpa aktivitas (idle timeout) dan mengarahkan pengguna kembali ke halaman login. | F001 |
+| FR-005 | Sistem harus menyediakan form tambah buku dengan field: ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, dan Status. | F002 |
+| FR-006 | Sistem harus menyediakan fitur ubah dan hapus data buku. | F002 |
+| FR-007 | Sistem harus menyediakan fitur pencarian buku berdasarkan judul, tema, atau ID Buku. | F002 |
+| FR-008 | Sistem harus menolak penyimpanan apabila ID Buku sudah terdaftar sebelumnya. | F002 |
+| FR-009 | Sistem harus menolak penyimpanan apabila field Lokasi Rak dikosongkan atau tidak sesuai format. | F002 |
+| FR-010 | Sistem harus menyediakan form peminjaman dengan pilihan siswa dan pilihan buku. | F003 |
+| FR-011 | Sistem harus mengisi tanggal peminjaman secara otomatis berdasarkan tanggal hari ini. | F003 |
+| FR-012 | Sistem harus menyediakan kolom tanggal batas pengembalian yang dapat diatur oleh Guru. | F003 |
+| FR-013 | Sistem harus menyembunyikan buku dengan stok 0 dari daftar pilihan peminjaman. | F003 |
+| FR-014 | Sistem harus memperbarui stok dan status buku segera setelah transaksi peminjaman berhasil disimpan. | F003 |
+| FR-015 | Sistem harus menyediakan form pengembalian yang terhubung ke ID Peminjaman terkait. | F004 |
+| FR-016 | Sistem harus menyediakan pilihan kondisi buku: Baik, Rusak Ringan, atau Rusak Berat. | F004 |
+| FR-017 | Sistem harus mengisi tanggal pengembalian secara otomatis berdasarkan tanggal hari ini. | F004 |
+| FR-018 | Sistem harus menghitung dan menampilkan jumlah hari keterlambatan secara otomatis, apabila ada. | F004 |
+| FR-019 | Sistem harus menghitung dan menampilkan nominal denda keterlambatan secara otomatis (berdasarkan hari terlambat dan kondisi buku) sebelum Guru mengklik "Konfirmasi Pengembalian". | F004 |
+| FR-020 | Sistem harus memperbarui stok dan status buku segera setelah transaksi pengembalian berhasil disimpan. | F004 |
+| FR-021 | Sistem harus menampilkan daftar seluruh transaksi peminjaman dan pengembalian secara kronologis. | F005 |
+| FR-022 | Sistem harus menyediakan pencarian riwayat berdasarkan nama siswa, judul buku, atau rentang tanggal. | F005 |
+| FR-023 | Sistem harus menampilkan status setiap transaksi (Dipinjam/Dikembalikan/Terlambat). | F005 |
+| FR-024 | Sistem harus menampilkan daftar buku beserta status ketersediaan (Tersedia/Dipinjam) dan lokasi rak tanpa memerlukan login. | F006 |
+| FR-025 | Sistem harus menyediakan fitur pencarian buku berdasarkan judul atau tema untuk pengguna publik. | F006 |
+| FR-026 | Sistem tidak boleh menampilkan data peminjam (nama siswa yang meminjam) pada halaman publik. | F006 |
+| FR-027 | Sistem harus mengurangi stok buku sebanyak satu unit dan mengubah status menjadi "Dipinjam" segera setelah transaksi peminjaman berhasil disimpan. | F007 |
+| FR-028 | Sistem harus menambah stok buku sebanyak satu unit dan mengubah status menjadi "Tersedia" segera setelah transaksi pengembalian berhasil disimpan. | F007 |
+| FR-029 | Sistem harus memastikan perubahan stok dan status tercermin secara real-time pada halaman manajemen Guru maupun halaman publik siswa. | F007 |
+
+### 4.2 Detail per Fitur
 
 ---
 
@@ -228,7 +274,7 @@ Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirement
 
 1. Tidak ada fitur registrasi mandiri (self-registration) untuk akun Guru — akun hanya dibuat oleh administrator sistem.
 2. Tidak ada fitur forgot password.
-3. Sistem menerapkan denda keterlambatan otomatis. 
+3. Sistem menerapkan denda keterlambatan otomatis.
 4. Buku dipinjam untuk digunakan di lingkungan sekolah; batas waktu pengembalian ditentukan oleh Guru saat mencatat transaksi peminjaman, dan tidak wajib dikembalikan pada hari yang sama — selama masih dalam periode yang ditentukan Guru.
 5. Tidak ada login atau akun untuk Siswa — akses siswa selalu bersifat publik dan read-only.
 6. Tidak ada integrasi dengan sistem Data Pokok Pendidikan (Dapodik) atau sistem dinas pendidikan — data siswa yang sudah terintegrasi pusat tidak dikelola ulang oleh sistem ini.
@@ -236,9 +282,10 @@ Setiap fitur wajib diimplementasikan sesuai Feature ID, Description, Requirement
 8. Tidak ada manajemen multi-cabang atau multi-perpustakaan.
 9. Tidak ada modul pemesanan/reservasi buku secara online oleh siswa.
 10. Tidak ada notifikasi otomatis (email/SMS) untuk pengingat batas pengembalian.
-11. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code, atau mode offline-first pada versi ini.
+11. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code pada versi ini.
 12. Tidak ada algoritma penataan ulang rak secara otomatis — Lokasi Rak diinput manual oleh Guru sebagai metadata referensi, bukan sistem pemetaan fisik otomatis.
 13. Tidak ada mekanisme banding/pembatalan denda melalui antarmuka Guru — koreksi kesalahan pencatatan hanya dapat dilakukan oleh administrator sistem di luar antarmuka aplikasi.
+14. Tidak ada akses multi-PC/jaringan (LAN) pada versi ini — sistem hanya berjalan pada satu unit PC perpustakaan (lihat Section 3.3).
 
 ---
 
@@ -265,6 +312,7 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 **Denda & Keuangan**
 11. Nominal denda dihitung otomatis oleh sistem (Rp 500/hari keterlambatan + biaya kondisi buku); tidak ada input.
 12. Data denda yang sudah tersimpan bersifat read-only, mengikuti sifat immutable data pengembalian
+
 ---
 
 ## 7. Data Requirements
@@ -291,6 +339,7 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 
 * Data peminjaman dan pengembalian wajib disimpan secara permanen di database selama minimal 3 tahun ajaran untuk keperluan audit dan pelaporan sekolah.
 * Data buku yang sudah tidak aktif (misal rusak berat dan ditarik dari sirkulasi) tidak dihapus, melainkan diberi status "Tidak Aktif" agar riwayat historisnya tetap tersimpan.
+* Karena database berbentuk file lokal (SQLite) yang tersimpan di PC perpustakaan, backup rutin (mis. mingguan) terhadap file database wajib dilakukan secara manual oleh administrator/pihak sekolah untuk mencegah kehilangan data akibat kerusakan PC.
 
 ### 7.4 Data Validation Rules
 
@@ -299,13 +348,14 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 * Tanggal batas pengembalian harus ≥ tanggal peminjaman.
 * Judul buku, nama siswa, dan lokasi rak wajib berupa karakter alfanumerik yang bersih dari tag skrip berbahaya.
 * Total Denda harus berupa nilai non-negatif (≥ 0), dihitung otomatis oleh sistem — tidak menerima input manual.
+
 ---
 
 ## 8. External Interfaces
 
 ### 8.1 User Interface Requirements
 
-* Layout responsif, dioptimalkan untuk desktop/laptop (halaman manajemen Guru) dan tablet/mobile (halaman publik siswa).
+* Layout dioptimalkan untuk penggunaan pada satu unit PC desktop di perpustakaan (mode manajemen Guru dan mode publik siswa, digunakan bergantian pada perangkat yang sama).
 * Navigasi Guru menggunakan sidebar menu (Manajemen Buku, Peminjaman, Pengembalian, Riwayat).
 * Halaman publik siswa dibuat sederhana dengan kolom pencarian sebagai elemen utama.
 
@@ -316,7 +366,7 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 ### 8.3 Communication Requirements
 
 **Protocols:**
-* HTTPS (untuk menjamin keamanan transmisi data).
+* HTTP (localhost) — komunikasi frontend ke backend berlangsung di dalam PC yang sama, tidak melewati jaringan publik sehingga HTTPS tidak diwajibkan pada versi ini.
 * REST API (komunikasi utama frontend ke backend).
 
 **Formats:**
@@ -327,7 +377,7 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 ## 9. Non-Functional Requirements
 
 ### 9.1 Performance
-* Sistem harus memuat halaman daftar buku dalam waktu di bawah 2 detik pada koneksi internet standar sekolah.
+* Sistem harus memuat halaman daftar buku dalam waktu di bawah 1 detik, mengingat komunikasi berlangsung secara lokal (localhost) tanpa latensi jaringan eksternal.
 * Proses pencatatan transaksi peminjaman/pengembalian harus selesai dalam waktu kurang dari 1 detik.
 
 ### 9.2 Security
@@ -335,13 +385,13 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 * Token sesi login harus disimpan secara aman di sisi klien (HttpOnly Cookie).
 
 ### 9.3 Availability
-* Sistem harus memiliki tingkat ketersediaan (uptime) minimal 99% selama jam operasional sekolah.
+* Sistem harus dapat diakses tanpa gangguan selama PC perpustakaan menyala dan aplikasi (server lokal) berjalan, dengan target ketersediaan minimal 99% selama jam operasional perpustakaan.
 
 ### 9.4 Reliability
-* Sistem harus mampu menangani kegagalan jaringan sementara tanpa menghilangkan data form yang sedang diisi Guru (local state retention sebelum submit).
+* Sistem harus mampu menangani gangguan sementara (mis. PC idle/lag) tanpa menghilangkan data form yang sedang diisi Guru (local state retention sebelum submit).
 
 ### 9.5 Scalability
-* Struktur database harus mampu menangani pertumbuhan data hingga 5.000 judul buku dan 2.000 transaksi per tahun ajaran tanpa penurunan performa signifikan.
+* Struktur database harus mampu menangani pertumbuhan data hingga 5.000 judul buku dan 2.000 transaksi per tahun ajaran tanpa penurunan performa signifikan pada penyimpanan berbasis file (SQLite).
 
 ### 9.6 Maintainability
 * Source code aplikasi wajib ditulis menggunakan standar penamaan yang bersih dan modular untuk memudahkan pengembangan fitur baru di masa mendatang.
@@ -365,6 +415,7 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 | Melihat Nominal Denda pada Riwayat/Pengembalian | AKSI (ALLOWED) | DITOLAK (DENIED) |
 | --- | --- | --- |
 | Mengubah/Menghapus Nominal Denda via Antarmuka | DITOLAK (DENIED) — hanya administrator via database | DITOLAK (DENIED) |
+
 ---
 
 ## 11. Feature Inventory
@@ -385,6 +436,7 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 
 1. Apakah nominal Rp 500/hari, Rp 2.000 (Rusak Ringan), dan Rp 5.000 (Rusak Berat) adalah angka final dari pihak sekolah, atau masih perlu disesuaikan sebelum go-live?
 2. Apakah diperlukan batas maksimal (cap) nominal denda untuk kasus keterlambatan yang sangat lama?
+3. Siapa yang bertanggung jawab menjalankan aplikasi (start server) setiap hari sebelum perpustakaan buka, dan siapa yang bertanggung jawab melakukan backup rutin file database SQLite?
 
 ---
 
@@ -392,7 +444,8 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 
 * Pengembangan fitur laporan rekap bulanan/tahunan peminjaman buku.
 * Integrasi barcode/QR code pada buku untuk mempercepat proses pencatatan transaksi.
-* Mode offline-first apabila koneksi internet sekolah sewaktu-waktu terputus.
+* Dukungan akses multi-PC via jaringan LAN sekolah, apabila ke depan dibutuhkan lebih dari satu titik akses di perpustakaan.
+* Migrasi ke database server (mis. MySQL/PostgreSQL) apabila skala data atau jumlah titik akses bertambah sehingga SQLite tidak lagi mencukupi.
 * Modul pelunasan denda (status Lunas/Belum Lunas) dan integrasi pembayaran, apabila sekolah memutuskan denda perlu dikelola sebagai kewajiban finansial formal.
 
 ---
@@ -405,7 +458,11 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 | **2.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Penyelarasan dengan Problem Statement — penambahan field Lokasi Rak dan klarifikasi Out-of-Scope. |
 | **3.0** | 2026-07-01 | Kelompok DPSI BRAYYY | Ekspansi kedalaman dokumen: Feature ID per fitur, Data Requirements, External Interfaces, NFR, Permission Matrix, Feature Inventory, Open Questions, Future Considerations. |
 | **3.1** | 2026-07-01 | Kelompok DPSI BRAYYY | Perbaikan kontradiksi internal Out-of-Scope poin #4 vs F003. |
-| **3.2** | 2026-07-06 | Kelompok DPSI BRAYYY | Sinkronisasi dengan Design System v1.4: merevisi Business Rule F004 untuk mengakomodasi fitur Denda Keterlambatan (formula Rp 500/hari + biaya kondisi buku), merevisi Out-of-Scope poin #3, menambah Business Rule Master List poin 11–12, menambah baris Permission Matrix untuk kontrol akses denda, menambah Open Question soal nominal final dan cap denda, menambah Future Consideration soal modul pelunasan. Nominal denda tetap berstatus placeholder menunggu konfirmasi sekolah — konsisten dengan catatan Design System v1.4 Section 1.2 & 11.8. |---
+| **3.2** | 2026-07-06 | Kelompok DPSI BRAYYY | Sinkronisasi dengan Design System v1.4: merevisi Business Rule F004 untuk mengakomodasi fitur Denda Keterlambatan (formula Rp 500/hari + biaya kondisi buku), merevisi Out-of-Scope poin #3, menambah Business Rule Master List poin 11–12, menambah baris Permission Matrix untuk kontrol akses denda, menambah Open Question soal nominal final dan cap denda, menambah Future Consideration soal modul pelunasan. |
+| **3.3** | 2026-07-09 | Kelompok DPSI BRAYYY | Penyesuaian Tech Stack (Section 3) agar sistem dapat dijalankan secara lokal pada satu unit PC (Windows) di perpustakaan sekolah: database diganti dari MySQL menjadi SQLite (file-based, tanpa instalasi server DB terpisah), protokol komunikasi diubah dari HTTPS menjadi HTTP localhost (CORS tidak lagi diperlukan), deployment diubah dari hosting cloud (Vercel/Netlify/VPS/Railway) menjadi instalasi lokal PC. Menambah Out-of-Scope poin #14 (tanpa akses multi-PC/LAN), menambah catatan backup manual database di Section 7.3, menambah Open Question #3 soal operasional harian (start server & backup), menambah Future Consideration soal dukungan LAN dan migrasi DB server di masa depan. Section 8.1, 8.3, 9.1, 9.3, 9.5 disesuaikan mengikuti konteks single-PC lokal. |
+| **3.4** | 2026-07-09 | Kelompok DPSI BRAYYY | Menambah Section 4.1 — Kebutuhan Fungsional (Functional Requirements) berisi daftar eksplisit FR-001 s.d. FR-029, disarikan dari Requirements tiap Feature ID (F001–F007) agar dapat ditelusuri (traceable) dan mudah ditemukan sebagai section tersendiri. Detail per fitur yang sudah ada dipindah ke Section 4.2 tanpa perubahan isi.
+
+---
 
 ## Lampiran: Referensi
 - Problem Statement — Observasi SD Negeri Tamanan, Yogyakarta (2026)

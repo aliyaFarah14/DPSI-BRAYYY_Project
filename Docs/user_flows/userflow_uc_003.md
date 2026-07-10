@@ -1,10 +1,10 @@
 # User Flow — UC-003: Pencatatan Peminjaman Buku
 
-Document Version: v1.0
+Document Version: v1.0 (Referensi SoT diperbarui ke SRS v3.4 / DS v1.5 — tidak ada perubahan substansi flow)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-01
+Last Updated: 2026-07-09
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -18,6 +18,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Use Case Name | Pencatatan Peminjaman Buku |
 | Actor | ACT-01 — Guru |
 | Feature ID (SRS) | F003 (memicu F007 di background) |
+| FR-ID Terkait (SRS v3.4) | FR-010, FR-011, FR-012, FR-013, FR-014 |
 | Page ID (IA) | PAGE-004 |
 | Route | `/peminjaman` |
 | Priority | High |
@@ -110,11 +111,11 @@ Guru dapat mencatat transaksi peminjaman buku oleh siswa secara digital dengan c
 | --- | --- | --- |
 | 6E | Buku yang dipilih ternyata sudah Stok 0 (misal terjadi peminjaman lain lebih dulu). | Sistem menolak transaksi; pesan error: *"Buku ini sudah tidak tersedia. Silakan pilih buku lain."* Panel Kiri diperbarui otomatis. |
 
-### EF-005: Koneksi Jaringan Gagal
+### EF-005: Koneksi Jaringan/Server Lokal Gagal
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 5E | Request API gagal (timeout/server down). | Form tetap terbuka, data isian tidak hilang (NFR 9.4). Inline Alert Banner: *"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."* dengan tombol "Coba Lagi". |
+| 5E | Request API gagal — pada konteks deployment single-PC (SRS v3.4), penyebab realistisnya lebih sering karena server backend lokal belum dijalankan/berhenti. | Form tetap terbuka, data isian tidak hilang (NFR 9.4). Inline Alert Banner: *"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."* dengan tombol "Coba Lagi". |
 
 ---
 
@@ -128,12 +129,12 @@ Guru dapat mencatat transaksi peminjaman buku oleh siswa secara digital dengan c
 
 ---
 
-## 10. RELATED PAGES & COMPONENTS (DS v1.3)
+## 10. RELATED PAGES & COMPONENTS (DS v1.5)
 
 | Element | DS Component | Notes |
 | --- | --- | --- |
 | Panel Kiri (Daftar Buku) | Card Buku (9.6 varian Guru) + Split Layout (7.3) | Menampilkan Lokasi Rak agar Guru cepat mengambil buku fisik. |
-| Field Tanggal Pinjam | Date Picker — varian Read-Only (9.10) | Latar `bg-slate-100`, keterangan "(Otomatis)". |
+| Field Tanggal Pinjam | Date Picker — varian Read-Only (9.10) | Latar `#EFEAE0`, keterangan "(Otomatis)". |
 | Field Tanggal Batas Kembali | Date Picker — varian aktif (9.10) | Constraint `min` = Tanggal Pinjam. |
 | Tombol Simpan | Primary Button (9.1) | State Loading saat proses submit. |
 | Error Koneksi | System Error State (11.7) — Inline Alert Banner | Data form tidak hilang saat gagal submit. |
@@ -156,5 +157,14 @@ Guru dapat mencatat transaksi peminjaman buku oleh siswa secara digital dengan c
 ## 12. NOTES
 
 - Satu transaksi peminjaman hanya berlaku untuk satu eksemplar buku per siswa per waktu (Business Rule F003).
-- Buku dipinjam untuk digunakan di lingkungan sekolah dan tidak wajib dikembalikan pada hari yang sama, selama masih dalam periode yang ditentukan Guru (SRS v3.1, Out-of-Scope poin #4 — telah diselaraskan dengan F003).
+- Buku dipinjam untuk digunakan di lingkungan sekolah dan tidak wajib dikembalikan pada hari yang sama, selama masih dalam periode yang ditentukan Guru (SRS v3.4, Out-of-Scope poin #4).
 - Perubahan stok dan status wajib terjadi dalam satu transaksi database yang sama dengan pencatatan peminjaman (Business Rule F007) — tidak boleh terpisah/tertunda.
+
+---
+
+## 13. REVISION HISTORY
+
+| Version | Date | Author | Description |
+| --- | --- | --- | --- |
+| 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Draft awal, mengacu srs.md v3.1 dan design_system.md v1.3. |
+| 1.0 (housekeeping) | 2026-07-09 | Kelompok DPSI BRAYYY | Update referensi versi header ke srs.md v3.4 dan design_system.md v1.5; tambah FR-ID Terkait di Header; EF-005 diperjelas soal konteks server lokal single-PC; rujukan Out-of-Scope poin #4 diarahkan ke versi SRS terbaru. Tidak ada perubahan pada Main Flow/AC — substansi flow peminjaman tidak terdampak perubahan SRS v3.2–v3.4 (fitur denda hanya berlaku di pengembalian/UC-004). |

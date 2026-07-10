@@ -1,10 +1,10 @@
 # User Flow — UC-001: Login Guru
 
-Document Version: v1.0
+Document Version: v1.0 (Referensi SoT diperbarui ke SRS v3.4 / DS v1.5 — tidak ada perubahan substansi flow)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-06-25
+Last Updated: 2026-07-09
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -18,6 +18,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Use Case Name | Login Guru |
 | Actor | ACT-01 — Guru |
 | Feature ID (SRS) | F001 |
+| FR-ID Terkait (SRS v3.4) | FR-001, FR-002, FR-003, FR-004 |
 | Page ID (IA) | PAGE-001 |
 | Route | /login |
 | Priority | High |
@@ -50,7 +51,7 @@ Salah satu dari kondisi berikut memicu use case ini:
 ## 5. PRE-CONDITION
 
 - Akun guru (username dan password) telah dibuat dan tersimpan di database sistem oleh administrator.
-- Sistem dalam kondisi aktif dan dapat diakses melalui browser.
+- Sistem dalam kondisi aktif dan dapat diakses melalui browser (server lokal di PC perpustakaan sudah dijalankan, sesuai SRS v3.4 Section 3.1).
 - Guru membuka browser dan mengakses URL `/login`.
 
 ---
@@ -101,11 +102,11 @@ Salah satu dari kondisi berikut memicu use case ini:
 | --- | --- | --- |
 | 4E | Guru mengklik "Masuk" dengan salah satu atau kedua field masih kosong. | Sistem menampilkan pesan validasi merah di bawah field yang kosong: *"Username wajib diisi."* / *"Password wajib diisi."* Request tidak dikirim ke server. |
 
-### EF-003: Koneksi Jaringan Gagal
+### EF-003: Koneksi Jaringan/Server Lokal Gagal
 
 | Step | Condition | System Response |
 | --- | --- | --- |
-| 5E | Request ke API gagal karena koneksi internet terputus. | Tombol kembali ke state `[Default]`. Sistem menampilkan pesan error: *"Gagal terhubung ke server. Periksa koneksi internet Anda dan coba lagi."* |
+| 5E | Request ke API gagal — pada konteks deployment single-PC (SRS v3.4), penyebab realistisnya lebih sering karena server backend lokal belum dijalankan/berhenti, bukan gangguan jaringan eksternal. | Tombol kembali ke state `[Default]`. Sistem menampilkan pesan error: *"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."* |
 
 ---
 
@@ -118,7 +119,7 @@ Salah satu dari kondisi berikut memicu use case ini:
 
 ---
 
-## 10. RELATED PAGES & COMPONENTS (DS v1.3)
+## 10. RELATED PAGES & COMPONENTS (DS v1.5)
 
 | Element | DS Component | Notes |
 | --- | --- | --- |
@@ -149,3 +150,13 @@ Salah satu dari kondisi berikut memicu use case ini:
 - Tidak ada fitur self-registration; akun guru hanya dapat dibuat oleh administrator sistem (sesuai Business Rule SRS F001).
 - Tidak ada fitur "Lupa Password" pada versi ini (berada di luar cakupan SRS).
 - Password disimpan dalam bentuk hash bcrypt di database; tidak pernah tersimpan sebagai plaintext.
+- Sesuai DS v1.5 Section 11.6 (Idle Session Timeout Pattern), 2 menit sebelum sesi berakhir (menit ke-28), sistem menampilkan toast notification peringatan non-blocking dengan tombol "Tetap di Sini" sebelum akhirnya logout otomatis pada menit ke-30.
+
+---
+
+## 13. REVISION HISTORY
+
+| Version | Date | Author | Description |
+| --- | --- | --- | --- |
+| 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Draft awal, mengacu srs.md v3.1 dan design_system.md v1.3. |
+| 1.0 (housekeeping) | 2026-07-09 | Kelompok DPSI BRAYYY | Update referensi versi header ke srs.md v3.4 dan design_system.md v1.5; tambah FR-ID Terkait di Header; tambah catatan idle-timeout toast (DS 11.6) di Notes; EF-003 diperjelas soal konteks server lokal single-PC. Tidak ada perubahan pada Main Flow/AC — substansi flow login tidak terdampak perubahan SRS v3.2–v3.4. |

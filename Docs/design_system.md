@@ -1,10 +1,10 @@
 # Design System (DS) - Source of Truth #3
 
-Document Version: v1.4 (Revisi — pergantian palet warna brand, penambahan komponen Image Upload, penambahan fitur Denda Keterlambatan)
+Document Version: v1.5 (Sinkronisasi referensi SRS v3.4, penyesuaian catatan responsive & font untuk konteks single-PC lokal)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-03
+Last Updated: 2026-07-09
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -16,7 +16,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 Dokumen ini mendefinisikan bahasa visual, standar interaksi, dan komponen UI yang dapat digunakan kembali (reusable UI components) pada seluruh antarmuka Sistem Informasi Perpustakaan SD Negeri Tamanan (Web-Based LMS).
 
-Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (SRS v3.1) dan SoT-2 (Information Architecture, sinkron SRS v3.1), serta akan digunakan sebagai landasan mutlak untuk:
+Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (SRS v3.4) dan SoT-2 (Information Architecture, sinkron SRS v3.4), serta akan digunakan sebagai landasan mutlak untuk:
 
 - Pembuatan High-Fidelity Prototype (SoT-5).
 - Panduan penulisan kode komponen Frontend (React, HTML/CSS).
@@ -27,8 +27,8 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 | Artifact | Reference | Description |
 | --- | --- | --- |
-| SoT-1 | SRS v3.1 | Spesifikasi Kebutuhan Perangkat Lunak — struktur Feature ID (F001–F007), Business Rules Master List, Data Requirements, NFR, Permission Matrix. |
-| SoT-2 | Information Architecture (Revisi — sinkron SRS v3.1) | Struktur navigasi, peta situs, dan pemetaan routing. |
+| SoT-1 | SRS v3.4 | Spesifikasi Kebutuhan Perangkat Lunak — struktur Feature ID (F001–F007), Kebutuhan Fungsional (FR-001–FR-029), Business Rules Master List, Data Requirements, NFR, Permission Matrix, Tech Stack (deployment lokal single-PC). |
+| SoT-2 | Information Architecture (Revisi — sinkron SRS v3.4) | Struktur navigasi, peta situs, dan pemetaan routing. |
 | SoT-4 | User Flows | Rangkaian langkah interaksi pengguna per use-case. |
 | SoT-5 | HiFi Prototype | Representasi visual interaktif akhir. |
 
@@ -36,8 +36,8 @@ Sebagai Source of Truth #3 (SoT-3), dokumen ini diturunkan langsung dari SoT-1 (
 
 ### 2.1 Design Goals
 
-- **Kesederhanaan Operasional (Operational Simplicity):** Antarmuka dirancang agar dapat dipahami dan dioperasikan oleh guru tanpa latar belakang teknis, mengingat perpustakaan tidak memiliki petugas tetap (lihat SRS v3.1, Section 1 — Tujuan Sistem). Target ini selaras dengan **NFR 9.7 (Usability)** pada SRS v3.1, yang menetapkan waktu pelatihan Guru maksimal 15 menit untuk pengguna baru.
-- **Kejelasan Informasi (Visual Clarity):** Elemen penting seperti status ketersediaan buku, indikator stok habis, dan peringatan keterlambatan pengembalian — termasuk **besaran denda** — harus langsung terlihat tanpa perlu interpretasi tambahan. Ini mendukung **NFR 9.1 (Performance)** pada SRS v3.1 — halaman daftar buku dimuat di bawah 2 detik, dan proses pencatatan transaksi selesai di bawah 1 detik.
+- **Kesederhanaan Operasional (Operational Simplicity):** Antarmuka dirancang agar dapat dipahami dan dioperasikan oleh guru tanpa latar belakang teknis, mengingat perpustakaan tidak memiliki petugas tetap (lihat SRS v3.4, Section 1 — Tujuan Sistem). Target ini selaras dengan **NFR 9.7 (Usability)** pada SRS v3.4, yang menetapkan waktu pelatihan Guru maksimal 15 menit untuk pengguna baru.
+- **Kejelasan Informasi (Visual Clarity):** Elemen penting seperti status ketersediaan buku, indikator stok habis, dan peringatan keterlambatan pengembalian — termasuk **besaran denda** — harus langsung terlihat tanpa perlu interpretasi tambahan. Ini mendukung **NFR 9.1 (Performance)** pada SRS v3.4 — halaman daftar buku dimuat di bawah 1 detik (disesuaikan mengingat komunikasi berlangsung secara lokal/localhost), dan proses pencatatan transaksi selesai di bawah 1 detik.
 - **Ramah Pengguna Muda (Child-Friendly Accessibility):** Tampilan halaman publik (siswa) menggunakan nuansa warna hangat namun tegas — kombinasi navy, biru, dan merah di atas latar krem lembut — yang tetap mengundang tanpa terasa generik.
 
 ### 2.2 UX Principles
@@ -114,7 +114,7 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 
 ## 5. TYPOGRAPHY
 
- Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahasa Indonesia dan angka tetap tinggi pada layar komputer sekolah berkualitas standar.
+Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahasa Indonesia dan angka tetap tinggi pada layar komputer sekolah berkualitas standar.
 
 | Text Style | Font Family | Weight | Size (px/rem) | Line Height | Usage |
 | --- | --- | --- | --- | --- | --- |
@@ -137,13 +137,13 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 ---
 
 ## 7. GRID & LAYOUT
-### 7.1 Desktop Grid (Width ≥ 1024px)
+### 7.1 Desktop Grid (Width ≥ 1024px) — Target Utama
 - **Layout Style:** Flexbox / Grid Split Layout.
 - **Sidebar Width:** Tetap 260px (dapat diciutkan menjadi 80px via tombol toggle).
 - **Content Padding:** 24px (`p-6`).
 - **Gutter Grid:** 16px (`gap-4`).
 
-### 7.2 Tablet Grid (Width 768px – 1023px)
+### 7.2 Tablet Grid (Width 768px – 1023px) — Fallback
 - **Sidebar Behavior:** Disembunyikan otomatis; dapat ditarik via tombol hamburger.
 - **Gutter Grid:** 12px (`gap-3`).
 
@@ -155,7 +155,7 @@ Digunakan untuk status netral-positif, elemen navigasi sekunder, dan aksen pendu
 
 ## 8. ICONOGRAPHY
 
-Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline SVG setara), gaya **Outline, stroke 2px**, monokrom mengikuti token warna teks/status yang berlaku di konteksnya.
+Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline SVG setara), gaya **Outline, stroke 2px**, monokrom mengikuti token warna teks/status yang berlaku di konteksnya. Dipasang via npm package (`lucide-react`) sehingga ikut ter-bundle saat build — tidak memerlukan koneksi CDN saat runtime.
 - **Dilarang** mencampur emoji dengan ikon SVG di layar manapun, termasuk pada toast, badge, dan empty state.
 - Setiap ikon fungsional dipetakan ke **satu fungsi spesifik** (tabel di bawah) — tidak ada ikon dekoratif tanpa fungsi.
 - Warna ikon mengikuti token semantik konteksnya (`color-text-main` untuk netral, `color-danger` untuk aksi hapus/error, dst.) — bukan warna acak/pelangi.
@@ -290,7 +290,6 @@ Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
 ### 9.11 Image Upload
 
 **Ditambahkan** untuk mendukung unggah gambar sampul buku pada Form Tambah/Edit Buku (F002), memenuhi permintaan tim agar Guru dapat mengunggah foto sampul untuk ditampilkan di Card Component (Section 9.6) dan Table Component.
-
 - **Default State (belum ada gambar):** Kotak dropzone rasio 3:4 (mengikuti proporsi sampul buku), border putus-putus (`dashed`) `#E4D8BE`, latar `#FCF6E8`, berisi ikon `ImagePlus` (24px, `#6B6355`) di tengah dan teks `"Klik atau seret gambar sampul ke sini"` (12px, `#6B6355`) serta keterangan format yang didukung, contoh: `"Format JPG/PNG, maksimal 2MB."`
 - **Hover/Drag-Over State:** Border berubah solid `#003049`, latar `#DCE8ED`.
 - **Uploading State:** Overlay spinner di atas preview gambar sementara (jika ada), progress diindikasikan dengan animasi spinner — konsisten dengan Loading State (Section 11.1).
@@ -310,7 +309,7 @@ Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
   - Salah: `"Stok salah!"`
 - **Error Presentation:** Fokus kursor otomatis berpindah ke field pertama yang gagal validasi saat tombol "Simpan" ditekan.
 - **Placeholder & Validasi Lokasi Rak:** Field Lokasi Rak (F002) menggunakan placeholder `"Contoh: A1, B3"`; error spesifik jika format tidak valid.
-- **Tanggal Batas Pengembalian:** Bukan Read-Only — Date Picker aktif (Section 9.10) dengan constraint `min` = Tanggal Pinjam, sesuai SRS v3.1 Feature F003.
+- **Tanggal Batas Pengembalian:** Bukan Read-Only — Date Picker aktif (Section 9.10) dengan constraint `min` = Tanggal Pinjam, sesuai SRS v3.4 Feature F003.
 - **(Baru v1.4) Field Gambar Sampul:** Menggunakan komponen Image Upload (Section 9.11), diposisikan di bagian atas Form Tambah/Edit Buku (sebelum field teks), bersifat **opsional** — tidak ditandai bintang merah.
 
 ---
@@ -349,7 +348,7 @@ Setiap kali guru menekan tombol "Proses Pengembalian" pada PAGE-005:
 1. Guru mengklik tombol "Hapus" (ikon `Trash2`, `#C1121F`) pada baris data buku.
 2. Modal konfirmasi: *"Apakah Anda yakin ingin menghapus buku ini secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan."*
 3. Tombol: **"Ya, Hapus"** (Danger) dan **"Batal"** (Secondary).
-4. Tombol "Hapus" dinonaktifkan jika buku berstatus "Dipinjam", sesuai SRS v3.1 Feature F002.
+4. Tombol "Hapus" dinonaktifkan jika buku berstatus "Dipinjam", sesuai SRS v3.4 Feature F002.
 
 ### 11.6 Idle Session Timeout Pattern
 
@@ -362,6 +361,7 @@ Setiap kali guru menekan tombol "Proses Pengembalian" pada PAGE-005:
 - Request API gagal: Inline Alert Banner, latar `#FBE1E3`, border kiri `#C1121F` (4px), ikon `WifiOff`, teks: `"Gagal terhubung ke server. Periksa koneksi atau coba lagi beberapa saat."`, tombol "Coba Lagi" (Secondary).
 - Aksi simpan/transaksi gagal: modal/form tetap terbuka (data tidak hilang), tombol submit aktif kembali, pesan error singkat warna `#C1121F`.
 - Berlaku konsisten di PAGE-003, PAGE-004, PAGE-005, PAGE-006.
+- Catatan (sinkron SRS v3.3): karena backend berjalan di PC yang sama (localhost), pesan ini realistisnya lebih sering muncul akibat server lokal belum dijalankan/berhenti, bukan gangguan jaringan eksternal — teks pesan tetap generik dan berlaku untuk kedua kemungkinan.
 
 ### 11.8 Kalkulasi & Ringkasan Denda Keterlambatan (Baru — v1.4)
 
@@ -394,17 +394,16 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 ---
 
 ## 12. RESPONSIVE BEHAVIOR
-
-**[Viewport: Mobile (< 768px)]**
+**[Viewport: Mobile (< 768px) — fallback]**
 - Sidebar disembunyikan total; diakses via drawer hamburger menu.
 - Tabel menampilkan kolom esensial saja; scroll horizontal.
 - Halaman publik siswa: kartu satu kolom.
 
-**[Viewport: Tablet (768px – 1023px)]**
+**[Viewport: Tablet (768px – 1023px) — fallback]**
 - Sidebar terlipat menjadi ikon (80px).
 - Split layout PAGE-004 menjadi satu kolom vertikal.
 
-**[Viewport: Desktop (≥ 1024px)]**
+**[Viewport: Desktop (≥ 1024px) — target utama]**
 - Sidebar terbuka penuh (260px).
 - PAGE-004 split layout dua panel (60% / 40%).
 
@@ -423,7 +422,7 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 
 | Token Name | Token Category | Token Value |
 | --- | --- | --- |
-| token-font-main | Typography | Noto Sans, sans-serif |
+| token-font-main | Typography | Noto Sans, sans-serif (self-hosted, bukan Google Fonts CDN) |
 | token-color-primary | Color | #003049 |
 | token-color-primary-hover | Color | #012840 |
 | token-color-primary-active | Color | #001A2B |
@@ -454,21 +453,22 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | **token-denda-rusak-berat** | **Business Logic (placeholder)** | **Rp 5.000** |
 | **token-image-upload-maxsize** | **Business Logic** | **2 MB** |
 | **token-image-upload-format** | **Business Logic** | **JPG, PNG** |
+| **token-image-storage** | **Business Logic** | **Local filesystem (folder `/uploads` di PC yang sama), bukan cloud storage** |
 
 ---
 
-## 15. TRACEABILITY MATRIX (SRS v3.1 → DS v1.4)
+## 15. TRACEABILITY MATRIX (SRS v3.4 → DS v1.5)
 
 | Feature ID | Feature Name | Design System Target Components | Applied Design / Interaction Rules |
 | --- | --- | --- | --- |
 | F001 | Autentikasi Guru (Login) | Halaman Login minimalis, Text Input, Primary Button "Masuk" (`#003049`). | Layout terpusat tanpa sidebar. Pesan error merah jika kredensial salah. Idle Session Timeout Pattern (11.6) aktif setelah login. |
-| F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif". | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
+| F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru, penyimpanan lokal)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif". | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
 | F003 | Pencatatan Peminjaman Buku | Split Layout Dua Panel, Card Buku bermotif punggung buku (9.6 — direvisi), Read-Only Date Picker (Tanggal Pinjam) & Date Picker aktif (Tanggal Batas Pengembalian). | Buku stok 0 non-selectable. Tanggal Batas Pengembalian date picker aktif, constraint `min` = tanggal peminjaman. Feedback sukses/gagal instan. |
 | **F004** | **Pencatatan Pengembalian Buku** | Table Peminjaman Aktif, Badge Terlambat, **Badge Denda (baru)**, Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku, **Panel Ringkasan Denda (11.8 — baru)**. | Indikator keterlambatan visual + jumlah hari. **Denda dihitung otomatis dari hari terlambat dan kondisi buku** Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
 | F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar, Badge Status Transaksi, **Badge Denda (baru, jika ada)**. | Zebra striping. Live filtering. Data read-only, termasuk riwayat denda yang sudah tercatat. |
 | F006 | Akses Ketersediaan Buku Siswa | Topbar Publik, Card Buku (motif punggung buku), Table Buku, Kolom Pencarian, Badge Ketersediaan. | Nuansa navy-krem ramah anak. Tombol "Login Guru" Primary di Topbar Publik. Tidak ada aksi penulisan data. |
 | F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada komponen UI dedicated — logika backend. | Perubahan status/stok tercermin instan pada Badge dan Table Component tanpa refresh manual. |
-| Lintas Fitur | Komunikasi REST API (FE–BE) | System Error State (11.7) — Inline Alert Banner. | Diterapkan di PAGE-003, PAGE-004, PAGE-005, PAGE-006. Mendukung NFR 9.4 (Reliability). |
+| Lintas Fitur | Komunikasi REST API (FE–BE, localhost) | System Error State (11.7) — Inline Alert Banner. | Diterapkan di PAGE-003, PAGE-004, PAGE-005, PAGE-006. Mendukung NFR 9.4 (Reliability). |
 
 ---
 
@@ -480,4 +480,5 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | 1.1 | 2026-06-30 | Kelompok DPSI BRAYYY | Penambahan Radio Button Group, Filter Bar, Badge Kondisi Buku, Idle Session Timeout, Topbar Publik/Guru, System Error State. |
 | 1.2 | 2026-07-01 | Kelompok DPSI BRAYYY | Sinkronisasi penuh terhadap SRS v3.0 (Feature ID F001–F007), penambahan Date Picker, Badge "Tidak Aktif", aturan Lokasi Rak. |
 | 1.3 | 2026-07-01 | Kelompok DPSI BRAYYY | Penghapusan catatan kontradiksi Tanggal Batas Pengembalian setelah srs.md v3.1 merevisi Out-of-Scope poin #4. |
-| **1.4** | **2026-07-03** | **Kelompok DPSI BRAYYY** | **Revisi besar atas permintaan tim:** (1) **Pergantian total palet warna** dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) **penegasan aturan Iconography** (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) **komponen baru Image Upload (9.11)** untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) **fitur baru Denda Keterlambatan** (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) **revisi motif Card Component** (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik; 
+| 1.4 | 2026-07-03 | Kelompok DPSI BRAYYY | Revisi besar atas permintaan tim: (1) Pergantian total palet warna dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) penegasan aturan Iconography (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) komponen baru Image Upload (9.11) untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) fitur baru Denda Keterlambatan (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) revisi motif Card Component (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik. |
+| **1.5** | **2026-07-09** | **Kelompok DPSI BRAYYY** | **Sinkronisasi dengan SRS v3.4 (deployment lokal single-PC di perpustakaan sekolah, Windows):** (1) update seluruh referensi versi SRS dari v3.1 ke v3.4; (2) Section 5 (Typography) — tambah catatan wajib self-host font Noto Sans, bukan Google Fonts CDN, agar tidak bergantung koneksi eksternal saat runtime; (3) Section 7 & 12 (Grid/Responsive) — reword agar Desktop (≥1024px) jadi target utama, breakpoint Tablet/Mobile jadi fallback ketangguhan UI, bukan kebutuhan wajib, karena target device sekarang satu unit PC desktop dipakai bergantian Guru & siswa; (4) Section 8 (Iconography) — tambah catatan Lucide React dipasang via npm/bundle, bukan CDN runtime; (5) Section 9.11 & 14 (Image Upload) — tambah catatan penyimpanan gambar sampul di filesystem lokal (`/uploads`), bukan cloud storage; (6) Section 11.7 — tambah catatan realistis penyebab error koneksi di konteks localhost. |
