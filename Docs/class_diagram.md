@@ -1,4 +1,5 @@
-# Class Diagram — Sistem Informasi Perpustakaan SD Negeri Tamanan 
+# Class Diagram — Sistem Informasi Perpustakaan SD Negeri Tamanan
+
 ```mermaid
 classDiagram
     class Guru {
@@ -19,12 +20,13 @@ classDiagram
         +String judul_buku
         +String penulis
         +String penerbit
-        +String tema_buku
+        +String? tema_buku   // nullable, enum: "Cerita & Dongeng" / "Lainnya"
         +int tahun_terbit
         +String lokasi_rak
         +int stok
         +String status_buku
         +String gambar_sampul
+        +int? tingkat_kelas   // nullable, 1–6
         +tambah()
         +ubah()
         +hapus()
@@ -86,3 +88,12 @@ classDiagram
     Peminjaman "1" -- "0..1" RiwayatPeminjaman : muncul_di
     Pengembalian "1" -- "0..1" RiwayatPeminjaman : muncul_di
 ```
+
+---
+
+## Revision History
+
+| Version | Date | Author | Description |
+|---------|------|--------|-------------|
+| 1.0 | 2026-07-10 | Kelompok DPSI BRAYYY | Initial draft — class diagram dasar (Guru, Buku, Peminjaman, Pengembalian, Session, RiwayatPeminjaman). Menyertakan field gambar_sampul dan tingkat_kelas. |
+| **1.1** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah `tema_buku` menjadi nullable enum (`+String?`) dengan catatan nilai "Cerita & Dongeng" / "Lainnya"; ubah `tingkat_kelas` menjadi nullable (`+int?`). Sinkron data_model.md v1.5 & srs.md v3.6.** |

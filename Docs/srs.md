@@ -1,11 +1,11 @@
 # srs.md — Software Requirements Specification
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Document Version:** v3.4 (Penambahan section eksplisit Kebutuhan Fungsional/FR-ID)
+**Document Version:** v3.6 (Ubah tema_buku jadi dropdown opsional 2 nilai; penyempurnaan aturan pengisian tingkat_kelas & tema_buku)
 **Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
 **Product:** Web-Based Library Management System
 **Status:** Draft
-**Last Updated:** 2026-07-09
+**Last Updated:** 2026-07-11
 **Author:** Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 **Supervisor:** Farid Suryanto, S.Pd., MT.
 
@@ -111,7 +111,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 | FR-002 | Sistem harus memverifikasi kredensial ke backend sebelum memberikan akses ke halaman manajemen. | F001 |
 | FR-003 | Sistem harus menampilkan pesan error yang jelas jika username atau password salah. | F001 |
 | FR-004 | Sistem harus mengakhiri sesi secara otomatis setelah 30 menit tanpa aktivitas (idle timeout) dan mengarahkan pengguna kembali ke halaman login. | F001 |
-| FR-005 | Sistem harus menyediakan form tambah buku dengan field: ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, dan Status. | F002 |
+| FR-005 | Sistem harus menyediakan form tambah buku dengan field: ID Buku, Judul, Penulis, Penerbit, Tema (dropdown opsional: Cerita & Dongeng / Lainnya), Tahun Terbit, Lokasi Rak, Stok, Tingkat Kelas (opsional), dan Status. | F002 |
 | FR-006 | Sistem harus menyediakan fitur ubah dan hapus data buku. | F002 |
 | FR-007 | Sistem harus menyediakan fitur pencarian buku berdasarkan judul, tema, atau ID Buku. | F002 |
 | FR-008 | Sistem harus menolak penyimpanan apabila ID Buku sudah terdaftar sebelumnya. | F002 |
@@ -131,11 +131,13 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 | FR-022 | Sistem harus menyediakan pencarian riwayat berdasarkan nama siswa, judul buku, atau rentang tanggal. | F005 |
 | FR-023 | Sistem harus menampilkan status setiap transaksi (Dipinjam/Dikembalikan/Terlambat). | F005 |
 | FR-024 | Sistem harus menampilkan daftar buku beserta status ketersediaan (Tersedia/Dipinjam) dan lokasi rak tanpa memerlukan login. | F006 |
-| FR-025 | Sistem harus menyediakan fitur pencarian buku berdasarkan judul atau tema untuk pengguna publik. | F006 |
+| FR-025 | Sistem harus menyediakan fitur pencarian/pemfilteran buku berdasarkan judul atau tema (dropdown tertutup: Cerita & Dongeng / Lainnya) untuk pengguna publik. | F006 |
 | FR-026 | Sistem tidak boleh menampilkan data peminjam (nama siswa yang meminjam) pada halaman publik. | F006 |
 | FR-027 | Sistem harus mengurangi stok buku sebanyak satu unit dan mengubah status menjadi "Dipinjam" segera setelah transaksi peminjaman berhasil disimpan. | F007 |
 | FR-028 | Sistem harus menambah stok buku sebanyak satu unit dan mengubah status menjadi "Tersedia" segera setelah transaksi pengembalian berhasil disimpan. | F007 |
 | FR-029 | Sistem harus memastikan perubahan stok dan status tercermin secara real-time pada halaman manajemen Guru maupun halaman publik siswa. | F007 |
+| FR-030 | Sistem harus menyediakan field Tingkat Kelas (opsional, dropdown 1–6) pada form tambah/edit buku untuk buku pelajaran berjenjang. | F002 |
+| FR-031 | Sistem harus menyediakan filter kategori pada halaman publik: Semua / Kelas 1–6 / Cerita & Dongeng / Lainnya, dapat dikombinasikan dengan pencarian judul/tema. | F006 |
 
 ### 4.2 Detail per Fitur
 
@@ -164,11 +166,12 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 **Description:** Fitur ini memungkinkan Guru menambah, mengubah, menghapus, dan mencari data buku, termasuk informasi lokasi rak agar posisi fisik buku dapat diketahui secara pasti.
 
 **Requirements:**
-* Sistem harus menyediakan form tambah buku dengan field: ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, dan Status.
+* Sistem harus menyediakan form tambah buku dengan field: ID Buku, Judul, Penulis, Penerbit, Tema (dropdown opsional: Cerita & Dongeng / Lainnya), Tahun Terbit, Lokasi Rak, Stok, Tingkat Kelas (dropdown opsional 1–6), dan Status.
 * Sistem harus menyediakan fitur ubah dan hapus data buku.
 * Sistem harus menyediakan fitur pencarian buku berdasarkan judul, tema, atau ID Buku.
 * Sistem harus menolak penyimpanan apabila ID Buku sudah terdaftar sebelumnya.
 * Sistem harus menolak penyimpanan apabila field Lokasi Rak dikosongkan atau tidak sesuai format.
+* Sistem harus menyediakan field Tingkat Kelas (opsional) dan field Tema (dropdown opsional) pada form tambah/edit buku.
 
 **Business Rules:**
 * ID Buku harus unik; sistem wajib menolak penyimpanan jika ID sudah digunakan.
@@ -177,6 +180,9 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 * Field Lokasi Rak wajib diisi saat buku ditambahkan dan tidak boleh kosong.
 * Format Lokasi Rak wajib berupa kombinasi kode rak (huruf) dan nomor (misal: "A1", "B3"); sistem wajib menolak input yang tidak mengikuti format ini.
 * Judul buku wajib divalidasi bersih dari tag skrip berbahaya (XSS prevention).
+* Jika diisi, Tingkat Kelas harus bernilai 1–6; field ini bersifat opsional dan boleh dikosongkan.
+* Tema hanya dapat dipilih dari dua nilai: "Cerita & Dongeng" atau "Lainnya" — tidak dapat diinput bebas; bersifat opsional (boleh dikosongkan).
+* Buku pelajaran diidentifikasi melalui Tingkat Kelas (isi tingkat_kelas, kosongkan tema_buku). Buku non-pelajaran (cerita/dongeng/komik) diidentifikasi melalui Tema (isi tema_buku, kosongkan tingkat_kelas). Kedua field boleh sama-sama kosong untuk buku yang tidak jelas kategorinya.
 
 ---
 
@@ -246,8 +252,9 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 
 **Requirements:**
 * Sistem harus menampilkan daftar buku beserta status ketersediaan (Tersedia/Dipinjam) dan lokasi rak tanpa memerlukan login.
-* Sistem harus menyediakan fitur pencarian buku berdasarkan judul atau tema untuk pengguna publik.
+* Sistem harus menyediakan fitur pencarian buku berdasarkan judul atau tema (dropdown tertutup: Cerita & Dongeng / Lainnya) untuk pengguna publik.
 * Sistem tidak boleh menampilkan data peminjam (nama siswa yang meminjam) pada halaman publik.
+* Sistem harus menyediakan filter kategori pada halaman publik: Semua / Kelas 1–6 / Cerita & Dongeng / Lainnya, dapat dikombinasikan dengan pencarian judul/tema.
 
 **Business Rules:**
 * Halaman akses siswa hanya bersifat read-only; tidak ada aksi penulisan data tanpa login.
@@ -320,7 +327,7 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 
 | Object | Description |
 |---|---|
-| Buku | Menyimpan data master buku meliputi ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, dan Status. |
+| Buku | Menyimpan data master buku meliputi ID Buku, Judul, Penulis, Penerbit, Tema (opsional, dropdown: Cerita & Dongeng / Lainnya), Tahun Terbit, Lokasi Rak, Stok, Tingkat Kelas (opsional, 1–6), dan Status. |
 | Siswa | Menyimpan data identitas siswa (Nama, Kelas) yang digunakan sebagai referensi transaksi peminjaman — bukan akun login. |
 | Peminjaman | Menyimpan data transaksi peminjaman meliputi ID Peminjaman, ID Siswa, ID Buku, Tanggal Pinjam, dan Tanggal Batas Kembali. |
 | Pengembalian | Menyimpan data transaksi pengembalian meliputi ID Pengembalian, ID Peminjaman (referensi), Tanggal Kembali, Kondisi Buku, dan Status Keterlambatan. |
@@ -347,6 +354,8 @@ Rule spesifik per fitur sudah dijabarkan di Section 4. Berikut adalah rule globa
 * Tanggal batas pengembalian harus ≥ tanggal peminjaman.
 * Judul buku, nama siswa, dan lokasi rak wajib berupa karakter alfanumerik yang bersih dari tag skrip berbahaya.
 * Total Denda harus berupa nilai non-negatif (≥ 0), dihitung otomatis oleh sistem — tidak menerima input manual.
+* Tingkat Kelas, jika diisi, harus bernilai integer 1 sampai 6.
+* Tema, jika diisi, hanya dapat berupa "Cerita & Dongeng" atau "Lainnya" (enum tertutup).
 
 ---
 
@@ -460,6 +469,7 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 | **3.2** | 2026-07-06 | Kelompok DPSI BRAYYY | Sinkronisasi dengan Design System v1.4: merevisi Business Rule F004 untuk mengakomodasi fitur Denda Keterlambatan (formula Rp 500/hari + biaya kondisi buku), merevisi Out-of-Scope poin #3, menambah Business Rule Master List poin 11–12, menambah baris Permission Matrix untuk kontrol akses denda, menambah Open Question soal nominal final dan cap denda, menambah Future Consideration soal modul pelunasan. |
 | **3.3** | 2026-07-09 | Kelompok DPSI BRAYYY | Penyesuaian Tech Stack (Section 3) agar sistem dapat dijalankan secara lokal pada satu unit PC (Windows) di perpustakaan sekolah: database diganti dari MySQL menjadi SQLite (file-based, tanpa instalasi server DB terpisah), protokol komunikasi diubah dari HTTPS menjadi HTTP localhost (CORS tidak lagi diperlukan), deployment diubah dari hosting cloud (Vercel/Netlify/VPS/Railway) menjadi instalasi lokal PC. Menambah Out-of-Scope poin #14 (tanpa akses multi-PC/LAN), menambah catatan backup manual database di Section 7.3, menambah Open Question #3 soal operasional harian (start server & backup), menambah Future Consideration soal dukungan LAN dan migrasi DB server di masa depan. Section 8.1, 8.3, 9.1, 9.3, 9.5 disesuaikan mengikuti konteks single-PC lokal. |
 | **3.4** | 2026-07-09 | Kelompok DPSI BRAYYY | Menambah Section 4.1 — Kebutuhan Fungsional (Functional Requirements) berisi daftar eksplisit FR-001 s.d. FR-029, disarikan dari Requirements tiap Feature ID (F001–F007) agar dapat ditelusuri (traceable) dan mudah ditemukan sebagai section tersendiri. Detail per fitur yang sudah ada dipindah ke Section 4.2 tanpa perubahan isi.
+| **3.6** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah tema_buku dari teks bebas menjadi dropdown tertutup (Cerita & Dongeng / Lainnya) opsional; penyempurnaan aturan pengisian:** (1) update FR-005, FR-025, FR-030, FR-031 di Section 4.1; (2) update Requirements & Business Rules F002 — Tema jadi dropdown opsional, Tingkat Kelas dropdown opsional, aturan pengisian mutually exclusive; (3) update Requirements F006 — filter kategori Semua/Kelas 1–6/Cerita & Dongeng/Lainnya; (4) update Section 7.1 & 7.4. |
 
 ---
 

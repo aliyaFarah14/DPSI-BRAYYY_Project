@@ -1,10 +1,10 @@
 # Design System (DS) - Source of Truth #3
 
-Document Version: v1.5 (Sinkronisasi referensi SRS v3.4, penyesuaian catatan responsive & font untuk konteks single-PC lokal)
+Document Version: v1.7 (Sempurnakan Category Filter Bar dengan filter tema tertutup Cerita & Dongeng/Lainnya; sinkron aturan tema_buku enum — sinkron srs.md v3.6)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-09
+Last Updated: 2026-07-11
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -297,6 +297,37 @@ Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
 - **Error State:** Jika file melebihi ukuran maksimal atau format tidak didukung, border `#C1121F`, pesan error spesifik di bawah dropzone, contoh: `"Ukuran file melebihi 2MB. Silakan kompres gambar terlebih dahulu."` — bukan pesan generik.
 - **Fallback:** Jika field ini dikosongkan (opsional, bukan wajib), sistem menggunakan placeholder inisial judul buku di Card Component (lihat 9.6) — konsisten dengan behavior sebelum fitur ini ada, supaya tidak memaksa Guru mengunggah gambar untuk buku lama yang sudah terlanjur dicatat.
 
+### 9.12 Category Filter Bar (Halaman Publik) *(Direvisi v1.7)*
+
+Komponen ini digunakan pada halaman publik (PAGE-002, F006) untuk memfilter daftar buku berdasarkan kategori Tingkat Kelas (1–6) atau Tema (Cerita & Dongeng / Lainnya), di samping kolom pencarian teks yang sudah ada.
+
+**Layout:** Baris horizontal tombol kategori berbentuk `radio button group` (horizontal-scroll jika layar sempit), diletakkan di bawah kolom pencarian pada halaman publik.
+
+**Tombol Kategori:**
+
+| Tombol | Background (Default) | Text Color (Default) | Hover State | Selected State |
+| --- | --- | --- | --- | --- |
+| **Semua** | `bg-[#003049]` (color-primary) | `text-white` | `bg-[#012840]` | `bg-[#003049]` (sama, karena default terpilih) |
+| **Kelas 1–6** (masing-masing tombol) | `bg-[#E1EEF3]` (color-secondary-light) | `text-[#669BBC]` (color-secondary) | `bg-[#DCE8ED]` | `bg-[#669BBC] text-white` |
+| **Tema/Jenis Buku** | `bg-[#FDF1D9]` (color-warning-light) | `text-[#CA8A04]` (color-warning) | `bg-[#F5E6B8]` | `bg-[#CA8A04] text-white` |
+
+**States:**
+
+| State | Visual |
+| --- | --- |
+| **Default** | Background dan text sesuai tabel di atas, `rounded-lg` (8px), `px-4 py-2`, `text-sm font-medium` |
+| **Hover** | Background lebih pekat (lihat tabel), kursor pointer |
+| **Selected** | Background solid sesuai token warna, text putih, border 1px lebih gelap dari token |
+| **Focus** | `ring-2 ring-[#DCE8ED]` (color-primary-light) — konsisten dengan Section 9.2 |
+
+**Behavior:**
+- Hanya satu tombol yang dapat terpilih dalam satu waktu (mutually exclusive, seperti radio button).
+- Saat tombol dipilih, sistem mengirim request `GET /api/v1/books/public?tingkat_kelas=N` (filter kelas) atau `?tema_buku=Cerita & Dongeng`/`?tema_buku=Lainnya` (filter tema) dan memperbarui daftar buku.
+- Filter tema hanya menerima dua nilai: "Cerita & Dongeng" atau "Lainnya" — sesuai CHECK constraint pada kolom `tema_buku` di database.
+- Tombol "Semua" adalah default saat halaman pertama kali dimuat — menghapus semua filter dan menampilkan seluruh buku aktif.
+
+**Catatan desain:** Tidak memperkenalkan warna baru — seluruh token warna yang digunakan sudah ada di Section 4 (Color System). Warna navy, biru, dan kuning dipilih untuk konsistensi semantik dengan palet aplikasi secara keseluruhan.
+
 ---
 
 ## 10. FORM DESIGN RULES
@@ -457,16 +488,16 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 
 ---
 
-## 15. TRACEABILITY MATRIX (SRS v3.4 → DS v1.5)
+## 15. TRACEABILITY MATRIX (SRS v3.6 → DS v1.7)
 
 | Feature ID | Feature Name | Design System Target Components | Applied Design / Interaction Rules |
 | --- | --- | --- | --- |
 | F001 | Autentikasi Guru (Login) | Halaman Login minimalis, Text Input, Primary Button "Masuk" (`#003049`). | Layout terpusat tanpa sidebar. Pesan error merah jika kredensial salah. Idle Session Timeout Pattern (11.6) aktif setelah login. |
-| F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru, penyimpanan lokal)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif". | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
+| F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru, penyimpanan lokal)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif", **Category Filter Bar (9.12 — baru)**. | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
 | F003 | Pencatatan Peminjaman Buku | Split Layout Dua Panel, Card Buku bermotif punggung buku (9.6 — direvisi), Read-Only Date Picker (Tanggal Pinjam) & Date Picker aktif (Tanggal Batas Pengembalian). | Buku stok 0 non-selectable. Tanggal Batas Pengembalian date picker aktif, constraint `min` = tanggal peminjaman. Feedback sukses/gagal instan. |
 | **F004** | **Pencatatan Pengembalian Buku** | Table Peminjaman Aktif, Badge Terlambat, **Badge Denda (baru)**, Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku, **Panel Ringkasan Denda (11.8 — baru)**. | Indikator keterlambatan visual + jumlah hari. **Denda dihitung otomatis dari hari terlambat dan kondisi buku** Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
 | F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar, Badge Status Transaksi, **Badge Denda (baru, jika ada)**. | Zebra striping. Live filtering. Data read-only, termasuk riwayat denda yang sudah tercatat. |
-| F006 | Akses Ketersediaan Buku Siswa | Topbar Publik, Card Buku (motif punggung buku), Table Buku, Kolom Pencarian, Badge Ketersediaan. | Nuansa navy-krem ramah anak. Tombol "Login Guru" Primary di Topbar Publik. Tidak ada aksi penulisan data. |
+| F006 | Akses Ketersediaan Buku Siswa | Topbar Publik, Card Buku (motif punggung buku), Table Buku, Kolom Pencarian, Badge Ketersediaan, **Category Filter Bar (9.12 — baru)**. | Nuansa navy-krem ramah anak. Tombol "Login Guru" Primary di Topbar Publik. Tidak ada aksi penulisan data. |
 | F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada komponen UI dedicated — logika backend. | Perubahan status/stok tercermin instan pada Badge dan Table Component tanpa refresh manual. |
 | Lintas Fitur | Komunikasi REST API (FE–BE, localhost) | System Error State (11.7) — Inline Alert Banner. | Diterapkan di PAGE-003, PAGE-004, PAGE-005, PAGE-006. Mendukung NFR 9.4 (Reliability). |
 
@@ -481,4 +512,5 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | 1.2 | 2026-07-01 | Kelompok DPSI BRAYYY | Sinkronisasi penuh terhadap SRS v3.0 (Feature ID F001–F007), penambahan Date Picker, Badge "Tidak Aktif", aturan Lokasi Rak. |
 | 1.3 | 2026-07-01 | Kelompok DPSI BRAYYY | Penghapusan catatan kontradiksi Tanggal Batas Pengembalian setelah srs.md v3.1 merevisi Out-of-Scope poin #4. |
 | 1.4 | 2026-07-03 | Kelompok DPSI BRAYYY | Revisi besar atas permintaan tim: (1) Pergantian total palet warna dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) penegasan aturan Iconography (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) komponen baru Image Upload (9.11) untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) fitur baru Denda Keterlambatan (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) revisi motif Card Component (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik. |
-| **1.5** | **2026-07-09** | **Kelompok DPSI BRAYYY** | **Sinkronisasi dengan SRS v3.4 (deployment lokal single-PC di perpustakaan sekolah, Windows):** (1) update seluruh referensi versi SRS dari v3.1 ke v3.4; (2) Section 5 (Typography) — tambah catatan wajib self-host font Noto Sans, bukan Google Fonts CDN, agar tidak bergantung koneksi eksternal saat runtime; (3) Section 7 & 12 (Grid/Responsive) — reword agar Desktop (≥1024px) jadi target utama, breakpoint Tablet/Mobile jadi fallback ketangguhan UI, bukan kebutuhan wajib, karena target device sekarang satu unit PC desktop dipakai bergantian Guru & siswa; (4) Section 8 (Iconography) — tambah catatan Lucide React dipasang via npm/bundle, bukan CDN runtime; (5) Section 9.11 & 14 (Image Upload) — tambah catatan penyimpanan gambar sampul di filesystem lokal (`/uploads`), bukan cloud storage; (6) Section 11.7 — tambah catatan realistis penyebab error koneksi di konteks localhost. |
+| **1.6** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah Section 9.12 — Category Filter Bar (Halaman Publik) untuk filter Tingkat Kelas 1–6 dan Tema pada halaman publik (F006), dengan spesifikasi warna Default/Hover/Selected menggunakan token existing (Section 4). Update Section 15 Traceability Matrix baris F002 dan F006. Sinkron dengan srs.md v3.5.** |
+| **1.7** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Sempurnakan Section 9.12 — filter tema berubah dari teks bebas menjadi enum tertutup (`'Cerita & Dongeng'` / `'Lainnya'`) sesuai CHECK constraint database; perbarui Behavior untuk endpoint `?tema_buku=`. Update Traceability Matrix header v3.6→v1.7. Sinkron dengan srs.md v3.6.** |

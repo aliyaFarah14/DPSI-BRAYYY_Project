@@ -1,6 +1,6 @@
 ﻿import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { Library, BookOpen, AlertCircle } from "lucide-react"
+import { BookOpen, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -61,8 +61,8 @@ export default function LoginPage() {
         <div className="h-1.5 bg-primary" />
 
         <CardHeader className="items-center pt-8 pb-4">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-light/50">
-            <Library size={32} className="text-primary" />
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-light/50 overflow-hidden">
+            <img src="/SDNTamanan.jpeg" alt="Logo SD Negeri Tamanan" className="h-full w-full object-cover" />
           </div>
           <h1 className="text-xl font-bold text-foreground">Perpustakaan SDN Tamanan</h1>
           <p className="text-sm text-muted-foreground">Masuk untuk mengelola sistem perpustakaan</p>

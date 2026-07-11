@@ -12,7 +12,7 @@ import ImageUpload from "@/components/image-upload"
 import EmptyState from "@/components/empty-state"
 import { db } from "@/lib/db"
 import { sanitize, validateRack, generateId } from "@/lib/utils"
-import type { Buku } from "@/types"
+import type { Buku, TemaBuku } from "@/types"
 
 interface BookFormData {
   id_buku: string
@@ -20,6 +20,7 @@ interface BookFormData {
   penulis: string
   penerbit: string
   tema_buku: string
+  tingkatKelas: string
   lokasi_rak: string
   stok: string
   status_buku: "Aktif" | "Tidak Aktif"
@@ -32,6 +33,7 @@ const initialForm: BookFormData = {
   penulis: "",
   penerbit: "",
   tema_buku: "",
+  tingkatKelas: "",
   lokasi_rak: "",
   stok: "1",
   status_buku: "Aktif",
@@ -62,7 +64,6 @@ export default function BookManagement() {
     if (!b) errs.judul_buku = "Judul buku wajib diisi."
     if (!sanitize(form.penulis)) errs.penulis = "Penulis wajib diisi."
     if (!sanitize(form.penerbit)) errs.penerbit = "Penerbit wajib diisi."
-    if (!sanitize(form.tema_buku)) errs.tema_buku = "Tema buku wajib diisi."
     if (!validateRack(form.lokasi_rak)) errs.lokasi_rak = "Format rak: huruf diikuti angka (contoh: A1, RB3)."
     const stok = parseInt(form.stok, 10)
     if (isNaN(stok) || stok < 0) errs.stok = "Stok harus angka >= 0."
@@ -84,14 +85,18 @@ export default function BookManagement() {
     setTimeout(() => dialogTitleRef.current?.focus(), 100)
   }
 
+  const validTemaValues = ["Cerita & Dongeng", "Lainnya"]
+
   const openEdit = (b: Buku) => {
     setEditing(true)
+    const tema = b.tema_buku && validTemaValues.includes(b.tema_buku) ? b.tema_buku : ""
     setForm({
       id_buku: b.id_buku,
       judul_buku: b.judul_buku,
       penulis: b.penulis,
       penerbit: b.penerbit,
-      tema_buku: b.tema_buku,
+      tema_buku: tema,
+      tingkatKelas: b.tingkatKelas ? String(b.tingkatKelas) : "",
       lokasi_rak: b.lokasi_rak,
       stok: String(b.stok),
       status_buku: b.status_buku,
@@ -116,7 +121,8 @@ export default function BookManagement() {
         judul_buku: sanitize(form.judul_buku)!,
         penulis: sanitize(form.penulis)!,
         penerbit: sanitize(form.penerbit)!,
-        tema_buku: sanitize(form.tema_buku)!,
+        tema_buku: (validTemaValues.includes(form.tema_buku) ? form.tema_buku : null) as TemaBuku | null,
+        tingkatKelas: form.tingkatKelas ? parseInt(form.tingkatKelas, 10) : null,
         lokasi_rak: form.lokasi_rak.trim().toUpperCase(),
         stok: parseInt(form.stok, 10),
         status_buku: form.status_buku,
@@ -265,11 +271,26 @@ export default function BookManagement() {
                     className={fieldErrors.judul_buku ? "border-destructive ring-destructive/20" : ""} />
                   {fieldErrors.judul_buku && <p className="text-xs text-destructive font-medium">{fieldErrors.judul_buku}</p>}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tema">Tema <span className="text-destructive">*</span></Label>
-                  <Input id="tema" value={form.tema_buku} onChange={(e) => setForm({ ...form, tema_buku: e.target.value })}
-                    className={fieldErrors.tema_buku ? "border-destructive ring-destructive/20" : ""} />
-                  {fieldErrors.tema_buku && <p className="text-xs text-destructive font-medium">{fieldErrors.tema_buku}</p>}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="tema">Tema</Label>
+                    <p className="text-[11px] text-muted-foreground -mt-1">Opsional</p>
+                    <select id="tema" value={form.tema_buku} onChange={(e) => setForm({ ...form, tema_buku: e.target.value })}
+                      className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                      <option value="">—</option>
+                      <option value="Cerita & Dongeng">Cerita & Dongeng</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tingkatKelas">Tingkat Kelas</Label>
+                    <p className="text-[11px] text-muted-foreground -mt-1">Opsional</p>
+                    <select id="tingkatKelas" value={form.tingkatKelas} onChange={(e) => setForm({ ...form, tingkatKelas: e.target.value })}
+                      className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                      <option value="">—</option>
+                      {[1,2,3,4,5,6].map((n) => <option key={n} value={n}>Kelas {n}</option>)}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>

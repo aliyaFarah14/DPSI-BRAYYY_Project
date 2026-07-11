@@ -1,6 +1,6 @@
 # System Logic: UC-006 Akses Ketersediaan & Lokasi Buku (Publik)
 
-**Document Version:** v1.2 (Tambah section Related Screens & Related Entities; perbaiki rule Rate Limiting yang kontradiktif dengan sifat endpoint publik tanpa sesi)
+**Document Version:** v1.4 (Tambah query parameter tema_buku untuk filter tema tertutup Cerita & Dongeng/Lainnya — sinkron data_model.md v1.5 & srs.md v3.6)
 
 **Use Case ID:** UC-006
 
@@ -94,45 +94,52 @@ Tidak memerlukan header autentikasi/cookie apa pun — endpoint ini sepenuhnya p
       "id_buku": "BK001",
       "judul_buku": "IPA Kelas 4",
       "penulis": "Kemendikbud",
-      "tema_buku": "IPA",
+      "tema_buku": null,
       "lokasi_rak": "A1",
       "stok": 3,
       "status_buku": "Tersedia",
-      "gambar_sampul": "/uploads/buku_A1_001.jpg"
+      "gambar_sampul": "/uploads/buku_A1_001.jpg",
+      "tingkat_kelas": 4
     },
     {
       "id_buku": "BK002",
       "judul_buku": "Matematika Kelas 5",
       "penulis": "Kemendikbud",
-      "tema_buku": "Matematika",
+      "tema_buku": null,
       "lokasi_rak": "B2",
       "stok": 0,
       "status_buku": "Dipinjam",
-      "gambar_sampul": null
+      "gambar_sampul": null,
+      "tingkat_kelas": 5
     }
   ],
   "message": "Success"
 }
 ```
 
-> **Catatan v1.1:** Field `stok` ditambahkan (draft v1.0 tidak menyertakannya, padahal `information_architecture.md` dan `userflow_uc_006.md` eksplisit menyebut "Stok Tersedia" sebagai bagian dari tampilan publik). Field `gambar_sampul` juga ditambahkan (`null` jika belum diunggah Guru, frontend menampilkan placeholder inisial judul — DS v1.5 Section 9.11). Data peminjam (`nama_siswa`) dan nominal denda **tidak pernah** disertakan dalam response ini, sesuai Business Rule Master List poin 10 `srs.md` v3.4.
+> **Catatan v1.1:** Field `stok` ditambahkan (draft v1.0 tidak menyertakannya, padahal `information_architecture.md` dan `userflow_uc_006.md` eksplisit menyebut "Stok Tersedia" sebagai bagian dari tampilan publik). Field `gambar_sampul` juga ditambahkan (`null` jika belum diunggah Guru, frontend menampilkan placeholder inisial judul — DS v1.5 Section 9.11). Data peminjam (`nama_siswa`) dan nominal denda **tidak pernah** disertakan dalam response ini, sesuai Business Rule Master List poin 10 `srs.md` v3.4. `tema_buku` bernilai `null` untuk buku pelajaran (yang menggunakan `tingkat_kelas`), atau `"Cerita & Dongeng"`/`"Lainnya"` untuk buku non-pelajaran — sesuai CHECK constraint v1.5 data_model.md.
 
 ---
 
-## 5.2 GET /api/v1/books/public?search={keyword}
+## 5.2 GET /api/v1/books/public?search={keyword}&tingkat_kelas={n}&tema_buku={value}
 
-Melakukan pencarian buku berdasarkan `judul_buku` atau `tema_buku`. **(Direvisi v1.1)** Digabung sebagai query parameter pada endpoint utama (bukan endpoint terpisah `/public/search`), konsisten dengan pola `GET /api/v1/books?search=` (UC-002) dan `GET /api/v1/history?...` (UC-005).
+Melakukan pencarian buku berdasarkan `judul_buku` atau `tema_buku`, dan/atau memfilter berdasarkan `tingkat_kelas` atau `tema_buku` (nilai eksak). **(Direvisi v1.4)** Query parameter digabung pada endpoint utama (bukan endpoint terpisah), konsisten dengan pola `GET /api/v1/books?search=` (UC-002).
 
-### Query Parameter
+### Query Parameters
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
 | `search` | No | Kata kunci judul atau tema |
+| `tingkat_kelas` | No | Filter integer 1–6; jika diisi, hasil mencakup buku dengan `tingkat_kelas` sama **ATAU** `tingkat_kelas IS NULL` (buku yang berlaku untuk semua kelas) |
+| `tema_buku` | No | Filter eksak `"Cerita & Dongeng"` atau `"Lainnya"` — tidak dapat dikombinasikan dengan `tingkat_kelas` (mutually exclusive di level bisnis) |
 
 ### Example
 
 ```text
 GET /api/v1/books/public?search=IPA
+GET /api/v1/books/public?tingkat_kelas=4
+GET /api/v1/books/public?tema_buku=Cerita & Dongeng
+GET /api/v1/books/public?search=Matematika&tingkat_kelas=5
 ```
 
 ### Success Response
@@ -169,9 +176,12 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `search`.
 
 | Step | Input | Process | Output |
 |------|-------|---------|--------|
-| 1 | Request halaman publik | Ambil seluruh data buku aktif (`status_buku != 'Tidak Aktif'`) | Daftar buku (termasuk stok & gambar sampul) |
+| 1 | Request halaman publik | Ambil seluruh data buku aktif (`status_buku != 'Tidak Aktif'`) | Daftar buku (termasuk stok, gambar sampul, tingkat_kelas, tema_buku) |
 | 2 | Kata kunci pencarian | Filter `judul_buku`/`tema_buku` | Data hasil pencarian |
-| 3 | Klik Login Guru | Redirect halaman | Halaman Login Guru (`/login`) |
+| 3 | Kategori Kelas dipilih | Filter `tingkat_kelas = ? OR tingkat_kelas IS NULL` | Data hasil filter kategori kelas |
+| 4 | Kategori Tema dipilih | Filter `tema_buku = ?` | Data hasil filter tema |
+| 5 | Kombinasi search + kategori | Filter `judul_buku`/`tema_buku` + `tingkat_kelas`/`tema_buku` | Data hasil filter gabungan |
+| 5 | Klik Login Guru | Redirect halaman | Halaman Login Guru (`/login`) |
 
 ---
 
@@ -192,13 +202,15 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `search`.
 
 # 8. Traceability
 
-| Requirement (SRS v3.4) | User Flow AC-ID | API Endpoint |
+| Requirement (SRS v3.6) | User Flow AC-ID | API Endpoint |
 |------------|-------------|--------------|
 | FR-024 (tampilkan daftar buku + ketersediaan + lokasi rak tanpa login) | AC-006-01 | GET /api/v1/books/public |
-| FR-025 (pencarian buku publik berdasarkan judul/tema) | AC-006-02 | GET /api/v1/books/public?search= |
+| FR-025 (pencarian buku publik berdasarkan judul/tema — dropdown tertutup) | AC-006-02 | GET /api/v1/books/public?search= |
 | FR-026 (tidak menampilkan data peminjam) | AC-006-03 | GET /api/v1/books/public |
 | Business Rule F006 (halaman publik read-only) | AC-006-04 | GET /api/v1/books/public |
 | — (tombol Login Guru redirect ke /login) | AC-006-05 | Frontend Routing |
+| FR-031 (filter Tingkat Kelas pada halaman publik) | AC-006-07 | GET /api/v1/books/public?tingkat_kelas= |
+| FR-031 (filter Tema pada halaman publik — Cerita & Dongeng / Lainnya) | AC-006-07 | GET /api/v1/books/public?tema_buku= |
 
 ---
 
@@ -208,4 +220,5 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `search`.
 |---------|------------|----------------------|--------------------------------|
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Initial Draft System Logic UC-006 — response belum menyertakan field `stok` dan `gambar_sampul`, field naming belum sinkron Data Model. |
 | 1.1 | 2026-07-09 | Kelompok DPSI BRAYYY | Perbaikan: (1) tambah field `stok` pada response (`information_architecture.md`/`userflow_uc_006.md` mensyaratkan tampilan "Stok Tersedia" di halaman publik); (2) tambah field `gambar_sampul` (nullable) sinkron DS v1.5 Section 9.11; (3) gabung endpoint `/public/search` ke dalam `/public` dengan query parameter, konsisten dengan pola UC-002/UC-005; (4) field naming diselaraskan `data_model.md` v1.3 (`judul_buku`, `tema_buku`, `status_buku`); (5) tegaskan eksplisit bahwa endpoint ini tidak memerlukan cookie sesi; (6) Traceability Matrix diarahkan ke FR-ID dan AC-ID sesungguhnya. |
-| **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Perbaikan: (1) tambah Section 2 (Related Screens) dan Section 3 (Related Entities) sesuai checklist minimal isi UCIC; (2) perbaiki rule Rate Limiting (Section 7) yang sebelumnya kontradiktif — rule lama berbunyi "per sesi browser", padahal Section 1 & 5.1 menegaskan endpoint ini tidak menggunakan cookie/session sama sekali. Diganti menjadi pelacakan global di level proses backend; tambah Error Response `429 Too Many Requests` pada Section 5.2.** |
+| **1.3** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah query parameter `tingkat_kelas` untuk filter kategori kelas:** (1) tambah field `tingkat_kelas` pada Success Response Section 5.1; (2) perluas Section 5.2 — ganti judul, tambah parameter `tingkat_kelas` beserta deskripsi/logika OR NULL; (3) update Data Flow (Section 6) dengan step filter kategori; (4) tambah FR-031 di Traceability (Section 8). Sinkron data_model.md v1.4 & srs.md v3.5. |
+| **1.4** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Tambah query parameter `tema_buku` untuk filter tema tertutup:** (1) update header; (2) update Success Response — `tema_buku: null` + catatan; (3) perluas Section 5.2 — tambah parameter `tema_buku`, contoh `?tema_buku=Cerita & Dongeng`; (4) update Data Flow — pisahkan step 3 (kelas) & 4 (tema), renumber; (5) update Traceability — header v3.6, tambah baris `?tema_buku=` untuk FR-031. Sinkron data_model.md v1.5 & srs.md v3.6.** |

@@ -1,6 +1,6 @@
 # System Logic: UC-002 Manajemen Data Buku
 
-**Document Version:** v1.2 (Tambah section Related Screens & Related Entities)
+**Document Version:** v1.4 (Ubah tema_buku menjadi nullable enum; penyempurnaan aturan pengisian tingkat_kelas & tema_buku — sinkron data_model.md v1.5 & srs.md v3.6)
 
 **Use Case ID:** UC-002
 
@@ -113,12 +113,13 @@ Mengambil seluruh data buku. Memerlukan sesi Guru aktif (cookie `session_id`).
       "judul_buku": "IPA Kelas 4",
       "penulis": "Kemendikbud",
       "penerbit": "Kemendikbud",
-      "tema_buku": "IPA",
+      "tema_buku": null,
       "tahun_terbit": 2024,
       "lokasi_rak": "A1",
       "stok": 5,
       "status_buku": "Tersedia",
-      "gambar_sampul": "/uploads/buku_A1_001.jpg"
+      "gambar_sampul": "/uploads/buku_A1_001.jpg",
+      "tingkat_kelas": 4
     }
   ],
   "message": "Success"
@@ -126,6 +127,7 @@ Mengambil seluruh data buku. Memerlukan sesi Guru aktif (cookie `session_id`).
 ```
 
 > `gambar_sampul` bernilai `null` jika Guru belum mengunggah sampul untuk buku tersebut.
+> `tema_buku` bernilai `null` untuk buku pelajaran (yang menggunakan `tingkat_kelas`) atau buku yang tidak jelas kategorinya; diisi `"Cerita & Dongeng"` atau `"Lainnya"` untuk buku non-pelajaran.
 
 ---
 
@@ -147,11 +149,12 @@ Menambahkan data buku baru. Menerima `multipart/form-data` (bukan `application/j
 | `judul_buku` | text | Ya | — |
 | `penulis` | text | Ya | — |
 | `penerbit` | text | Ya | — |
-| `tema_buku` | text | Ya | — |
+| `tema_buku` | text (nullable) | **Tidak (opsional)** | Diisi hanya untuk buku non-pelajaran: `"Cerita & Dongeng"` atau `"Lainnya"`; buku pelajaran tidak perlu mengisi (`null`). |
 | `tahun_terbit` | text (numeric) | Ya | — |
 | `lokasi_rak` | text | Ya | Format huruf+angka, mis. "A1" |
 | `stok` | text (numeric) | Ya | Integer ≥ 0 |
 | `gambar_sampul` | file (JPG/PNG, maks 2MB) | **Tidak (opsional)** | Jika dikirim, disimpan ke `/uploads`; jika kosong, kolom `gambar_sampul` = NULL |
+| `tingkat_kelas` | text (numeric, nullable) | **Tidak (opsional)** | Nilai 1–6 untuk buku pelajaran berjenjang; NULL untuk buku non-pelajaran. Jangan diisi bersamaan dengan `tema_buku` (mutually exclusive). |
 
 ### Success Response (201 Created)
 
@@ -207,7 +210,7 @@ Menambahkan data buku baru. Menerima `multipart/form-data` (bukan `application/j
 
 ## 5.3 PUT /api/v1/books/{id_buku}
 
-Mengubah data buku, termasuk mengganti/menghapus gambar sampul. Menerima `multipart/form-data` (field sama seperti POST; kirim field kosong untuk field yang tidak diubah).
+Mengubah data buku, termasuk mengganti/menghapus gambar sampul, mengubah tingkat_kelas, dan mengubah tema_buku. Menerima `multipart/form-data` (field sama seperti POST; kirim field kosong untuk field yang tidak diubah). Tingkat_kelas dan tema_buku bersifat opsional — ikuti pola yang sama dengan field opsional lainnya: jika tidak dikirim, nilai lama tetap dipertahankan; jika dikirim kosong, set ke NULL.
 
 ### Proses Backend (gambar sampul)
 
@@ -263,7 +266,7 @@ Menghapus data buku. Turut menghapus file `gambar_sampul` terkait dari `/uploads
 
 ## 5.5 GET /api/v1/books?search={keyword}
 
-Mencari buku berdasarkan `judul_buku`, `tema_buku`, atau `id_buku`.
+Mencari buku berdasarkan `judul_buku`, `tema_buku` (pencarian teks, meskipun tema_buku sekarang enum tertutup), atau `id_buku`.
 
 ### Success Response
 
@@ -275,11 +278,11 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `keyword`.
 
 | Step | Input | Process | Output |
 |------|-------|---------|--------|
-| 1 | Request halaman buku | Ambil data buku | Daftar buku (termasuk `gambar_sampul`) |
+| 1 | Request halaman buku | Ambil data buku | Daftar buku (termasuk `gambar_sampul` & `tingkat_kelas`) |
 | 2 | Kata kunci pencarian | Filter `judul_buku`/`tema_buku`/`id_buku` | Hasil pencarian |
-| 3 | Data buku baru + (opsional) file gambar | Validasi field teks & file | Data valid |
+| 3 | Data buku baru + (opsional) file gambar + (opsional) tingkat_kelas + (opsional) tema_buku | Validasi field teks, file, tingkat_kelas, & tema_buku | Data valid |
 | 4 | File gambar (jika ada) | Validasi ukuran/format, simpan ke `/uploads` | Path file |
-| 5 | Data valid | Simpan ke database (`buku`) | Buku baru |
+| 5 | Data valid | Simpan ke database (`buku`) | Buku baru dengan tingkat_kelas |
 | 6 | Data perubahan | Update database, kelola file lama/baru | Data terbaru |
 | 7 | `id_buku` | Hapus record + file gambar terkait | Record & file terhapus |
 | 8 | Refresh data | GET Books | Tabel terbaru |
@@ -300,6 +303,8 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `keyword`.
 | Delete Protection | Buku dengan `status_buku = 'Dipinjam'` tidak dapat dihapus |
 | Image Upload Validation | `gambar_sampul` maksimal 2MB, format JPG/PNG; file disimpan di filesystem lokal `/uploads`, bukan sebagai blob di database (`data_model.md` v1.3 BR-24) |
 | Image Cleanup | File gambar lama dihapus dari `/uploads` saat diganti (PUT) atau saat buku dihapus (DELETE), mencegah file yatim menumpuk |
+| Tingkat Kelas Validation | `tingkat_kelas` jika diisi harus integer 1–6, divalidasi backend; NULL diperbolehkan (buku non-pelajaran atau untuk semua kelas) |
+| Tema Buku Validation | `tema_buku` jika diisi hanya boleh `"Cerita & Dongeng"` atau `"Lainnya"`; NULL diperbolehkan (buku pelajaran atau tidak jelas kategorinya) |
 | Local State | Data form tetap tersimpan saat terjadi network error |
 | Audit | Semua operasi CRUD dicatat pada log sistem |
 
@@ -307,9 +312,9 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `keyword`.
 
 # 8. Traceability
 
-| Requirement (SRS v3.4) | User Flow AC-ID | API Endpoint |
+| Requirement (SRS v3.6) | User Flow AC-ID | API Endpoint |
 |------------|-------------|--------------|
-| FR-005 (form tambah buku) | AC-002-01 | POST /api/v1/books |
+| FR-005 (form tambah buku — Tema dropdown opsional, Tingkat Kelas opsional) | AC-002-01 | POST /api/v1/books |
 | FR-006 (ubah/hapus data buku) | AC-002-05, AC-002-06, AC-002-07 | PUT / DELETE /api/v1/books/{id_buku} |
 | FR-007 (pencarian buku) | AC-002-08 | GET /api/v1/books?search= |
 | FR-008 (tolak jika ID sudah ada) | AC-002-02 | POST /api/v1/books |
@@ -318,6 +323,7 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `keyword`.
 | Business Rule F002 (hapus jika "Dipinjam" ditolak) | AC-002-06 | DELETE /api/v1/books/{id_buku} |
 | AC-002-09 (upload gambar sampul opsional, validasi ukuran/format) | AC-002-09 | POST / PUT /api/v1/books |
 | AC-002-10 (placeholder jika tanpa gambar) | AC-002-10 | GET /api/v1/books |
+| FR-030 (field Tingkat Kelas opsional) | AC-002-11 | POST / PUT /api/v1/books |
 
 ---
 
@@ -327,4 +333,5 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan `keyword`.
 |---------|------------|---------------------|-------------------------------|
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Initial Draft System Logic UC-002 (Bearer Token, tanpa gambar sampul, field naming belum sinkron Data Model). |
 | 1.1 | 2026-07-09 | Kelompok DPSI BRAYYY | Hapus referensi Bearer Token; field naming sinkron `data_model.md` v1.3; tambah dukungan upload gambar sampul; Traceability Matrix diarahkan ke FR-ID/AC-ID sesungguhnya. |
-| **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah Section 2 (Related Screens) dan Section 3 (Related Entities) sesuai checklist minimal isi UCIC; section lain digeser penomorannya.** |
+| **1.3** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah field `tingkat_kelas` pada buku:** (1) update Success Response Section 5.1; (2) tambah baris `tingkat_kelas` di Request Body POST (Section 5.2); (3) update deskripsi PUT (Section 5.3); (4) update Data Flow (Section 6); (5) tambah Security Rule "Tingkat Kelas Validation" (Section 7); (6) tambah FR-030 di Traceability (Section 8). Sinkron data_model.md v1.4 & srs.md v3.5. |
+| **1.4** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah `tema_buku` menjadi nullable enum:** (1) update header versi; (2) update Success Response — `tema_buku: null` + catatan; (3) update Request Body — `tema_buku` jadi opsional, nilai enum; (4) update PUT — sebut tema_buku; (5) update GET search — catatan enum; (6) update Data Flow step 3; (7) tambah Security Rule "Tema Buku Validation"; (8) update Traceability — FR-005 deskripsi dropdown opsional, header v3.6. Sinkron data_model.md v1.5 & srs.md v3.6.** |

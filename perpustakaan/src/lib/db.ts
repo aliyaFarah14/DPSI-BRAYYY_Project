@@ -102,11 +102,11 @@ export const db = {
       },
     ])
     write(KEYS.BUKU, [
-      { id_buku: "BK001", judul_buku: "Matematika Kelas 4", penulis: "Suparjo", penerbit: "Erlangga", tema_buku: "Pelajaran", lokasi_rak: "A1", stok: 3, status_buku: "Aktif" },
-      { id_buku: "BK002", judul_buku: "IPA Kelas 5", penulis: "Siti Aminah", penerbit: "Gramedia", tema_buku: "Pelajaran", lokasi_rak: "A2", stok: 2, status_buku: "Aktif" },
-      { id_buku: "BK003", judul_buku: "Dongeng Nusantara", penulis: "Budi Santoso", penerbit: "Mizan", tema_buku: "Dongeng", lokasi_rak: "B1", stok: 0, status_buku: "Aktif" },
-      { id_buku: "BK004", judul_buku: "Cerita Rakyat Jawa", penulis: "Dewi Lestari", penerbit: "Balai Pustaka", tema_buku: "Dongeng", lokasi_rak: "B2", stok: 1, status_buku: "Aktif" },
-      { id_buku: "BK005", judul_buku: "Pendidikan Agama Islam", penulis: "Ahmad Fauzi", penerbit: "Tiga Serangkai", tema_buku: "Pelajaran", lokasi_rak: "C1", stok: 4, status_buku: "Aktif" },
+      { id_buku: "BK001", judul_buku: "Matematika Kelas 4", penulis: "Suparjo", penerbit: "Erlangga", tema_buku: null, tingkatKelas: 4, lokasi_rak: "A1", stok: 3, status_buku: "Aktif" },
+      { id_buku: "BK002", judul_buku: "IPA Kelas 5", penulis: "Siti Aminah", penerbit: "Gramedia", tema_buku: null, tingkatKelas: 5, lokasi_rak: "A2", stok: 2, status_buku: "Aktif" },
+      { id_buku: "BK003", judul_buku: "Dongeng Nusantara", penulis: "Budi Santoso", penerbit: "Mizan", tema_buku: "Cerita & Dongeng", tingkatKelas: null, lokasi_rak: "B1", stok: 0, status_buku: "Aktif" },
+      { id_buku: "BK004", judul_buku: "Cerita Rakyat Jawa", penulis: "Dewi Lestari", penerbit: "Balai Pustaka", tema_buku: "Cerita & Dongeng", tingkatKelas: null, lokasi_rak: "B2", stok: 1, status_buku: "Aktif" },
+      { id_buku: "BK005", judul_buku: "Pendidikan Agama Islam", penulis: "Ahmad Fauzi", penerbit: "Tiga Serangkai", tema_buku: "Lainnya", tingkatKelas: null, lokasi_rak: "C1", stok: 4, status_buku: "Aktif" },
     ])
     write(KEYS.PEMINJAMAN, [])
     write(KEYS.PENGEMBALIAN, [])

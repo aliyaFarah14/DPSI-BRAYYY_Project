@@ -1,10 +1,10 @@
 # User Flows (UF) - Source of Truth #4 — Index
 
-Document Version: v1.1 (Update referensi SoT ke SRS v3.4 / IA sinkron v3.4 / DS v1.5; sinkronisasi fitur Denda & Image Upload)
+Document Version: v1.3 (Update versi userflow_uc_002.md → v1.3 dan userflow_uc_006.md → v1.2; update FR-ID traceability — sinkron srs.md v3.6)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-09
+Last Updated: 2026-07-11
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -49,11 +49,11 @@ Setiap user flow dalam dokumen ini menggambarkan rangkaian langkah interaksi akt
 | UC ID | Use Case Name | Actor | Feature ID (SRS) | Page ID (IA) | Route | Priority | File | UF Version |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | UC-001 | Login Guru | ACT-01 | F001 | PAGE-001 | /login | High | userflow_uc_001.md | v1.0 |
-| UC-002 | Manajemen Data Buku | ACT-01 | F002 | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 | /buku | High | userflow_uc_002.md | **v1.1** |
+| UC-002 | Manajemen Data Buku | ACT-01 | F002 | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 | /buku | High | userflow_uc_002.md | **v1.3** |
 | UC-003 | Pencatatan Peminjaman Buku | ACT-01 | F003 (memicu F007) | PAGE-004 | /peminjaman | High | userflow_uc_003.md | v1.0 |
 | UC-004 | Pencatatan Pengembalian Buku | ACT-01 | F004 (memicu F007) | PAGE-005 | /pengembalian | High | userflow_uc_004.md | **v1.1** |
 | UC-005 | Melihat Riwayat Peminjaman | ACT-01 | F005 | PAGE-006 | /riwayat | Medium | userflow_uc_005.md | **v1.1** |
-| UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | ACT-02 | F006 | PAGE-002 | / | High | userflow_uc_006.md | v1.0 |
+| UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | ACT-02 | F006 | PAGE-002 | / | High | userflow_uc_006.md | **v1.2** |
 
 ### 3.1 Catatan tentang F007
 
@@ -82,16 +82,16 @@ UC-006 (Akses Publik Siswa)               ← Independen, tidak memerlukan login
 
 ---
 
-## 5. TRACEABILITY MATRIX (SRS v3.4 → IA → UF v1.1)
+## 5. TRACEABILITY MATRIX (SRS v3.6 → IA → UF v1.3)
 
 | Feature ID | FR-ID Terkait | Feature Name | UC ID | Page ID | Route | DS Components (v1.5) |
 | --- | --- | --- | --- | --- | --- | --- |
 | F001 | FR-001 – FR-004 | Autentikasi Guru (Login) | UC-001 | PAGE-001 | /login | Text Input, Primary Button, Error Message, Idle Session Timeout Pattern (11.6) |
-| F002 | FR-005 – FR-009 | Manajemen Data Buku | UC-002 | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 | /buku | Table, Modal Dialog, Badge Status, Badge "Tidak Aktif", Danger Button, **Image Upload (9.11)** |
+| F002 | FR-005 – FR-009, FR-030 | Manajemen Data Buku | UC-002 | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 | /buku | Table, Modal Dialog, Badge Status, Badge "Tidak Aktif", Danger Button, **Image Upload (9.11)** |
 | F003 | FR-010 – FR-014 | Pencatatan Peminjaman Buku | UC-003 | PAGE-004 | /peminjaman | Split Layout, Card Buku, Text Input, Date Picker (Read-Only & Aktif), Primary Button |
 | F004 | FR-015 – FR-020 | Pencatatan Pengembalian Buku | UC-004 | PAGE-005 | /pengembalian | Table, Badge Terlambat, Modal Konfirmasi, Radio Button Group, Badge Kondisi Buku, **Panel Ringkasan Denda (11.8)**, **Badge Denda (9.5)** |
 | F005 | FR-021 – FR-023 | Riwayat Peminjaman | UC-005 | PAGE-006 | /riwayat | Table (read-only), Filter Bar, Badge Status Transaksi, **Badge Denda (9.5)** |
-| F006 | FR-024 – FR-026 | Akses Ketersediaan & Lokasi Buku (Publik) | UC-006 | PAGE-002 | / | Card Buku, Table Publik, Search Bar, Badge Ketersediaan, Topbar Publik |
+| F006 | FR-024 – FR-026, FR-031 | Akses Ketersediaan & Lokasi Buku (Publik) | UC-006 | PAGE-002 | / | Card Buku, Table Publik, Search Bar, Badge Ketersediaan, Topbar Publik |
 | F007 | FR-027 – FR-029 | Sinkronisasi Stok & Status Otomatis | — (embedded dalam UC-003 & UC-004) | — | — | Badge Status, Table Component (update instan) |
 
 ---
@@ -101,4 +101,5 @@ UC-006 (Akses Publik Siswa)               ← Independen, tidak memerlukan login
 | Version | Date | Author | Description |
 |---|---|---|---|
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Draft awal SoT-4 mengikuti template header/goal/trigger/precondition/postcondition/main-alt-exception-flow, diturunkan dari srs.md v3.1, information_architecture.md, dan design_system.md v1.3. |
-| **1.1** | **2026-07-09** | **Kelompok DPSI BRAYYY** | **Update seluruh referensi SoT ke versi terbaru: srs.md v3.4, information_architecture.md (sinkron v3.4), design_system.md v1.5.** Menambahkan Section 3.2 (Catatan Fitur Denda), kolom FR-ID Terkait dan UF Version pada Use Case Inventory (Section 3) dan Traceability Matrix (Section 5). Mencatat bahwa `userflow_uc_002.md`, `userflow_uc_004.md`, dan `userflow_uc_005.md` naik ke v1.1 (Image Upload, Panel Ringkasan Denda, Badge Denda); `userflow_uc_001.md`, `userflow_uc_003.md`, `userflow_uc_006.md` tetap v1.0 karena substansi flow tidak terdampak perubahan SRS v3.2–v3.4. |
+| **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Update versi userflow_uc_002.md → v1.2 dan userflow_uc_006.md → v1.1 di Use Case Inventory (Section 3); update FR-ID pada Traceability Matrix (Section 5) baris F002 → FR-005–FR-009, FR-030 dan F006 → FR-024–FR-026, FR-031. Sinkron srs.md v3.5.** |
+| **1.3** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Update versi userflow_uc_002.md → v1.3 dan userflow_uc_006.md → v1.2 di Use Case Inventory; update Traceability Matrix header. Sinkron srs.md v3.6.** |

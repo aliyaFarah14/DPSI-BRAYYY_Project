@@ -1,10 +1,10 @@
 # Data Model (DM) — Source of Truth #6
 
-Document Version: v1.3 (Migrasi DDL MySQL → SQLite sesuai srs.md v3.4; tambah kolom gambar_sampul sesuai design_system.md v1.5 & userflow_uc_002.md v1.1)
+Document Version: v1.5 (Ubah tema_buku menjadi nullable enum 2 nilai; penyempurnaan aturan pengisian tingkat_kelas & tema_buku — sinkron srs.md v3.6)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-09
+Last Updated: 2026-07-11
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -107,12 +107,13 @@ Berdasarkan analisis seluruh User Flows (UC-001 s.d. UC-006), terdapat **6 domai
 | `judul_buku` | TEXT (VARCHAR 255) | NOT NULL | Judul lengkap buku. |
 | `penulis` | TEXT (VARCHAR 150) | NOT NULL | Nama penulis buku. |
 | `penerbit` | TEXT (VARCHAR 150) | NOT NULL | Nama penerbit buku. |
-| `tema_buku` | TEXT (VARCHAR 100) | NOT NULL | Tema/kategori buku. |
+| `tema_buku` | TEXT (VARCHAR 100) | NULL, DEFAULT NULL, CHECK (tema_buku IN ('Cerita & Dongeng', 'Lainnya') OR tema_buku IS NULL) | **(Direvisi v1.5)** Tema/kategori buku. Opsional — diisi hanya untuk buku non-pelajaran ("Cerita & Dongeng" atau "Lainnya"); buku pelajaran cukup diidentifikasi via `tingkat_kelas`. |
 | `tahun_terbit` | INTEGER | NOT NULL, CHECK ≥ 1900 | Tahun penerbitan. |
 | `lokasi_rak` | TEXT (VARCHAR 10) | NOT NULL | Kode rak, format huruf+nomor (contoh "A1"). |
 | `stok` | INTEGER | NOT NULL, DEFAULT 0, CHECK ≥ 0 | Jumlah eksemplar tersedia. |
 | `status_buku` | TEXT (VARCHAR 20) | NOT NULL, DEFAULT 'Tersedia' | `'Tersedia'` / `'Dipinjam'` / `'Tidak Aktif'`. |
 | `gambar_sampul` | TEXT (VARCHAR 255) | NULL, DEFAULT NULL | **(Baru v1.3)** Path relatif file gambar sampul di filesystem lokal (contoh: `/uploads/buku_A1_001.jpg`). NULL jika Guru belum mengunggah sampul → frontend menampilkan placeholder inisial judul (DS v1.5 Section 9.11). |
+| `tingkat_kelas` | INTEGER | NULL, DEFAULT NULL, CHECK (tingkat_kelas IS NULL OR tingkat_kelas BETWEEN 1 AND 6) | **(Baru v1.4, disempurnakan v1.5)** Tingkat kelas SD yang sesuai untuk buku ini (1–6). Opsional — diisi hanya untuk buku pelajaran berjenjang kelas; NULL berarti buku non-pelajaran atau berlaku untuk semua kelas. |
 | `created_at` | TIMESTAMP (TEXT ISO-8601) | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Waktu buku ditambahkan. |
 | `updated_at` | TIMESTAMP (TEXT ISO-8601) | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Waktu terakhir diperbarui (via TRIGGER). |
 
@@ -124,6 +125,8 @@ Berdasarkan analisis seluruh User Flows (UC-001 s.d. UC-006), terdapat **6 domai
 - `judul_buku`, `penulis`, `lokasi_rak` wajib bersih dari XSS.
 - **(Baru v1.3)** `gambar_sampul` bersifat opsional (nullable) — tidak wajib diisi. Validasi ukuran file (maks 2MB) dan format (JPG/PNG) dilakukan sepenuhnya di application layer sebelum file disimpan ke `/uploads`; kolom ini hanya menyimpan **path**, bukan file/binary itu sendiri (SQLite tidak dipakai sebagai blob storage — sesuai `design_system.md` v1.5 token `token-image-storage`: "Local filesystem, bukan cloud storage").
 - Jika buku dihapus (DELETE, hanya untuk status `'Tersedia'`), file fisik pada `gambar_sampul` juga wajib dihapus dari folder `/uploads` oleh application layer (bukan oleh database, karena SQLite tidak dapat mengakses filesystem).
+- `tingkat_kelas` bersifat opsional (nullable); jika diisi, harus berupa integer 1–6.
+- **(Baru v1.5)** `tema_buku` bersifat opsional (nullable); jika diisi, hanya dapat berupa `'Cerita & Dongeng'` atau `'Lainnya'` (enum tertutup).
 
 ---
 
@@ -349,12 +352,12 @@ OUTPUT: INSERT session → kirim id_session sebagai HttpOnly Cookie
 TABLES: guru (READ), session (INSERT)
 ```
 
-### UC-002: Manajemen Data Buku (Direvisi v1.3)
+### UC-002: Manajemen Data Buku (Direvisi v1.5)
 ```
 Tambah: (opsional) simpan file gambar sampul ke /uploads, dapatkan path
-        INSERT INTO buku (..., lokasi_rak, stok, status_buku='Tersedia', gambar_sampul=<path atau NULL>)
+        INSERT INTO buku (..., lokasi_rak, stok, status_buku='Tersedia', gambar_sampul=<path atau NULL>, tema_buku=<NULL/'Cerita & Dongeng'/'Lainnya'>, tingkat_kelas=<1-6 or NULL>)
 Edit:   (opsional) ganti file gambar sampul di /uploads, hapus file lama jika diganti
-        UPDATE buku SET ... WHERE id_buku = ?
+        UPDATE buku SET ..., tema_buku = ?, tingkat_kelas = ? WHERE id_buku = ?
 Hapus:  DELETE FROM buku WHERE id_buku = ? AND status_buku = 'Tersedia'
         (application layer juga menghapus file gambar_sampul terkait dari /uploads, jika ada)
 TABLES: buku (CRUD)
@@ -396,10 +399,12 @@ PROSES: SELECT * FROM riwayat_peminjaman
 TABLES: riwayat_peminjaman VIEW (READ-ONLY)
 ```
 
-### UC-006: Akses Publik Siswa
+### UC-006: Akses Publik Siswa (Direvisi v1.5)
 ```
-PROSES: SELECT id_buku, judul_buku, penulis, tema_buku, lokasi_rak, stok, status_buku, gambar_sampul FROM buku
+PROSES: SELECT id_buku, judul_buku, penulis, tema_buku, lokasi_rak, stok, status_buku, gambar_sampul, tingkat_kelas FROM buku
         WHERE status_buku != 'Tidak Aktif'
+        [AND (tingkat_kelas = ? OR tingkat_kelas IS NULL)]   -- filter kategori kelas opsional
+        [AND (tema_buku = ?)]                                 -- filter tema opsional (Cerita & Dongeng / Lainnya)
 TABLES: buku (READ-ONLY)
 ```
 
@@ -451,7 +456,8 @@ CREATE TABLE buku (
     judul_buku      TEXT NOT NULL,
     penulis         TEXT NOT NULL,
     penerbit        TEXT NOT NULL,
-    tema_buku       TEXT NOT NULL,
+    tema_buku       TEXT DEFAULT NULL             -- opsional (v1.5); 'Cerita & Dongeng' / 'Lainnya' — diisi hanya untuk buku non-pelajaran
+                    CHECK (tema_buku IS NULL OR tema_buku IN ('Cerita & Dongeng', 'Lainnya')),
     tahun_terbit    INTEGER NOT NULL CHECK (tahun_terbit >= 1900),
     lokasi_rak      TEXT NOT NULL,
     -- Catatan: validasi format '^[A-Za-z]+[0-9]+$' primer dilakukan di application layer (Express.js).
@@ -462,6 +468,7 @@ CREATE TABLE buku (
     status_buku     TEXT NOT NULL DEFAULT 'Tersedia'
                     CHECK (status_buku IN ('Tersedia', 'Dipinjam', 'Tidak Aktif')),
     gambar_sampul   TEXT DEFAULT NULL,  -- path relatif, contoh: /uploads/buku_A1_001.jpg; NULL = belum ada sampul
+    tingkat_kelas   INTEGER DEFAULT NULL CHECK (tingkat_kelas IS NULL OR tingkat_kelas BETWEEN 1 AND 6),
     created_at      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -571,9 +578,10 @@ ORDER BY p.created_at DESC;
 | **BR-24** | **(Baru v1.3) Gambar sampul buku bersifat opsional dan disimpan sebagai file lokal, bukan blob database.** | **DS v1.5 Section 9.11, token `token-image-storage`** | **Kolom `gambar_sampul` hanya menyimpan path (TEXT, nullable); file fisik dikelola application layer di folder `/uploads`.** |
 | **BR-25** | **(Baru v1.3) Database berjalan file-based (SQLite) pada satu PC lokal, bukan server DB terpisah.** | **srs.md v3.4 Section 3, 3.1–3.3** | **Seluruh DDL Section 6 menggunakan sintaks SQLite; file `perpustakaan.db` disimpan lokal di folder `backend/data/`.** |
 
----
+| **BR-26** | **(Baru v1.4) Tingkat Kelas buku bersifat opsional; jika diisi wajib 1–6.** | **srs.md v3.5 F002** | **CHECK constraint `(tingkat_kelas IS NULL OR tingkat_kelas BETWEEN 1 AND 6)` pada kolom `tingkat_kelas`.** |
+| **BR-27** | **(Baru v1.5) Tema buku menjadi nullable enum tertutup (2 nilai); aturan pengisian: buku pelajaran → isi tingkat_kelas (kosongkan tema_buku), buku non-pelajaran → isi tema_buku (kosongkan tingkat_kelas), tidak jelas kategorinya → kosongkan keduanya.** | **srs.md v3.6 F002** | **CHECK constraint `(tema_buku IS NULL OR tema_buku IN ('Cerita & Dongeng', 'Lainnya'))` pada kolom `tema_buku`; tingkat_kelas tetap (lihat BR-26).** |
 
-## 8. DATA RETENTION RULES
+---
 
 | Data | Retensi | Keterangan |
 | --- | --- | --- |
@@ -607,4 +615,5 @@ ORDER BY p.created_at DESC;
 | 1.0 | 2026-06-25 | Kelompok DPSI BRAYYY | Initial Draft. |
 | 1.1 | 2026-07-01 | Kelompok DPSI BRAYYY | Sinkronisasi terhadap srs.md v3.1, IA, DS v1.3, User Flows v1.1 (lokasi_rak, status Tidak Aktif, retensi 3 tahun, dst). |
 | 1.2 | 2026-07-06 | Kelompok DPSI BRAYYY | Sinkronisasi dengan srs.md v3.2 & design_system.md v1.4: menambah kolom `denda_keterlambatan`, `biaya_kondisi`, `total_denda` pada `pengembalian` (3.4); menambah Section 3.7 Konstanta Aplikasi; update DDL `CREATE TABLE pengembalian` dan `CREATE VIEW riwayat_peminjaman` (Section 6, masih sintaks MySQL); menambah BR-21 s.d. BR-23 (Section 7). |
-| **1.3** | **2026-07-09** | **Kelompok DPSI BRAYYY** | **Sinkronisasi dengan srs.md v3.4 (deployment single-PC lokal, Tech Stack final SQLite) dan design_system.md v1.5 (Image Upload 9.11):** (1) **migrasi total Section 6 DDL dari MySQL ke SQLite** — hapus `ENGINE=InnoDB`, ganti `ON UPDATE CURRENT_TIMESTAMP` dengan TRIGGER, ganti `DECIMAL(10,2)` dengan `INTEGER` untuk seluruh kolom nominal denda (Rupiah bulat, hindari floating-point error), catatan keterbatasan `REGEXP`; (2) tambah Section 1.3 (Catatan Migrasi Engine Database) yang merangkum seluruh perbedaan MySQL vs SQLite; (3) tambah kolom `gambar_sampul` (nullable, TEXT path) pada entity `buku` (Section 3.2) dan DDL; (4) tambah BR-24 (gambar sampul lokal, bukan blob) dan BR-25 (SQLite file-based) pada Section 7; (5) update Section 3.7 dengan lokasi file `perpustakaan.db` dan folder `uploads/`, serta konstanta `MAX_IMAGE_SIZE_MB`/`ALLOWED_IMAGE_FORMAT`; (6) update Section 8 (Data Retention) dan Section 9 (Traceability Matrix) untuk mencakup backup file database & folder uploads; (7) update seluruh referensi versi SoT ke srs.md v3.4, IA sinkron v3.4, DS v1.5, User Flows v1.1. |
+| **1.4** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah kolom `tingkat_kelas` (INTEGER, nullable, 1–6) pada entity buku (Section 3.2), validation rule (Section 3.2), DDL (Section 6), dan BR-26 (Section 7). Update Data Flow UC-002 dan UC-006 (Section 5) untuk menyertakan tingkat_kelas. Sinkron dengan srs.md v3.5.** |
+| **1.5** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah `tema_buku` dari NOT NULL menjadi nullable enum tertutup (`'Cerita & Dongeng'` / `'Lainnya'`): (1) update definisi kolom @ Section 3.2; (2) tambah validation rule tema_buku @ Section 3.2; (3) update UC-002 Data Flow — INSERT/UPDATE sertakan tema_buku; (4) update UC-006 Data Flow — tambah filter tema_buku; (5) update DDL — tema_buku TEXT DEFAULT NULL + CHECK; (6) tambah BR-27 @ Section 7. Sinkron dengan srs.md v3.6.** |

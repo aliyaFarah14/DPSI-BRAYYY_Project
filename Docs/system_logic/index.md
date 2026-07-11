@@ -2,7 +2,7 @@
 
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Document Version:** v1.2 (Sinkronisasi tabel katalog & mapping dengan versi terbaru sys_uc_001.md dan sys_uc_002.md, yang telah dilengkapi section Related Screens & Related Entities)
+**Document Version:** v1.4 (Update versi sys_uc_002.md → v1.4 dan sys_uc_006.md → v1.4 — sinkron data_model.md v1.5 & srs.md v3.6)
 
 **Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
 
@@ -67,11 +67,11 @@ system_logics/
 | Use Case ID | Use Case Name | File Path | Status | Version |
 | --- | --- | --- | --- | --- |
 | UC-001 | Autentikasi Guru (Login) | ./sys_uc_001.md | Draft | v1.3 |
-| UC-002 | Manajemen Data Buku | ./sys_uc_002.md | Draft | v1.2 |
+| UC-002 | Manajemen Data Buku | ./sys_uc_002.md | Draft | v1.4 |
 | UC-003 | Pencatatan Peminjaman Buku | ./sys_uc_003.md | Draft | v1.2 |
 | UC-004 | Pencatatan Pengembalian Buku | ./sys_uc_004.md | Draft | v1.2 |
 | UC-005 | Riwayat Peminjaman | ./sys_uc_005.md | Draft | v1.2 |
-| UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | ./sys_uc_006.md | Draft | v1.2 |
+| UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | ./sys_uc_006.md | Draft | v1.4 |
 
 ---
 
@@ -80,11 +80,11 @@ system_logics/
 | User Flow | System Logic | Description |
 | --- | --- | --- |
 | userflow_uc_001.md v1.0 | sys_uc_001.md v1.3 | Authentication process, session-cookie management, dan login/logout API |
-| userflow_uc_002.md v1.1 | sys_uc_002.md v1.2 | CRUD data buku, validasi, upload gambar sampul, serta sinkronisasi data buku |
+| userflow_uc_002.md v1.3 | sys_uc_002.md v1.4 | CRUD data buku, validasi, upload gambar sampul, serta sinkronisasi data buku |
 | userflow_uc_003.md v1.0 | sys_uc_003.md v1.2 | Proses peminjaman buku, validasi stok, pencatatan transaksi (nama/kelas siswa manual), dan sinkronisasi stok otomatis |
 | userflow_uc_004.md v1.1 | sys_uc_004.md v1.2 | Proses pengembalian buku, kalkulasi keterlambatan & denda otomatis, dan sinkronisasi stok otomatis |
 | userflow_uc_005.md v1.1 | sys_uc_005.md v1.2 | Pengambilan data riwayat peminjaman beserta filter pencarian dan nominal denda |
-| userflow_uc_006.md v1.0 | sys_uc_006.md v1.2 | Akses publik terhadap informasi ketersediaan, lokasi, dan stok buku |
+| userflow_uc_006.md v1.2 | sys_uc_006.md v1.4 | Akses publik terhadap informasi ketersediaan, lokasi, dan stok buku |
 
 ---
 
@@ -164,4 +164,5 @@ Sejak v1.1, seluruh System Logic tidak lagi mengasumsikan tabel master `siswa`. 
 | --- | --- | --- | --- |
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Initial Draft System Logic Index yang diturunkan dari User Flows Index (SoT-4). |
 | 1.1 | 2026-07-09 | Kelompok DPSI BRAYYY | Perbaikan 4 gap kritis: (1) model autentikasi diubah dari Bearer Token ke session-cookie murni; (2) penghapusan asumsi entity `siswa` terpisah; (3) penambahan logika Denda Keterlambatan pada UC-004; (4) penghapusan business rule "Rusak Berat → Tidak Aktif otomatis" yang tidak berdasar SRS. Juga: field naming API diselaraskan dengan `data_model.md` v1.3, Traceability Matrix diarahkan ke FR-ID/AC-ID yang sesungguhnya (bukan skema ID buatan), Base URL diperjelas konteks localhost. |
-| **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Sinkronisasi tabel Catalog (Section 3) dan Mapping (Section 4) dengan versi terbaru tiap file: sys_uc_001.md naik ke v1.3 (perbaikan rule rate limiting login), sys_uc_002.md ke v1.2, dan sys_uc_003.md–sys_uc_006.md ke v1.2 (penambahan section Related Screens & Related Entities secara merata di seluruh dokumen System Logic, sesuai checklist minimal isi UCIC).** |
+| **1.3** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Update Catalog (Section 3): sys_uc_002.md → v1.3, sys_uc_006.md → v1.3; update Mapping (Section 4): userflow_uc_002.md v1.2 → sys_uc_002.md v1.3, userflow_uc_006.md v1.1 → sys_uc_006.md v1.3. Sinkron data_model.md v1.4 & srs.md v3.5.** |
+| **1.4** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Update Catalog: sys_uc_002.md → v1.4, sys_uc_006.md → v1.4; update Mapping: userflow_uc_002.md v1.3 → sys_uc_002.md v1.4, userflow_uc_006.md v1.2 → sys_uc_006.md v1.4. Sinkron data_model.md v1.5 & srs.md v3.6.** |

@@ -1,10 +1,10 @@
 # User Flow — UC-006: Akses Ketersediaan & Lokasi Buku (Publik)
 
-Document Version: v1.0 (Referensi SoT diperbarui ke SRS v3.4 / DS v1.5 — tidak ada perubahan substansi flow)
+Document Version: v1.2 (Sempurnakan filter tema menjadi dropdown tertutup Cerita & Dongeng/Lainnya — sinkron srs.md v3.6 & data_model.md v1.5)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-09
+Last Updated: 2026-07-11
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -18,7 +18,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Use Case Name | Akses Ketersediaan & Lokasi Buku (Publik) |
 | Actor | ACT-02 — Siswa |
 | Feature ID (SRS) | F006 |
-| FR-ID Terkait (SRS v3.4) | FR-024, FR-025, FR-026 |
+| FR-ID Terkait (SRS v3.6) | FR-024, FR-025 (pencarian tema dropdown tertutup), FR-026, FR-031 (filter kategori kelas & tema) |
 | Page ID (IA) | PAGE-002 |
 | Route | `/` |
 | Priority | High |
@@ -28,7 +28,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 ## 2. GOAL
 
-Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta mencari buku berdasarkan judul atau tema secara mandiri, tanpa harus bertanya langsung ke Guru dan tanpa memerlukan login.
+Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta mencari/memfilter buku berdasarkan judul, tema (Cerita & Dongeng / Lainnya), atau tingkat kelas (1–6) secara mandiri, tanpa harus bertanya langsung ke Guru dan tanpa memerlukan login.
 
 ---
 
@@ -67,9 +67,10 @@ Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta men
 
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
-| 1 | Siswa | Membuka URL `/` melalui browser (Chrome/Edge) pada PC perpustakaan. | Sistem menampilkan Topbar Publik ("Perpustakaan SD Negeri Tamanan" + tombol "Login Guru") dan daftar buku dalam format Card/Table (Judul, Penulis, Tema, **Lokasi Rak**, Stok Tersedia, Status). |
-| 2 | Siswa | Mengetik kata kunci judul atau tema pada kolom pencarian. | Sistem memfilter daftar buku secara live sesuai kata kunci. |
-| 3 | Siswa | Meninjau Badge Status (Hijau: Tersedia, Merah: Dipinjam/Stok Habis) dan chip Lokasi Rak pada buku yang dicari. | Sistem menampilkan informasi lengkap tanpa memerlukan interaksi tambahan (tanpa login). |
+| 1 | Siswa | Membuka URL `/` melalui browser (Chrome/Edge) pada PC perpustakaan. | Sistem menampilkan Topbar Publik ("Perpustakaan SD Negeri Tamanan" + tombol "Login Guru") dan daftar buku dalam format Card/Table (Judul, Penulis, **Tema (Cerita & Dongeng / Lainnya)**, **Lokasi Rak**, Stok Tersedia, Status), serta Baris Kategori Filter (Semua / Kelas 1–6 / Cerita & Dongeng / Lainnya) di bawah kolom pencarian. |
+| 2 | Siswa | (Opsional) Mengklik tombol kategori filter (Kelas 1–6, Cerita & Dongeng, atau Lainnya) untuk menyaring daftar buku. | Sistem menyaring daftar buku sesuai kategori yang dipilih (`?tingkat_kelas=N` atau `?tema_buku=Cerita & Dongeng`/`?tema_buku=Lainnya`), dapat dikombinasikan dengan pencarian teks di kolom pencarian. |
+| 3 | Siswa | Mengetik kata kunci judul atau tema pada kolom pencarian (dapat dikombinasikan dengan filter kategori). | Sistem memfilter daftar buku secara live sesuai kata kunci dan kategori yang dipilih. |
+| 4 | Siswa | Meninjau Badge Status (Hijau: Tersedia, Merah: Dipinjam/Stok Habis) dan chip Lokasi Rak pada buku yang dicari. | Sistem menampilkan informasi lengkap tanpa memerlukan interaksi tambahan (tanpa login). |
 
 ---
 
@@ -99,6 +100,12 @@ Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta men
 | --- | --- | --- |
 | 1E | Katalog buku masih kosong (belum ada data dari UC-002). | Sistem menampilkan Empty State: ikon `BookOpen` + teks informatif bahwa katalog belum tersedia. |
 
+### AF-003: Filter Kategori Tidak Menemukan Hasil *(Baru v1.1)*
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 1F | Siswa memilih kategori filter (Kelas/Tema) yang tidak cocok dengan data buku manapun. | Sistem menampilkan ikon `Search` + teks: *"Buku tidak ditemukan untuk kategori ini."* |
+
 ### EF-003: Koneksi Jaringan/Server Lokal Gagal
 
 | Step | Condition | System Response |
@@ -113,7 +120,7 @@ Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta men
 | --- | --- | --- |
 | Buku | Judul, Penulis, Tema, Lokasi Rak, Stok, Status | Database → tabel `buku` (read-only, terbatas field publik) |
 
-> Catatan: Data peminjam (Nama Siswa yang meminjam) dan data **Denda** **tidak** ditampilkan pada halaman ini, sesuai Business Rule Master List poin 10 dan Section 4.2 F006 SRS v3.4.
+> Catatan: Data peminjam (Nama Siswa yang meminjam) dan data **Denda** **tidak** ditampilkan pada halaman ini, sesuai Business Rule Master List poin 10 dan Section 4.2 F006 SRS v3.4. Filter kategori beroperasi pada kolom `tingkat_kelas` (dengan `OR tingkat_kelas IS NULL` sehingga buku untuk semua kelas tetap muncul) dan `tema_buku`.
 
 ---
 
@@ -140,6 +147,7 @@ Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta men
 | AC-006-04 | Tidak ada aksi penulisan data pada halaman publik (murni read-only). |
 | AC-006-05 | Tombol "Login Guru" mengarahkan ke `/login` dengan benar. |
 | AC-006-06 | Halaman responsif: tampilan kartu satu kolom pada layar < 768px (fallback). |
+| AC-006-07 | **Siswa dapat memfilter daftar buku berdasarkan kategori Kelas 1–6 (tingkat_kelas) atau Tema (Cerita & Dongeng / Lainnya), dikombinasikan dengan pencarian judul/tema.** |
 
 ---
 
@@ -157,4 +165,5 @@ Siswa dapat mengetahui status ketersediaan dan lokasi rak sebuah buku, serta men
 | Version | Date | Author | Description |
 | --- | --- | --- | --- |
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Draft awal, mengacu srs.md v3.1 dan design_system.md v1.3. |
-| 1.0 (housekeeping) | 2026-07-09 | Kelompok DPSI BRAYYY | Update referensi versi header ke srs.md v3.4 dan design_system.md v1.5; tambah FR-ID Terkait di Header; tambah penegasan bahwa data denda (fitur baru F004) juga tidak ditampilkan di halaman publik; EF-003 diperjelas soal konteks server lokal single-PC; AF-001 direword agar Desktop jadi target utama dan mobile hanya fallback, konsisten dengan SRS v3.4 Section 3.1. Tidak ada perubahan pada Main Flow/AC — substansi flow akses publik tidak terdampak perubahan SRS v3.2–v3.4. |
+| **1.1** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah filter kategori kelas pada halaman publik:** (1) tambah FR-031 di Header; (2) update Main Flow — step 1 perbarui deskripsi filter, tambah step 2 (filter kategori), renumber step 2→3 dan 3→4; (3) tambah AF-003 (filter kategori tidak menemukan hasil); (4) update Related Data dengan catatan filter tingkat_kelas; (5) tambah AC-006-07. Sinkron srs.md v3.5 & design_system.md v1.6. |
+| **1.2** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Sempurnakan filter tema menjadi enum tertutup Cerita & Dongeng/Lainnya:** (1) update Header — FR-ID v3.6; (2) update GOAL — sebut filter tingkat_kelas & tema; (3) update Main Flow step 1 — Tema jadi "(Cerita & Dongeng / Lainnya)", Baris Kategori filter dengan 4 nilai; (4) update step 2 — query param `?tema_buku=`; (5) update AC-006-07 — sebut spesifik nilai tema. Sinkron srs.md v3.6 & data_model.md v1.5.** |

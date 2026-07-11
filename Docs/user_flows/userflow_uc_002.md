@@ -1,10 +1,10 @@
 # User Flow — UC-002: Manajemen Data Buku
 
-Document Version: v1.1 (Sinkronisasi field Gambar Sampul/Image Upload — DS v1.5 Section 9.11, SRS v3.4)
+Document Version: v1.3 (Ubah Tema menjadi dropdown opsional tertutup; penyempurnaan aturan pengisian tingkat_kelas & tema_buku — sinkron srs.md v3.6 & data_model.md v1.5)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-09
+Last Updated: 2026-07-11
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -18,7 +18,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Use Case Name | Manajemen Data Buku |
 | Actor | ACT-01 — Guru |
 | Feature ID (SRS) | F002 |
-| FR-ID Terkait (SRS v3.4) | FR-005, FR-006, FR-007, FR-008, FR-009 |
+| FR-ID Terkait (SRS v3.6) | FR-005 (dengan Tema dropdown opsional), FR-006, FR-007, FR-008, FR-009, FR-030 (Tingkat Kelas opsional) |
 | Page ID (IA) | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 |
 | Route | `/buku` |
 | Priority | High |
@@ -28,7 +28,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 ## 2. GOAL
 
-Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk field Lokasi Rak dan **(opsional) Gambar Sampul** — agar katalog perpustakaan selalu akurat, posisi fisik buku dapat diketahui secara pasti, dan tampilan katalog/kartu publik lebih mudah dikenali siswa.
+Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk field Lokasi Rak, **(opsional) Gambar Sampul**, **Tema (dropdown opsional: Cerita & Dongeng / Lainnya)**, dan **Tingkat Kelas (opsional, 1–6)** — agar katalog perpustakaan selalu akurat, posisi fisik buku dapat diketahui secara pasti, siswa dapat memfilter buku berdasarkan kelas atau tema, dan tampilan katalog/kartu publik lebih mudah dikenali siswa.
 
 ---
 
@@ -70,7 +70,7 @@ Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk fie
 | --- | --- | --- | --- |
 | 1 | Guru | Berada di PAGE-003, mengklik tombol **"Tambah Buku Baru"**. | Sistem membuka Modal Dialog (PAGE-003-SUB-01) dengan backdrop blur, judul "Tambah Buku Baru". |
 | 2 | Guru | **(Opsional, Baru v1.1)** Mengklik/menyeret file gambar ke area dropzone **Gambar Sampul** di bagian atas form. | Sistem menampilkan dropzone (rasio 3:4) dengan ikon `ImagePlus` dan teks *"Klik atau seret gambar sampul ke sini"*; setelah file dipilih, tampilkan overlay spinner (Uploading State), lalu preview gambar penuh (Filled State) dengan tombol hapus/ganti di pojok kanan atas. |
-| 3 | Guru | Mengisi field: ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, **Lokasi Rak** (contoh: "A1"), Stok Awal (≥ 0). | Sistem menampilkan input real-time; label required ditandai (*); field Gambar Sampul tidak ditandai bintang merah karena bersifat opsional. |
+| 3 | Guru | Mengisi field: ID Buku, Judul, Penulis, Penerbit, **Tema (dropdown opsional: Cerita & Dongeng / Lainnya)**, Tahun Terbit, **Lokasi Rak** (contoh: "A1"), **Tingkat Kelas** (dropdown opsional 1–6, dikosongkan untuk buku non-pelajaran), Stok Awal (≥ 0). **Aturan:** Buku pelajaran → isi Tingkat Kelas (kosongkan Tema); buku non-pelajaran → isi Tema (kosongkan Tingkat Kelas); tidak jelas → kosongkan keduanya. | Sistem menampilkan input real-time; label required ditandai (*); field Gambar Sampul, Tema, dan Tingkat Kelas tidak ditandai bintang merah karena bersifat opsional. |
 | 4 | Guru | Mengklik tombol **"Simpan"**. | Tombol berubah ke state `[Loading]` (spinner, disabled). Sistem mengirim request POST ke API (termasuk file gambar sampul jika ada). |
 | 5 | — | — | Sistem memvalidasi: ID Buku belum terdaftar, Lokasi Rak terisi & sesuai format (huruf + nomor), Stok bertipe integer ≥ 0, Judul bersih dari tag skrip (XSS), **(jika ada gambar) ukuran file ≤ 2MB dan format JPG/PNG**. |
 | 6 | — | — | Validasi lolos. Sistem menyimpan data buku baru dengan Status default "Tersedia"; gambar sampul (jika ada) disimpan ke `/uploads` lokal dan path-nya ditautkan ke record buku. |
@@ -159,7 +159,7 @@ Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk fie
 
 | Data Object | Fields Used | Source |
 | --- | --- | --- |
-| Buku | ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, Status, **Path Gambar Sampul (opsional)** | Database → tabel `buku`; file gambar → filesystem lokal `/uploads` |
+| Buku | ID Buku, Judul, Penulis, Penerbit, **Tema (dropdown opsional: Cerita & Dongeng / Lainnya)**, Tahun Terbit, Lokasi Rak, Stok, Status, **Path Gambar Sampul (opsional)**, **Tingkat Kelas (opsional, 1–6)** | Database → tabel `buku`; file gambar → filesystem lokal `/uploads` |
 
 ---
 
@@ -190,6 +190,7 @@ Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk fie
 | AC-002-08 | Pencarian buku memfilter tabel secara live berdasarkan Judul/Tema/ID Buku. |
 | **AC-002-09** | **Guru dapat mengunggah Gambar Sampul (opsional) saat menambah/mengubah buku; sistem menolak file > 2MB atau format selain JPG/PNG dengan pesan error spesifik.** |
 | **AC-002-10** | **Buku tanpa Gambar Sampul menampilkan placeholder inisial judul secara konsisten pada Card Component publik dan Table Katalog.** |
+| **AC-002-11** | **Guru dapat memilih Tingkat Kelas (dropdown opsional 1–6) untuk buku pelajaran berjenjang, atau memilih Tema (dropdown opsional: Cerita & Dongeng / Lainnya) untuk buku non-pelajaran — kedua field tidak boleh diisi bersamaan (mutually exclusive).** |
 
 ---
 
@@ -208,4 +209,5 @@ Guru dapat menambah, mengubah, menghapus, dan mencari data buku — termasuk fie
 | Version | Date | Author | Description |
 | --- | --- | --- | --- |
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Draft awal — belum mencakup field Gambar Sampul (DS masih v1.3, belum ada Image Upload). |
-| **1.1** | **2026-07-09** | **Kelompok DPSI BRAYYY** | **Sinkronisasi dengan DS v1.5 Section 9.11 (Image Upload) dan SRS v3.4:** (1) tambah step Main Flow untuk unggah Gambar Sampul (opsional); (2) tambah AF-004 untuk buku tanpa gambar sampul (placeholder); (3) tambah EF-007 untuk error ukuran/format file; (4) tambah field Path Gambar Sampul di Related Data; (5) tambah AC-002-09, AC-002-10; (6) tambah FR-ID Terkait di Header; (7) Notes diperbarui soal sifat opsional dan penyimpanan lokal. |
+| **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah field Tingkat Kelas (opsional, 1–6) pada entity Buku:** (1) tambah FR-030 di Header; (2) update Main Flow step 3 untuk menyertakan Tingkat Kelas; (3) update Related Data; (4) tambah AC-002-11. Sinkron srs.md v3.5 & data_model.md v1.4. |
+| **1.3** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah Tema menjadi dropdown opsional tertutup (Cerita & Dongeng / Lainnya); aturan mutually exclusive dengan Tingkat Kelas:** (1) update Header — FR-ID v3.6; (2) update GOAL — Tema dropdown opsional; (3) update Main Flow step 3 — Tema jadi dropdown + aturan pengisian; (4) update Related Data — tema_buku dropdown; (5) update AC-002-11 — aturan mutually exclusive. Sinkron srs.md v3.6 & data_model.md v1.5.** |

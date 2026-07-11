@@ -7,7 +7,6 @@ import {
   BookmarkCheck,
   History,
   LogOut,
-  Library,
   ChevronLeft,
   ChevronRight,
   X,
@@ -41,8 +40,8 @@ export default function Sidebar({ collapsed, onToggle, open, onClose }: SidebarP
         "flex items-center gap-3 border-b border-sidebar-muted/40 px-5",
         collapsed ? "justify-center h-16" : "h-16"
       )}>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-active/30">
-          <Library size={18} className="text-sidebar-foreground" />
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sidebar-active/30 overflow-hidden">
+          <img src="/SDNTamanan.jpeg" alt="Logo SD Negeri Tamanan" className="h-full w-full object-cover" />
         </div>
         {!collapsed && (
           <div className="min-w-0">

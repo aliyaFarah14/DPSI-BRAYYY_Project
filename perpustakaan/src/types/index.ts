@@ -5,12 +5,15 @@ export interface Guru {
   password_hash: string
 }
 
+export type TemaBuku = "Cerita & Dongeng" | "Lainnya"
+
 export interface Buku {
   id_buku: string
   judul_buku: string
   penulis: string
   penerbit: string
-  tema_buku: string
+  tema_buku: TemaBuku | null
+  tingkatKelas: number | null
   lokasi_rak: string
   stok: number
   status_buku: "Aktif" | "Tidak Aktif"

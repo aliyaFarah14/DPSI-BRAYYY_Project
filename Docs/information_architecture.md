@@ -1,9 +1,9 @@
 # information_architecture.md — Information Architecture
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Status:** Draft (Revisi — sinkron dengan srs.md v3.4 dan userflow_uc_005.md v1.1)
-**Last Updated:** 2026-07-09
-**Diturunkan dari:** `srs.md` v3.4 (SoT-1)
+**Status:** Draft (Revisi — sinkron dengan srs.md v3.6)
+**Last Updated:** 2026-07-11
+**Diturunkan dari:** `srs.md` v3.6 (SoT-1)
 **Digunakan untuk:** High-Fidelity Prototype, struktur halaman Frontend, navigasi antarmuka, struktur routing, pemetaan relasi antar-layar.
 
 ---
@@ -66,7 +66,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 **Module: Manajemen Data Buku**
 - Level 1 (Halaman Master Katalog): Judul "Data Buku Perpustakaan", tombol "Tambah Buku Baru", kolom pencarian (Judul/Tema).
 - Level 2 (Tabel Data Katalog): Tabel Buku (ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, Lokasi Rak, Stok, Status, Aksi); Status Badge Stok (Hijau: Tersedia, Merah: Stok Habis); tombol Edit/Hapus per baris.
-- Level 3 (Modal Form Tambah/Edit Buku): Field Gambar Sampul (Image Upload, opsional), ID Buku (alfanumerik, unik), Judul Buku, Penulis, Penerbit, Tema/Kategori, Tahun Terbit (numerik), Lokasi Rak (format kode huruf + nomor, misal "A1"/"B3", wajib diisi, tervalidasi), Stok Awal (integer ≥ 0); tombol "Batal" dan "Simpan".
+- Level 3 (Modal Form Tambah/Edit Buku): Field Gambar Sampul (Image Upload, opsional), ID Buku (alfanumerik, unik), Judul Buku, Penulis, Penerbit, Tema (dropdown opsional: Cerita & Dongeng / Lainnya — diisi hanya untuk buku non-pelajaran), Tahun Terbit (numerik), Lokasi Rak (format kode huruf + nomor, misal "A1"/"B3", wajib diisi, tervalidasi), Tingkat Kelas (opsional, dropdown Kelas 1–6 — diisi hanya untuk buku pelajaran berjenjang, mutually exclusive dengan Tema), Stok Awal (integer ≥ 0); tombol "Batal" dan "Simpan".
 
 **Module: Transaksi Peminjaman**
 - Level 1 (Halaman Catat Peminjaman): Judul "Catat Peminjaman Buku"; Panel Kiri (Daftar Buku Tersedia, stok > 0); Panel Kanan (Form Data Peminjaman).
@@ -83,7 +83,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Level 2 (Tabel Riwayat): Kolom Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Denda, Status; Badge Status (Hijau: Sudah Dikembalikan, Kuning: Masih Dipinjam); Badge Denda (merah, menampilkan nominal, hanya muncul jika Total Denda > 0 — strip "—" jika Rp 0 atau transaksi masih berjalan).
 
 **Module: Akses Publik Siswa**
-- Level 1 (Halaman Ketersediaan Buku): Judul "Perpustakaan SD Negeri Tamanan"; kolom pencarian (Judul/Tema); tombol "Login Guru" di pojok kanan atas.
+- Level 1 (Halaman Ketersediaan Buku): Judul "Perpustakaan SD Negeri Tamanan"; kolom pencarian (Judul/Tema); **Baris Kategori Filter (Semua / Kelas 1–6 / Cerita & Dongeng / Lainnya)**; tombol "Login Guru" di pojok kanan atas.
 - Level 2 (Daftar Buku): Tabel Buku (Judul, Penulis, Tema, Lokasi Rak, Stok Tersedia, Status) — Lokasi Rak wajib ditampilkan agar siswa dapat langsung menemukan posisi fisik buku tanpa bertanya ke Guru; Badge Status (Hijau: Tersedia, Merah: Dipinjam/Stok Habis). Data denda dan data peminjam tidak ditampilkan di sini (Business Rule Master List poin 10).
 
 ---
@@ -121,7 +121,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Exit Points: klik "Login Guru" → `/login` (PAGE-001).
 - Related User Flow: UC-006 (Siswa Melihat Ketersediaan Buku).
 - Required Permissions: Publik / Tanpa Autentikasi.
-- Notes: Read-only sepenuhnya; tabel Judul, Penulis, Tema, Lokasi Rak, Stok Tersedia, Status; kolom pencarian; data peminjam dan data denda tidak ditampilkan.
+- Notes: Read-only sepenuhnya; tabel Judul, Penulis, Tema (Cerita & Dongeng / Lainnya), Lokasi Rak, Stok Tersedia, Status; kolom pencarian; baris filter kategori (Semua/Kelas 1–6/Cerita & Dongeng/Lainnya); data peminjam dan data denda tidak ditampilkan.
 
 **PAGE-003: Manajemen Data Buku**
 - Purpose: Antarmuka utama guru mengelola katalog buku.
@@ -130,7 +130,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Related User Flow: UC-002 (Manajemen Data Buku).
 - Child Pages: PAGE-003-SUB-01 (modal Tambah Buku), PAGE-003-SUB-02 (modal Edit Buku).
 - Required Permissions: Guru (Authenticated).
-- Notes: Tabel katalog interaktif (ID Buku, Judul, Penulis, Tema, Tahun Terbit, Lokasi Rak, Stok, Status, Aksi); tombol "Tambah Buku Baru"; kolom pencarian; badge merah untuk stok 0; validasi format Lokasi Rak (kode huruf + nomor); field Gambar Sampul opsional pada modal Tambah/Edit.
+- Notes: Tabel katalog interaktif (ID Buku, Judul, Penulis, Tema, Tahun Terbit, Lokasi Rak, Stok, Status, Aksi); tombol "Tambah Buku Baru"; kolom pencarian; badge merah untuk stok 0; validasi format Lokasi Rak (kode huruf + nomor); field Gambar Sampul opsional pada modal Tambah/Edit; field Tema (dropdown opsional: Cerita & Dongeng / Lainnya) pada modal Tambah/Edit; field Tingkat Kelas (opsional, dropdown 1–6) pada modal Tambah/Edit — mutually exclusive dengan Tema.
 
 **PAGE-004: Catat Peminjaman**
 - Purpose: Mencatat transaksi peminjaman buku secara cepat dan akurat.
@@ -203,7 +203,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Exit: PAGE-003 (Manajemen Data Buku). Related: UC-001.
 
 **NF-002: Alur Pengelolaan Data Buku**
-- Entry: PAGE-003 → klik "Tambah Buku Baru" → modal PAGE-003-SUB-01 muncul → (opsional) unggah Gambar Sampul → isi ID Buku, Judul, Penulis, Penerbit, Tema, Tahun Terbit, **Lokasi Rak**, Stok Awal → klik "Simpan" → tabel katalog terperbarui, modal tertutup.
+- Entry: PAGE-003 → klik "Tambah Buku Baru" → modal PAGE-003-SUB-01 muncul → (opsional) unggah Gambar Sampul → isi ID Buku, Judul, Penulis, Penerbit, Tema (dropdown opsional: Cerita & Dongeng / Lainnya), Tahun Terbit, **Lokasi Rak**, Tingkat Kelas (opsional, dropdown 1–6 — untuk buku pelajaran), Stok Awal → klik "Simpan" → tabel katalog terperbarui, modal tertutup.
 - Exit: PAGE-003. Related: UC-002.
 
 **NF-003: Alur Pencatatan Peminjaman Buku**
@@ -237,4 +237,5 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 |---|---|---|
 | — (tanpa versi eksplisit) | 2026-07-01 s.d. 2026-07-08 | Draft dan revisi bertahap mengikuti SRS v3.0 s.d. v3.3. |
 | Sinkron v3.4 | 2026-07-09 | Sinkronisasi penuh dengan srs.md v3.4 (deployment single-PC lokal). |
-| **Sinkron v3.4 + Denda** | **2026-07-09** | **Menambahkan kolom "Denda" dan Badge Denda pada Content Hierarchy Riwayat Peminjaman (Section 1.3), Panel Ringkasan Denda pada Content Hierarchy Transaksi Pengembalian, referensi Gambar Sampul (Image Upload) pada Manajemen Data Buku, pembaruan Page Definitions PAGE-003/005/006, dan Indikator Visual Navigasi (Section 3.4) — sinkron dengan userflow_uc_004.md v1.1 dan userflow_uc_005.md v1.1.** |
+| **Sinkron v3.5** | **2026-07-10** | **Tambah field Tingkat Kelas (opsional) pada Content Hierarchy Manajemen Data Buku — Level 3 (Section 1.3), tambah Baris Kategori Filter (Semua / Kelas 1–6 / Tema) pada Content Hierarchy Akses Publik Siswa — Level 1 (Section 1.3), update Page Definitions PAGE-002 dan PAGE-003 (Section 2.2) untuk menyebut field/filter baru — sinkron dengan srs.md v3.5.** |
+| **Sinkron v3.6** | **2026-07-11** | **Ubah Tema dari teks bebas menjadi dropdown opsional tertutup (Cerita & Dongeng / Lainnya); aturan mutually exclusive dengan Tingkat Kelas:** (1) update Content Hierarchy Level 3 — Tema jadi dropdown, tambah aturan mutually exclusive; (2) update Content Hierarchy Akses Publik — Baris Kategori Filter jadi 4 nilai; (3) update PAGE-002 Notes — filter tema spesifik; (4) update PAGE-003 Notes — Tema dropdown + mutually exclusive; (5) update NF-002 — Tema dropdown, Tingkat Kelas untuk buku pelajaran. Sinkron dengan srs.md v3.6. |
