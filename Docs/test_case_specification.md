@@ -1,12 +1,12 @@
 # Test Case Specification
 
-Document Version: v0.1
+Document Version: v0.2
 
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 
 Status: Draft
-Last Updated: 2026-07-10
+Last Updated: 2026-07-12
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -25,18 +25,20 @@ Mencakup test case untuk:
 - F002: Manajemen Data Buku — UC-002
 - F003: Pencatatan Peminjaman Buku (memicu F007) — UC-003
 - F004: Pencatatan Pengembalian Buku (memicu F007) — UC-004
-- F005: Riwayat Peminjaman — UC-005
+- F005: Riwayat Peminjaman + Export Excel — UC-005, FR-032
 - F006: Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik) — UC-006
 
 ## 1.3 References
 
 | Document | Version | Location |
 | --- | --- | --- |
-| Test Plan | v0.1 | `docs/test_plan.md` |
-| Software Requirements Specification (SRS) | v3.4 | `docs/srs.md` |
-| User Flow Specifications | v1.1 | `docs/user_flows/` |
-| Design System | v1.5 | `docs/design_system.md` |
-| Information Architecture | v1.0 | `docs/information_architecture.md` |
+| Test Plan | v0.2 | `docs/test_plan.md` |
+| Software Requirements Specification (SRS) | v3.7 | `docs/srs.md` |
+| User Flow Specifications | v1.3 | `docs/user_flows/` |
+| System Logic Specifications | v1.4 | `docs/system_logic/` |
+| Design System | v1.8 | `docs/design_system.md` |
+| Information Architecture | v3.7 | `docs/information_architecture.md` |
+| Class Diagram | v1.1 | `docs/class_diagram.md` |
 
 ## 1.4 Test Case Format
 
@@ -64,6 +66,8 @@ Mencakup test case untuk:
 | TC-F001-004 | F001 | UC-001 | Login — Server Tidak Dapat Dihubungi |
 | TC-F001-005 | F001 | UC-001 | Login — Sesi Sudah Aktif |
 | TC-F001-006 | F001 | UC-001 | Sesi Berakhir Karena Idle Timeout |
+| TC-F001-007 | F001 | UC-001 | Akses Halaman Terproteksi Tanpa Sesi |
+| TC-F001-008 | F001 | UC-001 | Aksi Form dengan Sesi Kedaluwarsa (401) |
 | TC-F002-001 | F002 | UC-002 | Tambah Buku Baru Berhasil |
 | TC-F002-002 | F002 | UC-002 | Membatalkan Penambahan Buku |
 | TC-F002-003 | F002 | UC-002 | Input Tidak Lengkap |
@@ -75,6 +79,8 @@ Mencakup test case untuk:
 | TC-F002-009 | F002 | UC-002 | Hapus Buku Gagal — Sedang Dipinjam |
 | TC-F002-010 | F002 | UC-002 | Cari Buku |
 | TC-F002-011 | F002 | UC-002 | Unggah Gambar Sampul |
+| TC-F002-012 | F002 | UC-002 | Tambah Buku — Persistensi Setelah Refresh Halaman |
+| TC-F002-013 | F002 | UC-002 | Tambah Buku Gagal — Sesi Kedaluwarsa (401) |
 | TC-F003-001 | F003 | UC-003 | Peminjaman Berhasil |
 | TC-F003-002 | F003 | UC-003 | Batalkan Peminjaman |
 | TC-F003-003 | F003 | UC-003 | Pilih Buku Stok 0 (Habis) |
@@ -87,16 +93,27 @@ Mencakup test case untuk:
 | TC-F004-003 | F004 | UC-004 | Pengembalian dengan Kondisi Rusak |
 | TC-F004-004 | F004 | UC-004 | Batalkan Pengembalian |
 | TC-F004-005 | F004 | UC-004 | Stok Bertambah Setelah Pengembalian (F007) |
+| TC-F004-006 | F004 | UC-004 | Pengembalian Tepat Waktu — Kondisi Baik — Total Denda = 0 |
+| TC-F004-007 | F004 | UC-004 | Pengembalian Terlambat — Kondisi Rusak Ringan — Denda Kombinasi |
+| TC-F004-008 | F004 | UC-004 | Pengembalian — Kondisi Rusak Berat — Status Tersedia (Regresi) |
+| TC-F004-009 | F004 | UC-004 | Pengembalian Gagal — ID Peminjaman Sudah Dikembalikan |
 | TC-F005-001 | F005 | UC-005 | Melihat Riwayat Transaksi |
 | TC-F005-002 | F005 | UC-005 | Cari Riwayat Berdasarkan Nama Siswa |
 | TC-F005-003 | F005 | UC-005 | Cari Riwayat Berdasarkan Judul Buku |
 | TC-F005-004 | F005 | UC-005 | Filter Riwayat Berdasarkan Rentang Tanggal |
 | TC-F005-005 | F005 | UC-005 | Tidak Ada Data Riwayat |
 | TC-F005-006 | F005 | UC-005 | Denda Ditampilkan di Riwayat |
+| TC-F005-007 | F005 | UC-005 | Export Excel Berhasil — Ada Data |
+| TC-F005-008 | F005 | UC-005 | Export Excel — Tidak Ada Data |
+| TC-F005-009 | F005 | UC-005 | Export Excel — Batasan Filter Bulan/Tahun |
 | TC-F006-001 | F006 | UC-006 | Lihat Katalog Publik |
 | TC-F006-002 | F006 | UC-006 | Cari Buku di Halaman Publik |
 | TC-F006-003 | F006 | UC-006 | Buku Stok 0 Muncul Sebagai "Stok Habis" |
 | TC-F006-004 | F006 | UC-006 | Data Peminjam Tidak Ditampilkan |
+| TC-F006-005 | F006 | UC-006 | Filter Kategori — Kelas N Menampilkan Buku Tingkat Kelas N dan Tanpa Kelas |
+| TC-F006-006 | F006 | UC-006 | Filter Kategori — Lainnya Menampilkan Tema Lainnya atau Tanpa Kategori |
+| TC-F006-007 | F006 | UC-006 | Konsistensi Data — Katalog Publik vs Manajemen Buku |
+| TC-F006-008 | F006 | UC-006 | Badge "Stok Habis" untuk Buku dengan Stok = 0 |
 
 ---
 
@@ -200,6 +217,38 @@ Mencakup test case untuk:
 | **Test Data** | - |
 | **Test Steps** | 1. Login ke sistem<br>2. Biarkan aplikasi tanpa interaksi selama ~28 menit<br>3. Sistem menampilkan peringatan "Sesi akan berakhir. Perpanjang?"<br>4. Pilih "Tetap di Sini" atau biarkan hingga 30 menit |
 | **Expected Result** | 1. Setelah 28 menit: warning toast muncul dengan tombol "Tetap di Sini"<br>2. Jika memilih "Tetap di Sini": sesi diperpanjang 30 menit<br>3. Jika tidak merespon hingga 30 menit: sesi berakhir, redirect ke `/login?timeout=1`<br>4. Halaman login menampilkan banner "Sesi Anda telah berakhir. Silakan masuk kembali." |
+| **Type** | Exception |
+
+---
+
+#### TC-F001-007: Akses Halaman Terproteksi Tanpa Sesi
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F001-007 |
+| **Related UC** | UC-001 (EF-004) |
+| **Related Feature** | F001 |
+| **Test Scenario** | Pengguna tanpa sesi valid mencoba mengakses halaman admin langsung via URL |
+| **Preconditions** | Belum login (localStorage tidak menyimpan data sesi), aplikasi berjalan |
+| **Test Data** | URL: `http://localhost:5173/buku` |
+| **Test Steps** | 1. Buka browser dalam mode incognito/private<br>2. Ketik `http://localhost:5173/buku` di address bar<br>3. Tekan Enter |
+| **Expected Result** | 1. Sistem tidak menampilkan halaman Manajemen Buku<br>2. Redirect otomatis ke `/login` (halaman login)<br>3. Tidak ada error JavaScript yang tampak (tidak ada halaman putih/kosong)<br>4. URL berubah menjadi `http://localhost:5173/login` |
+| **Type** | Exception |
+
+---
+
+#### TC-F001-008: Aksi Form dengan Sesi Kedaluwarsa (401)
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F001-008 |
+| **Related UC** | UC-001 (EF-005) |
+| **Related Feature** | F001 |
+| **Test Scenario** | Guru melakukan aksi (misal: simpan buku) saat sesi sudah kedaluwarsa — sistem merespons 401 |
+| **Preconditions** | Sesi sudah kedaluwarsa (cookie session_id sudah tidak valid), Guru masih di halaman admin |
+| **Test Data** | Form tambah buku dengan data valid |
+| **Test Steps** | 1. Login, lalu expirasi sesi secara paksa (tunggu 30 menit atau hapus cookie session_id via DevTools)<br>2. Tanpa refresh halaman, isi form tambah buku<br>3. Klik "Tambah Buku" |
+| **Expected Result** | 1. Request ke backend mendapat response 401<br>2. Frontend menampilkan pesan error spesifik: "Sesi Anda telah berakhir, silakan login kembali."<br>3. Pesan berbeda dari error validasi biasa (misal: "Judul buku wajib diisi.")<br>4. Setelah dismiss, redirect ke `/login` |
 | **Type** | Exception |
 
 ---
@@ -381,8 +430,40 @@ Mencakup test case untuk:
 | **Preconditions** | Modal form tambah/edit buku terbuka, file gambar JPG/PNG tersedia (< 2MB) |
 | **Test Data** | File: `sampul.jpg` (1MB, ukuran 500x700) |
 | **Test Steps** | 1. Di modal form, klik area dropzone "Sampul Buku"<br>2. Pilih file `sampul.jpg` dari file system<br>3. Sistem menampilkan pratinjau gambar<br>4. Klik tombol "Simpan" / "Tambah Buku" |
-| **Expected Result** | 1. File tervalidasi (format JPG/PNG, ukuran < 2MB)<br>2. Pratinjau gambar ditampilkan di dropzone<br>3. Gambar tersimpan sebagai base64 di localStorage<br>4. Gambar muncul di kartu buku pada halaman publik `/` |
+| **Expected Result** | 1. File tervalidasi (format JPG/PNG, ukuran < 2MB)<br>2. Pratinjau gambar ditampilkan di dropzone<br>3. Gambar tersimpan sebagai file di `backend/uploads/`, path tercatat di database<br>4. Gambar muncul di kartu buku pada halaman publik `/` |
 | **Type** | Positif |
+
+---
+
+#### TC-F002-012: Tambah Buku — Persistensi Setelah Refresh Halaman
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F002-012 |
+| **Related UC** | UC-002 |
+| **Related Feature** | F002 |
+| **Test Scenario** | Buku yang baru ditambahkan tetap muncul setelah hard refresh halaman (bukan hanya optimistik UI) |
+| **Preconditions** | Guru sudah login, halaman Manajemen Buku terbuka |
+| **Test Data** | ID Buku: `BK010`, Judul: "Buku Uji Persistensi", Penulis: "Tester", Penerbit: "Testing", Tahun Terbit: 2025, Lokasi Rak: "Z1", Stok: 1 |
+| **Test Steps** | 1. Tambah buku baru dengan data di atas (klik "Tambah Buku" → isi form → "Tambah Buku")<br>2. Tunggu pesan sukses "Buku berhasil ditambahkan."<br>3. Lakukan hard refresh browser (Ctrl+F5 atau F5)<br>4. Amati tabel daftar buku |
+| **Expected Result** | 1. Setelah refresh, buku BK010 tetap muncul di tabel<br>2. Data buku (judul, penulis, stok, dll.) sesuai dengan yang diinput<br>3. Buku juga muncul di halaman publik `/` dengan data yang sama<br>4. Buku tercatat di database (`backend/data/perpustakaan.db`) — diverifikasi via SQLite Viewer |
+| **Type** | Positif |
+
+---
+
+#### TC-F002-013: Tambah Buku Gagal — Sesi Kedaluwarsa (401)
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F002-013 |
+| **Related UC** | UC-002 (EF-005) |
+| **Related Feature** | F002 |
+| **Test Scenario** | Guru mencoba menambah buku saat sesi sudah kedaluwarsa — buku tidak tersimpan |
+| **Preconditions** | Sesi sudah kedaluwarsa (cookie session_id dihapus via DevTools), modal form tambah buku terbuka |
+| **Test Data** | ID Buku: `BK011`, Judul: "Buku Sesi Expired", data valid lainnya |
+| **Test Steps** | 1. Login, buka halaman Manajemen Buku<br>2. Buka modal "Tambah Buku Baru" dan isi data valid<br>3. Hapus cookie `session_id` via DevTools (Application → Cookies)<br>4. Klik tombol "Tambah Buku"<br>5. Perhatikan response |
+| **Expected Result** | 1. Request ke backend mendapat response 401<br>2. Sistem menampilkan pesan error spesifik: "Sesi Anda telah berakhir, silakan login kembali."<br>3. Buku BK011 **tidak** muncul di tabel (tidak tersimpan)<br>4. Redirect ke `/login` |
+| **Type** | Exception |
 
 ---
 
@@ -590,6 +671,70 @@ Mencakup test case untuk:
 
 ---
 
+#### TC-F004-006: Pengembalian Tepat Waktu — Kondisi Baik — Total Denda = 0
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F004-006 |
+| **Related UC** | UC-004 |+ |
+| **Related Feature** | F004 |
+| **Test Scenario** | Guru mengembalikan buku tepat waktu dengan kondisi Baik — total denda Rp0 |
+| **Preconditions** | Minimal 1 peminjaman aktif dengan `tgl_batas_pengembalian` >= hari ini |
+| **Test Data** | Peminjaman aktif tepat waktu, Kondisi: "Baik" |
+| **Test Steps** | 1. Buka halaman `/pengembalian`<br>2. Klik "Kembalikan" pada peminjaman yang tepat waktu<br>3. Di modal konfirmasi, pilih kondisi = "Baik"<br>4. Periksa estimasi denda di panel ringkasan (live fee estimation)<br>5. Klik "Konfirmasi Pengembalian" |
+| **Expected Result** | 1. Panel ringkasan menunjukkan: keterlambatan = 0 hari, denda keterlambatan = Rp0<br>2. Biaya kondisi = Rp0 (karena Baik)<br>3. Total denda = Rp0<br>4. Transaksi pengembalian berhasil dengan `total_denda` = 0 di database<br>5. Stok buku bertambah 1 |
+| **Type** | Positif |
+
+---
+
+#### TC-F004-007: Pengembalian Terlambat — Kondisi Rusak Ringan — Denda Kombinasi
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F004-007 |
+| **Related UC** | UC-004 |
+| **Related Feature** | F004 |
+| **Test Scenario** | Guru mengembalikan buku terlambat dengan kondisi Rusak Ringan — denda keterlambatan + biaya kondisi dijumlah |
+| **Preconditions** | Minimal 1 peminjaman aktif dengan `tgl_batas_pengembalian` sudah lewat (terlambat 2+ hari) |
+| **Test Data** | Peminjaman terlambat, Kondisi: "Rusak Ringan" |
+| **Test Steps** | 1. Buka halaman `/pengembalian`<br>2. Klik "Kembalikan" pada peminjaman yang terlambat<br>3. Di modal konfirmasi, pilih kondisi = "Rusak Ringan"<br>4. Periksa estimasi denda: hari keterlambatan, denda keterlambatan, biaya kondisi, total<br>5. Klik "Konfirmasi Pengembalian" |
+| **Expected Result** | 1. `keterlambatan_hari` = jumlah hari terlambat (terhitung sejak tgl_batas_pengembalian hingga hari ini dalam WIB)<br>2. `denda_keterlambatan` = keterlambatan_hari × Rp500 (sesuai konfigurasi denda)<br>3. `biaya_kondisi` = Rp2.000 (Rusak Ringan)<br>4. `total_denda` = denda_keterlambatan + biaya_kondisi<br>5. Semua nilai tersimpan di tabel `pengembalian` |
+| **Type** | Positif |
+
+---
+
+#### TC-F004-008: Pengembalian — Kondisi Rusak Berat — Status Tersedia (Regresi)
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F004-008 |
+| **Related UC** | UC-004 |
+| **Related Feature** | F004 |
+| **Test Scenario** | Buku yang dikembalikan dengan kondisi Rusak Berat tetap menjadi "Tersedia" (bukan "Tidak Aktif") |
+| **Preconditions** | Minimal 1 peminjaman aktif |
+| **Test Data** | Kondisi: "Rusak Berat" |
+| **Test Steps** | 1. Catat `id_buku` dari peminjaman yang akan dikembalikan<br>2. Buka halaman `/pengembalian`, klik "Kembalikan"<br>3. Pilih kondisi = "Rusak Berat"<br>4. Periksa estimasi denda: biaya kondisi = Rp5.000<br>5. Klik "Konfirmasi Pengembalian"<br>6. Buka halaman Manajemen Buku, cari buku tersebut |
+| **Expected Result** | 1. `biaya_kondisi` = Rp5.000 (sesuai konfigurasi denda_rusak_berat)<br>2. Status buku di tabel Manajemen Buku = **"Aktif" / "Tersedia"** (bukan "Tidak Aktif")<br>3. Stok buku bertambah 1<br>4. Di halaman publik, buku tetap muncul sebagai "Tersedia" |
+| **Type** | Positif |
+
+---
+
+#### TC-F004-009: Pengembalian Gagal — ID Peminjaman Sudah Dikembalikan
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F004-009 |
+| **Related UC** | UC-004 (EF-001) |
+| **Related Feature** | F004 |
+| **Test Scenario** | Guru mencoba mengembalikan peminjaman yang sudah dikembalikan sebelumnya |
+| **Preconditions** | Minimal 1 transaksi pengembalian sudah selesai (status "Sudah Dikembalikan") |
+| **Test Data** | `id_peminjaman` dari transaksi yang sudah dikembalikan |
+| **Test Steps** | 1. Buka halaman `/pengembalian`<br>2. Pastikan peminjaman yang sudah dikembalikan tidak muncul di daftar aktif<br>3. Secara manual kirim POST `/api/v1/returns` dengan id_peminjaman yang sudah dikembalikan (via curl/DevTools)<br>4. Atau: jika UI memungkinkan, coba klik "Kembalikan" pada peminjaman yang sudah diproses |
+| **Expected Result** | 1. Backend mengembalikan status 409 (Conflict)<br>2. Pesan error: "Peminjaman sudah dikembalikan sebelumnya"<br>3. Tidak ada duplikasi data pengembalian<br>4. Stok buku tidak bertambah lagi |
+| **Type** | Exception |
+
+---
+
 ## 3.5 Feature F005: Riwayat Peminjaman
 
 ### UC-005: Melihat Riwayat Peminjaman
@@ -692,6 +837,54 @@ Mencakup test case untuk:
 
 ---
 
+#### TC-F005-007: Export Excel Berhasil — Ada Data
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F005-007 |
+| **Related UC** | UC-005 (FR-032) |
+| **Related Feature** | F005 |
+| **Test Scenario** | Guru berhasil mengekspor riwayat ke Excel untuk bulan/tahun yang memiliki data |
+| **Preconditions** | 1. Guru sudah login<br>2. Minimal 1 transaksi peminjaman pada bulan dan tahun yang akan diexport |
+| **Test Data** | Bulan: 7 (Juli), Tahun: 2026 |
+| **Test Steps** | 1. Akses halaman `/riwayat`<br>2. Di panel Export, pilih Bulan = "Juli"<br>3. Pilih Tahun = "2026"<br>4. Klik tombol "Export Excel"<br>5. Amati response |
+| **Expected Result** | 1. File `.xlsx` terdownload secara otomatis<br>2. Nama file: `riwayat-peminjaman-7-2026.xlsx`<br>3. File berisi kolom: Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Denda, Status<br>4. Data sesuai dengan yang tampil di tabel riwayat untuk periode tersebut<br>5. Kolom Denda menggunakan format Rp (contoh: "Rp 1.500") |
+| **Type** | Positif |
+
+---
+
+#### TC-F005-008: Export Excel — Tidak Ada Data
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F005-008 |
+| **Related UC** | UC-005 (FR-032, EF-001) |
+| **Related Feature** | F005 |
+| **Test Scenario** | Guru mengekspor riwayat untuk bulan/tahun yang tidak memiliki transaksi |
+| **Preconditions** | Guru sudah login, tidak ada transaksi pada bulan/tahun target |
+| **Test Data** | Bulan: 1 (Januari), Tahun: 2025 (atau periode tanpa data) |
+| **Test Steps** | 1. Akses halaman `/riwayat`<br>2. Pilih Bulan dan Tahun yang dipastikan tidak memiliki data<br>3. Klik tombol "Export Excel"<br>4. Amati response |
+| **Expected Result** | 1. **Tidak ada file** yang terdownload<br>2. Sistem menampilkan pesan informatif: "Tidak ada data peminjaman untuk periode ini."<br>3. Tidak ada error JavaScript yang tampak<br>4. Tabel riwayat tetap menampilkan data terkini (tidak berubah) |
+| **Type** | Exception |
+
+---
+
+#### TC-F005-009: Export Excel — Batasan Filter Bulan/Tahun
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F005-009 |
+| **Related UC** | UC-005 (FR-032, EF-002) |
+| **Related Feature** | F005 |
+| **Test Scenario** | Filter Export Excel hanya mencakup transaksi dalam bulan/tahun yang dipilih — transaksi dari bulan berdekatan tidak ikut |
+| **Preconditions** | 1. Guru sudah login<br>2. Ada transaksi di bulan Juni 2026 dan Juli 2026 (dua bulan berbeda) |
+| **Test Data** | Export: Bulan 6 (Juni), Tahun 2026 |
+| **Test Steps** | 1. Pastikan ada transaksi di Juni 2026 dan Juli 2026<br>2. Akses halaman `/riwayat`<br>3. Pilih Bulan = "Juni", Tahun = "2026"<br>4. Klik "Export Excel"<br>5. Buka file Excel yang terdownload |
+| **Expected Result** | 1. File hanya berisi transaksi dengan `tgl_peminjaman` di bulan Juni 2026<br>2. Transaksi Juli 2026 **tidak** muncul di file<br>3. Kolom tanggal pada file sesuai dengan data yang ditampilkan di tabel riwayat untuk periode Juni 2026 |
+| **Type** | Positif |
+
+---
+
 ## 3.6 Feature F006: Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik)
 
 ### UC-006: Akses Ketersediaan & Lokasi Buku (Publik)
@@ -762,29 +955,93 @@ Mencakup test case untuk:
 
 ---
 
+#### TC-F006-005: Filter Kategori — Kelas N Menampilkan Buku Tingkat Kelas N dan Tanpa Kelas
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F006-005 |
+| **Related UC** | UC-006 (AF-002) |
+| **Related Feature** | F006 |
+| **Test Scenario** | Filter kategori "Kelas N" menampilkan buku dengan tingkat_kelas = N DAN buku dengan tingkat_kelas = NULL (uncategorized) |
+| **Preconditions** | Memiliki buku dengan tingkat_kelas=4, buku dengan tingkat_kelas=NULL, dan buku dengan tingkat_kelas=5 |
+| **Test Data** | Filter: tab "Kelas 4" |
+| **Test Steps** | 1. Buka halaman `/`<br>2. Klik tab filter "Kelas 4"<br>3. Amati buku yang ditampilkan |
+| **Expected Result** | 1. Buku dengan `tingkat_kelas = 4` muncul<br>2. Buku dengan `tingkat_kelas = NULL` (tanpa kelas, misal buku Cerita & Dongeng) juga muncul<br>3. Buku dengan `tingkat_kelas = 5` tidak muncul<br>4. Jumlah hasil sesuai ("Menampilkan N hasil") |
+| **Type** | Positif |
+
+---
+
+#### TC-F006-006: Filter Kategori — Lainnya Menampilkan Tema Lainnya atau Tanpa Kategori
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F006-006 |
+| **Related UC** | UC-006 (AF-003) |
+| **Related Feature** | F006 |
+| **Test Scenario** | Filter "Lainnya" menampilkan buku dengan tema="Lainnya" DAN buku tanpa tema DAN tanpa tingkat_kelas |
+| **Preconditions** | Memiliki buku dengan tema="Lainnya", buku tanpa tema dan tanpa tingkat_kelas, dan buku dengan tema="Cerita & Dongeng" |
+| **Test Data** | Filter: tab "Lainnya" |
+| **Test Steps** | 1. Buka halaman `/`<br>2. Klik tab filter "Lainnya"<br>3. Amati buku yang ditampilkan |
+| **Expected Result** | 1. Buku dengan `tema_buku = "Lainnya"` muncul<br>2. Buku dengan `tema_buku = NULL` DAN `tingkat_kelas = NULL` (uncategorized) muncul<br>3. Buku dengan `tema_buku = "Cerita & Dongeng"` tidak muncul<br>4. Buku dengan `tingkat_kelas` tertentu (meski tanpa tema) tidak muncul |
+| **Type** | Positif |
+
+---
+
+#### TC-F006-007: Konsistensi Data — Katalog Publik vs Manajemen Buku
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F006-007 |
+| **Related UC** | UC-006, UC-002 |
+| **Related Feature** | F006, F002 |
+| **Test Scenario** | Data buku di katalog publik identik dengan data di halaman Manajemen Buku (tidak ada mismatch mock vs API) |
+| **Preconditions** | Guru sudah login, minimal ada beberapa buku |
+| **Test Data** | - |
+| **Test Steps** | 1. Buka halaman publik `/` di satu tab (atau browser tanpa login)<br>2. Buka halaman Manajemen Buku `/buku` di tab lain (dengan login)<br>3. Bandingkan daftar buku |
+| **Expected Result** | 1. Jumlah buku sama di kedua halaman (semua buku aktif)<br>2. Untuk setiap buku: judul, penulis, stok sama<br>3. Jika menambah/mengubah buku di Manajemen Buku, perubahan langsung tercermin di katalog publik setelah refresh<br>4. Kedua halaman mengambil data dari API yang sama (`/api/v1/books` dan `/api/v1/books/public`), bukan dari mock lokal |
+| **Type** | Positif |
+
+---
+
+#### TC-F006-008: Badge "Stok Habis" untuk Buku dengan Stok = 0
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F006-008 |
+| **Related UC** | UC-006 |
+| **Related Feature** | F006 |
+| **Test Scenario** | Buku dengan stok = 0 menampilkan badge "Stok Habis" di kartu publik |
+| **Preconditions** | Ada buku dengan stok = 0 (seed: BK004 — Dongeng Nusantara) |
+| **Test Data** | Buku: BK004 (Dongeng Nusantara, stok: 0) |
+| **Test Steps** | 1. Buka halaman `/`<br>2. Cari buku "Dongeng Nusantara" atau buku dengan stok = 0<br>3. Amati badge/tag pada kartu buku |
+| **Expected Result** | 1. Badge "Stok Habis" (atau setara) muncul dengan warna merah/destruktif<br>2. Buku lain dengan stok > 0 menampilkan badge "Tersedia" (hijau)<br>3. Badge konsisten antara halaman publik dan Manajemen Buku |
+| **Type** | Positif |
+
+---
+
 # 4. TRACEABILITY MATRIX
 
 ## 4.1 Test Case to Requirement Traceability
 
 | Feature ID | Feature Name | TC IDs |
 | --- | --- | --- |
-| F001 | Autentikasi Guru (Login) | TC-F001-001 s.d. TC-F001-006 |
-| F002 | Manajemen Data Buku | TC-F002-001 s.d. TC-F002-011 |
+| F001 | Autentikasi Guru (Login) | TC-F001-001 s.d. TC-F001-008 |
+| F002 | Manajemen Data Buku | TC-F002-001 s.d. TC-F002-013 |
 | F003 | Pencatatan Peminjaman Buku | TC-F003-001 s.d. TC-F003-007 |
-| F004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-005 |
-| F005 | Riwayat Peminjaman | TC-F005-001 s.d. TC-F005-006 |
-| F006 | Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik) | TC-F006-001 s.d. TC-F006-004 |
+| F004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-009 |
+| F005 | Riwayat Peminjaman + Export Excel | TC-F005-001 s.d. TC-F005-009 |
+| F006 | Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik) | TC-F006-001 s.d. TC-F006-008 |
 
 ## 4.2 Test Case to Use Case Traceability
 
 | Use Case ID | Use Case Name | TC IDs |
 | --- | --- | --- |
-| UC-001 | Login Guru | TC-F001-001 s.d. TC-F001-006 |
-| UC-002 | Manajemen Data Buku | TC-F002-001 s.d. TC-F002-011 |
+| UC-001 | Login Guru | TC-F001-001 s.d. TC-F001-008 |
+| UC-002 | Manajemen Data Buku | TC-F002-001 s.d. TC-F002-013 |
 | UC-003 | Pencatatan Peminjaman Buku | TC-F003-001 s.d. TC-F003-007 |
-| UC-004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-005 |
-| UC-005 | Melihat Riwayat Peminjaman | TC-F005-001 s.d. TC-F005-006 |
-| UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | TC-F006-001 s.d. TC-F006-004 |
+| UC-004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-009 |
+| UC-005 | Melihat Riwayat Peminjaman + Export Excel | TC-F005-001 s.d. TC-F005-009 |
+| UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | TC-F006-001 s.d. TC-F006-008 |
 
 ## 4.3 FR-ID Traceability
 
@@ -819,15 +1076,18 @@ Mencakup test case untuk:
 | FR-027 | Stok berkurang + status berubah saat peminjaman | TC-F003-007 |
 | FR-028 | Stok bertambah + status berubah saat pengembalian | TC-F004-005 |
 | FR-029 | Perubahan stok real-time | TC-F003-007, TC-F004-005 |
+| FR-030 | Tema buku dropdown tertutup (Cerita & Dongeng / Lainnya) opsional | TC-F002-001 |
+| FR-031 | Tingkat Kelas dropdown opsional, mutually exclusive dengan tema | TC-F002-001, TC-F006-005 |
+| FR-032 | Export Riwayat ke Excel (filter bulan/tahun, akses Guru) | TC-F005-007, TC-F005-008, TC-F005-009 |
 
 ## 4.4 Test Type Summary
 
 | Type | Count |
 | --- | --- |
-| Positif | 20 |
+| Positif | 28 |
 | Negatif | 11 |
-| Exception | 7 |
-| **Total** | **38** |
+| Exception | 13 |
+| **Total** | **52** |
 
 ---
 
@@ -846,12 +1106,12 @@ Mencakup test case untuk:
 ## 5.2 Test Data Setup
 
 Sebelum eksekusi test case, pastikan kondisi berikut terpenuhi:
-- Aplikasi berjalan (server lokal aktif di PC)
-- Minimal 1 akun Guru terdaftar (username: `admin`, password: `admin123`)
-- Minimal 5 buku dengan variasi stok (termasuk buku dengan stok = 0)
+- Aplikasi berjalan (server lokal aktif di PC, backend di `http://localhost:3001`, frontend di `http://localhost:5173`)
+- Minimal 1 akun Guru terdaftar (username: `guru_sd`, password: `guru123`)
+- Minimal 9 buku (BK001–BK009) dengan variasi stok, tema, dan tingkat_kelas (termasuk buku dengan stok = 0: BK004)
 - Minimal 1 transaksi peminjaman aktif (status "Dipinjam")
 - Minimal 1 transaksi pengembalian (denda > 0 dan = 0)
-- Data transaksi untuk pengujian filter tanggal
+- Data transaksi untuk pengujian filter tanggal dan export Excel
 
 ## 5.3 Acronyms
 
@@ -872,3 +1132,4 @@ Sebelum eksekusi test case, pastikan kondisi berikut terpenuhi:
 | Version | Date | Author | Description |
 | --- | --- | --- | --- |
 | 0.1 | 2026-07-10 | Kelompok DPSI BRAYYY | Initial Draft — 38 test cases covering F001–F006 (UC-001 s.d. UC-006), termasuk F007 embedded test cases, traceability matrix, FR-ID mapping, dan test execution notes. |
+| 0.2 | 2026-07-12 | Kelompok DPSI BRAYYY | Tambah 14 test case baru (total 52 TC) untuk fitur Export Excel (FR-032, F005), skenario regresi yang ditemukan selama implementasi (mock-data fallback, timezone pada Pengembalian, sesi expired), denda kombinasi, filter kategori publik, persistensi data, dan boundary export; update referensi dokumen ke versi terbaru (SRS v3.7, test plan v0.2, system logic v1.4); update test data setup sesuai seed aktual (username: guru_sd, 9 buku). |

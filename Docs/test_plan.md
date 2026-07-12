@@ -1,12 +1,12 @@
 # Test Plan
 
-Document Version: v0.1
+Document Version: v0.2
 
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 
 Status: Draft
-Last Updated: 2026-07-10
+Last Updated: 2026-07-12
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -20,8 +20,8 @@ Dokumen ini mendefinisikan rencana pengujian (test plan) untuk sistem Aplikasi P
 
 ## 1.2 Objectives
 
-- Memverifikasi bahwa seluruh fitur (F001–F007) berfungsi sesuai dengan Software Requirements Specification (SRS) v3.4.
-- Memvalidasi bahwa setiap user flow (UC-001–UC-006) berjalan sesuai spesifikasi user flow.
+- Memverifikasi bahwa seluruh fitur (F001–F006) berfungsi sesuai dengan Software Requirements Specification (SRS) v3.7.
+- Memvalidasi bahwa setiap use case (UC-001–UC-006) berjalan sesuai spesifikasi sistem logic (Docs/system_logic/).
 - Mengidentifikasi defect sebelum sistem digunakan di lingkungan sekolah.
 - Memastikan sistem memenuhi non-functional requirements (NFR) yang telah ditetapkan, khususnya performa pada lingkungan single-PC lokal.
 
@@ -29,10 +29,12 @@ Dokumen ini mendefinisikan rencana pengujian (test plan) untuk sistem Aplikasi P
 
 | Document | Version | Location |
 | --- | --- | --- |
-| Software Requirements Specification (SRS) | v3.4 | `docs/srs.md` |
-| User Flow Specifications | v1.1 | `docs/user_flows/` |
-| Design System | v1.5 | `docs/design_system.md` |
-| Information Architecture | v1.0 | `docs/information_architecture.md` |
+| Software Requirements Specification (SRS) | v3.7 | `docs/srs.md` |
+| User Flow Specifications | v1.3 | `docs/user_flows/` |
+| System Logic Specifications | v1.4 | `docs/system_logic/` |
+| Design System | v1.8 | `docs/design_system.md` |
+| Information Architecture | v3.7 | `docs/information_architecture.md` |
+| Class Diagram | v1.1 | `docs/class_diagram.md` |
 | Test Case Specification | v0.1 | `docs/test_case_specification.md` |
 
 ---
@@ -43,19 +45,19 @@ Dokumen ini mendefinisikan rencana pengujian (test plan) untuk sistem Aplikasi P
 
 | Feature ID | Feature Name | Related Use Cases | Test Coverage |
 | --- | --- | --- | --- |
-| F001 | Autentikasi Guru (Login) | UC-001 | 6 TC |
-| F002 | Manajemen Data Buku | UC-002 | 11 TC |
-| F003 | Pencatatan Peminjaman Buku | UC-003 (memicu F007) | 7 TC |
-| F004 | Pencatatan Pengembalian Buku | UC-004 (memicu F007) | 5 TC |
-| F005 | Riwayat Peminjaman | UC-005 | 6 TC |
-| F006 | Akses Ketersediaan & Lokasi Buku (Publik) | UC-006 | 4 TC |
+| F001 | Autentikasi Guru (Login) | UC-001 | 8 TC |
+| F002 | Manajemen Data Buku (CRUD + image upload + validasi) | UC-002 | 12 TC |
+| F003 | Pencatatan Peminjaman Buku (multi-buku, stock sync, race condition stok=0) | UC-003 | 8 TC |
+| F004 | Pencatatan Pengembalian Buku (denda per hari + biaya kondisi, status sync) | UC-004 | 8 TC |
+| F005 | Riwayat Peminjaman + Export Excel (search/filter, export .xlsx via bulan/tahun) | UC-005, FR-032 | 10 TC |
+| F006 | Katalog Publik (no-auth, filter kategori termasuk aturan Lainnya, search) | UC-006 | 6 TC |
 
 ### 2.1.1 Test Types Included
 
 | Test Type | Description |
 | --- | --- |
-| Functional Testing | Memverifikasi setiap fitur berfungsi sesuai SRS v3.4 dan user flow |
-| UI/UX Testing | Memverifikasi tata letak, konsistensi design system v1.5, dan kemudahan penggunaan antarmuka |
+| Functional Testing | Memverifikasi setiap fitur berfungsi sesuai SRS v3.7 dan system logic |
+| UI/UX Testing | Memverifikasi tata letak, konsistensi design system v1.8, dan kemudahan penggunaan antarmuka |
 | Validation Testing | Memvalidasi input form, business rules (format lokasi rak, stok >= 0, XSS prevention), dan data integrity |
 | Error Handling Testing | Menguji response sistem terhadap kondisi error (server offline, koneksi gagal, invalid input, session timeout) |
 | Integration Testing | Memverifikasi integrasi frontend-backend, termasuk sinkronisasi stok F007 yang berjalan otomatis |
@@ -83,30 +85,39 @@ Dokumen ini mendefinisikan rencana pengujian (test plan) untuk sistem Aplikasi P
 
 | Aspect | Detail |
 | --- | --- |
-| **Target** | Setiap fungsi di frontend components dan backend API endpoints |
-| **Approach** | Automated unit test (developer responsibility) |
-| **Tool** | Vitest (Frontend — React/TypeScript, inline dengan Vite) |
+| **Target** | Setiap fungsi di backend API endpoints |
+| **Approach** | Automated unit test (developer responsibility) + manual API testing via curl |
+| **Tool** | Vitest (Frontend — React/TypeScript, inline dengan Vite), curl.exe (Windows PowerShell) |
 | **Responsibility** | Developer |
 
-### Level 2: Integration Testing
+### Level 2: API-Level Testing
 
 | Aspect | Detail |
 | --- | --- |
-| **Target** | Interaksi antara frontend, API backend, dan database SQLite |
-| **Approach** | Automated integration test + manual API testing via browser DevTools |
-| **Tool** | Browser DevTools (Network tab), script integration test |
+| **Target** | Setiap endpoint backend: request/response contract sesuai Docs/system_logic/sys_uc_00X.md |
+| **Approach** | Manual testing via curl.exe langsung terhadap backend, memverifikasi status code, response body, dan side effect database |
+| **Tool** | curl.exe (Windows PowerShell), browser DevTools (Network tab) |
 | **Responsibility** | Tester |
 
-### Level 3: System Testing
+### Level 3: End-to-End UI Testing
+
+| Aspect | Detail |
+| --- | --- |
+| **Target** | Seluruh user flow dari frontend ke backend hingga database, dijalankan di browser |
+| **Approach** | Manual test execution berdasarkan test case specification; memverifikasi bahwa frontend terhubung ke API nyata (bukan mock/localStorage) |
+| **Tool** | Browser (Chrome/Edge), browser DevTools (Network tab, Application tab), print dialog browser |
+| **Responsibility** | Tester |
+
+### Level 4: System Testing
 
 | Aspect | Detail |
 | --- | --- |
 | **Target** | Seluruh fitur end-to-end via browser pada PC yang sama |
-| **Approach** | Manual test execution berdasarkan test case specification |
-| **Tool** | Browser (Chrome/Edge), print dialog browser untuk struk |
+| **Approach** | Manual test execution berdasarkan test case specification; mencakup skenario negatif (invalid input, 401 session expiry) |
+| **Tool** | Browser (Chrome/Edge), browser DevTools (Network tab) |
 | **Responsibility** | Tester |
 
-### Level 4: User Acceptance Testing (UAT)
+### Level 5: User Acceptance Testing (UAT)
 
 | Aspect | Detail |
 | --- | --- |
@@ -124,6 +135,23 @@ Setiap test case dieksekusi berdasarkan prioritas fitur:
 2. **Medium Priority (F005):** 100% test case dieksekusi
 
 Prioritas tinggi diberikan pada fitur yang langsung digunakan dalam operasional harian perpustakaan: login, manajemen buku, peminjaman, pengembalian, dan katalog publik.
+
+### Dua Level Verifikasi
+
+Pengujian dilakukan pada **dua level** untuk setiap fitur:
+
+1. **API-level testing** — Verifikasi request/response contract secara langsung ke backend menggunakan curl.exe. Memastikan status code, response body, dan side effect database sesuai spesifikasi system logic sebelum frontend dilibatkan.
+2. **End-to-end UI testing** — Verifikasi melalui browser bahwa frontend terintegrasi dengan benar ke API nyata (bukan mock/localStorage), dan seluruh user flow berjalan di browser pada PC yang sama.
+
+### Known Risk Flags (Berdasarkan Defect yang Ditemukan Selama Pengembangan)
+
+Berdasarkan bug nyata yang ditemukan dan diperbaiki selama pengembangan, area berikut memerlukan perhatian khusus dalam pengujian:
+
+1. **Mock data regression** — Beberapa halaman frontend (Manajemen Buku, Katalog Publik) sempat menggunakan data mock localStorage alih-alih API nyata. Risiko serupa dapat muncul kembali saat menambah halaman/fitur baru. Setiap halaman baru harus diverifikasi bahwa data bersumber dari API, bukan localStorage.
+
+2. **Timezone/date handling** — Bug kronis ditemukan pada `tgl_pengembalian` dan `tgl_peminjaman` di mana tanggal tampak mundur 1 hari karena penggunaan `toISOString()` (UTC) vs `setHours(0,0,0,0)` (WIB lokal). Setiap fitur yang memproses tanggal (peminjaman, pengembalian, riwayat, export) harus diverifikasi konsistensi zonanya — semua tanggal harus dalam WIB (Asia/Jakarta).
+
+3. **Session expiry (401) handling** — Semua halaman yang memerlukan autentikasi harus menampilkan pesan "Sesi Anda telah berakhir, silakan login kembali." dan redirect ke `/login` saat menerima 401. Perlu diverifikasi bahwa tidak ada halaman yang diam saja (silent failure) atau menampilkan UI basi (stale UI) setelah session habis.
 
 ### Konteks Deployment Khusus
 
@@ -177,14 +205,23 @@ Severity classification:
 
 | Software | Version |
 | --- | --- |
-| Node.js | v18+ (sesuai environment development) |
-| Browser DevTools (Network tab) | Bawaan Chrome/Edge |
+| Node.js | v24+ (sesuai environment development) |
+| curl.exe | Bawaan Windows 10/11 |
+| Browser DevTools (Network tab, Application tab) | Bawaan Chrome/Edge |
+
+### Server URLs
+
+| Service | URL | Keterangan |
+| --- | --- | --- |
+| Backend API | `http://localhost:3001` | Express.js server, endpoint di `/api/v1/...` |
+| Frontend Dev Server | `http://localhost:5173` | Vite dev server (React/TypeScript) |
 
 ### Database
 
 | Software | Version |
 | --- | --- |
 | SQLite | File-based (bawaan aplikasi) — tidak perlu instalasi terpisah |
+| SQLite Viewer (VS Code extension) | opsional — untuk inspeksi langsung file `backend/data/perpustakaan.db` |
 
 ## 4.3 Network Requirements
 
@@ -196,9 +233,9 @@ Severity classification:
 
 | Data Item | Quantity | Description |
 | --- | --- | --- |
-| Akun Guru | 1 | Username: `admin`, Password: `admin123` (seed data bawaan) |
-| Buku aktif | 5+ | Seed data: BK001–BK005 dengan variasi stok (0, 1, 2, 3, 4) |
-| Buku dengan stok = 0 | 1 | BK003 — Dongeng Nusantara (stok: 0) |
+| Akun Guru | 1 | Username: `guru_sd`, Password: `guru123` (seed data bawaan) |
+| Buku aktif | 9 | Seed data: BK001–BK009 dengan variasi stok (0, 1, 2, 3, 4) dan variasi tema/tingkat_kelas |
+| Buku dengan stok = 0 | 1 | BK004 — Dongeng Nusantara (stok: 0) |
 | Buku dengan cover image | 1+ | Hasil upload via fitur Image Upload (TC-F002-011) |
 | Transaksi peminjaman aktif | 1+ | Status "Dipinjam" untuk pengujian pengembalian |
 | Transaksi pengembalian | 1+ | Data historis untuk pengujian riwayat dan denda |
@@ -225,7 +262,7 @@ Severity classification:
 | --- | --- | --- | --- |
 | **P1: Test Planning** | Menyusun test plan, menyiapkan lingkungan dan data uji | 2 hari | Test Plan Document (`test_plan.md`) |
 | **P2: Test Case Preparation** | Menyusun test case specification berdasarkan SRS dan user flow | 2 hari | Test Case Specification (`test_case_specification.md`) |
-| **P3: Test Execution** | Menjalankan 38 test case, mencatat hasil pass/fail | 3 hari | Test Execution Report |
+| **P3: Test Execution** | Menjalankan 52 test case, mencatat hasil pass/fail | 3 hari | Test Execution Report |
 | **P4: Defect Fixing** | Developer memperbaiki defect yang ditemukan | 2 hari | Fixed Build |
 | **P5: Re-testing** | Verifikasi perbaikan, regression test pada fitur terkait | 1 hari | Updated Test Report |
 | **P6: UAT** | User acceptance testing oleh Guru SD Negeri Tamanan | 1 hari | UAT Sign-off |
@@ -243,7 +280,7 @@ Severity classification:
 
 | No | Criteria |
 | --- | --- |
-| EC-01 | SRS v3.4, User Flow v1.1, dan Test Case Specification sudah di-review dan disetujui |
+| EC-01 | SRS v3.7, User Flow v1.3, System Logic v1.4, dan Test Case Specification sudah di-review dan disetujui |
 | EC-02 | Lingkungan pengujian (staging) sudah siap — Node.js terinstal, aplikasi dapat dijalankan |
 | EC-03 | Test data sudah siap (seed data otomatis dari aplikasi saat pertama kali dijalankan) |
 | EC-04 | Tester sudah memahami test case dan skenario pengujian |
@@ -253,7 +290,7 @@ Severity classification:
 
 | No | Criteria |
 | --- | --- |
-| XC-01 | 100% test case (38 TC) telah dieksekusi |
+| XC-01 | 100% test case (52 TC) telah dieksekusi |
 | XC-02 | Tidak ada defect dengan severity Critical atau Major yang masih open |
 | XC-03 | Seluruh defect Minor/Trivial sudah didokumentasikan dan diterima sebagai known issue |
 | XC-04 | UAT sudah selesai dan mendapatkan sign-off dari Guru SD Negeri Tamanan |
@@ -274,7 +311,7 @@ Severity classification:
 | Deliverable | Description | Due |
 | --- | --- | --- |
 | Test Plan | Dokumen perencanaan pengujian ini | Akhir P1 |
-| Test Case Specification | Detail test case untuk setiap fitur (38 TC) | Akhir P2 |
+| Test Case Specification | Detail test case untuk setiap fitur (52 TC) | Akhir P2 |
 | Test Execution Report | Hasil eksekusi test case (pass/fail) per fitur | Akhir P3 |
 | Defect Log | Daftar defect yang ditemukan selama pengujian | Akhir P3 |
 | Re-test Report | Hasil verifikasi perbaikan defect | Akhir P5 |
@@ -292,6 +329,18 @@ Severity classification:
 | R-03 | Test data tidak mencakup semua skenario ekstrem | Low | Medium | Lakukan review test data collaboratif sebelum eksekusi |
 | R-04 | Perubahan requirement di tengah pengujian | Low | High | Freeze requirement sebelum P3 dimulai; jika perubahan tak terhindarkan, dokumentasikan sebagai change request |
 | R-05 | Guru tidak tersedia untuk UAT pada jadwal yang direncanakan | Medium | Medium | Koordinasikan jadwal UAT jauh-jauh hari dengan pihak sekolah; siapkan alternatif jadwal |
+
+### Real Defect Flags (Ditemukan Selama Pengujian Manual)
+
+Berikut defect nyata yang ditemukan selama siklus pengembangan-pengujian dan telah diperbaiki. Area ini harus mendapat perhatian khusus pada regression test:
+
+| Defect ID | Deskripsi | Severity | Fix |
+| --- | --- | --- | --- |
+| D-01 | Frontend book-management.tsx menggunakan mock localStorage alih-alih API nyata — data tidak sinkron dengan backend | Critical | Diganti dengan fetch ke `GET/POST/PUT/DELETE /api/v1/books` |
+| D-02 | Katalog publik (public-page.tsx) menggunakan mock db lokal — data tidak mencerminkan perubahan di backend | Major | Diganti dengan fetch ke `GET /api/v1/books/public` |
+| D-03 | tgl_pengembalian mundur 1 hari (timezone bug) — `toISOString()` vs `setHours()` menghasilkan selisih UTC/WIB | Critical | Diganti dengan `toLocaleDateString("en-CA", { timeZone: "Asia/Jakarta" })` dan `dateFromWIB()` |
+| D-04 | tgl_peminjaman tidak konsisten dengan tgl_pengembalian — satu pakai UTC, satu pakai WIB | Critical | Diseragamkan menggunakan helper `todayWIB()` di loans.js dan returns.js |
+| D-05 | Login redirect menyebabkan React "Cannot update component while rendering" | Major | Dipindahkan ke `useEffect` |
 
 ---
 
@@ -311,3 +360,4 @@ Severity classification:
 | Version | Date | Author | Description |
 | --- | --- | --- | --- |
 | 0.1 | 2026-07-10 | Kelompok DPSI BRAYYY | Initial Draft — Test Plan untuk Sistem Informasi Perpustakaan SD Negeri Tamanan, mencakup strategi pengujian 6 fitur (F001–F006 + embedded F007), 38 test case, jadwal 12 hari, konteks deployment single-PC lokal. |
+| 0.2 | 2026-07-12 | Kelompok DPSI BRAYYY | Sinkronisasi test plan dengan hasil implementasi aktual — seluruh backend API (6 use case) dan frontend integration sudah selesai; scope diperluas mencakup fitur Export Excel (FR-032); penambahan dua level verifikasi (API-level via curl dan E2E UI via browser); penambahan risk flags berdasarkan defect nyata yang ditemukan (timezone bug, mock data regression, 401 handling); update referensi dokumen ke versi terbaru (SRS v3.7, system logic v1.4, design system v1.8, class diagram v1.1); update test case count dari 38 ke 52 TC; update environment details (server URLs, alat uji, seed data). |
