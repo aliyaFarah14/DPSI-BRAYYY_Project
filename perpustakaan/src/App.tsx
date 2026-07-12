@@ -17,9 +17,6 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   if (state === "none") {
     return <Navigate to="/login" replace />
   }
-  if (state === "expired") {
-    return <Navigate to="/login?timeout=1" replace />
-  }
   return <>{children}</>
 }
 
@@ -98,7 +95,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 export default function App() {
   useEffect(() => {
     try {
-      const STORAGE_VERSION = "v3"
+      const STORAGE_VERSION = "v4"
       const version = localStorage.getItem("perpustakaan_version")
       if (version !== STORAGE_VERSION) {
         const keys = Object.keys(localStorage).filter((k) => k.startsWith("perpustakaan_"))

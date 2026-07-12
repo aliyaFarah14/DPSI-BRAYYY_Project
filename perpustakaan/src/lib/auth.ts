@@ -1,78 +1,87 @@
-import { db } from "./db"
-import type { Session, LoginResult } from "@/types"
+import { API_BASE } from "./api"
+import type { LoginResult } from "@/types"
 
-const SESSION_KEY = "perpustakaan_session"
-const SESSION_DURATION_MS = 30 * 60 * 1000
+const AUTH_USER_KEY = "perpustakaan_user"
 
-function readSession(): Session | null {
+export interface StoredUser {
+  id_guru: string
+  nama_guru: string
+  username: string
+}
+
+function readStoredUser(): StoredUser | null {
   try {
-    const raw = localStorage.getItem(SESSION_KEY)
-    if (!raw) return null
-    const s: Session = JSON.parse(raw)
-    if (new Date(s.expiresAt) < new Date()) {
-      localStorage.removeItem(SESSION_KEY)
-      return null
-    }
-    return s
+    const raw = localStorage.getItem(AUTH_USER_KEY)
+    return raw ? JSON.parse(raw) : null
   } catch {
     return null
   }
 }
 
-function writeSession(s: Session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(s))
+function writeStoredUser(user: StoredUser) {
+  localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
 }
 
-export function login(username: string, password: string): LoginResult {
-  const guru = db.findGuruByUsername(username)
-  if (!guru) return { success: false, error: "Username atau password salah." }
-  const hash = btoa(password)
-  if (guru.password_hash !== hash) return { success: false, error: "Username atau password salah." }
-  const now = new Date()
-  const session: Session = {
-    id_guru: guru.id_guru,
-    nama_guru: guru.nama_guru,
-    username: guru.username,
-    lastActivity: now.toISOString(),
-    expiresAt: new Date(now.getTime() + SESSION_DURATION_MS).toISOString(),
+function clearStoredUser() {
+  localStorage.removeItem(AUTH_USER_KEY)
+}
+
+export async function login(username: string, password: string): Promise<LoginResult> {
+  try {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ username, password }),
+    })
+    const body = await res.json()
+    if (res.ok && body.success) {
+      writeStoredUser(body.data.user || body.data)
+      return { success: true }
+    }
+    return { success: false, error: body.message || "Login gagal." }
+  } catch {
+    return { success: false, error: "Gagal terhubung ke server. Periksa koneksi internet Anda dan coba lagi." }
   }
-  writeSession(session)
-  return { success: true }
+}
+
+export async function logout(): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    })
+  } catch {
+    /* best-effort — always clear local state regardless */
+  }
+  clearStoredUser()
+}
+
+export async function checkSession(): Promise<StoredUser | null> {
+  try {
+    const res = await fetch(`${API_BASE}/auth/me`, { credentials: "include" })
+    if (res.ok) {
+      const body = await res.json()
+      if (body.success) {
+        const userData = body.data.user || body.data
+        writeStoredUser(userData)
+        return userData
+      }
+    }
+    clearStoredUser()
+    return null
+  } catch {
+    clearStoredUser()
+    return null
+  }
 }
 
 export type SessionState = "authenticated" | "expired" | "none"
 
 export function getSessionState(): SessionState {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY)
-    if (!raw) return "none"
-    const s: Session = JSON.parse(raw)
-    if (new Date(s.expiresAt) < new Date()) {
-      return "expired"
-    }
-    return "authenticated"
-  } catch {
-    return "none"
-  }
+  return readStoredUser() ? "authenticated" : "none"
 }
 
-export function logout() {
-  localStorage.removeItem(SESSION_KEY)
-}
-
-export function getSession(): Session | null {
-  return readSession()
-}
-
-export function isAuthenticated(): boolean {
-  return getSession() !== null
-}
-
-export function touchSession() {
-  const s = readSession()
-  if (!s) return
-  const now = new Date()
-  s.lastActivity = now.toISOString()
-  s.expiresAt = new Date(now.getTime() + SESSION_DURATION_MS).toISOString()
-  writeSession(s)
+export function getSession(): StoredUser | null {
+  return readStoredUser()
 }

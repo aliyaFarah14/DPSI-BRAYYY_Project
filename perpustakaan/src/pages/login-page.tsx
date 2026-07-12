@@ -1,11 +1,11 @@
-﻿import { useState } from "react"
+﻿import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { BookOpen, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { login, isAuthenticated } from "@/lib/auth"
+import { login, getSessionState } from "@/lib/auth"
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -19,10 +19,11 @@ export default function LoginPage() {
     ? "Sesi Anda telah berakhir. Silakan masuk kembali."
     : null
 
-  if (isAuthenticated()) {
-    navigate("/buku", { replace: true })
-    return null
-  }
+  useEffect(() => {
+    if (getSessionState() === "authenticated") {
+      navigate("/buku", { replace: true })
+    }
+  }, [navigate])
 
   const validate = () => {
     const errs: Record<string, string> = {}
@@ -37,9 +38,8 @@ export default function LoginPage() {
     setError("")
     if (!validate()) return
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 500))
     try {
-      const result = login(username.trim(), password)
+      const result = await login(username.trim(), password)
       if (result.success) {
         navigate("/buku", { replace: true })
       } else {

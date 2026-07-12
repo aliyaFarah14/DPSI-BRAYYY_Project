@@ -29,8 +29,8 @@ const menuItems = [
 export default function Sidebar({ collapsed, onToggle, open, onClose }: SidebarProps) {
   const navigate = useNavigate()
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     navigate("/login")
   }
 

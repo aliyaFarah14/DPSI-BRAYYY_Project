@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
 import { Menu } from "lucide-react"
 import Sidebar from "./sidebar"
-import { getSessionState, touchSession, getSession } from "@/lib/auth"
+import { getSessionState, getSession, checkSession } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 
 export default function GuruLayout() {
@@ -15,19 +15,17 @@ export default function GuruLayout() {
     const state = getSessionState()
     if (state === "none") {
       navigate("/login", { replace: true })
-    } else if (state === "expired") {
-      navigate("/login?timeout=1", { replace: true })
+      return
     }
+    checkSession().then((user) => {
+      if (!user) navigate("/login", { replace: true })
+    })
   }, [navigate])
 
-  const checkSession = useCallback(() => {
+  const checkSessionStatus = useCallback(() => {
     const state = getSessionState()
     if (state === "none") {
       navigate("/login", { replace: true })
-      return
-    }
-    if (state === "expired") {
-      navigate("/login?timeout=1", { replace: true })
       return
     }
     const session = getSession()
@@ -35,26 +33,21 @@ export default function GuruLayout() {
       navigate("/login", { replace: true })
       return
     }
-    const expiresAt = new Date(session.expiresAt).getTime()
-    const now = Date.now()
-    const remainingMs = expiresAt - now
-    if (remainingMs <= 0) {
-      navigate("/login?timeout=1", { replace: true })
-    } else if (remainingMs <= 2 * 60 * 1000) {
-      setShowTimeoutWarning(true)
-    } else {
-      setShowTimeoutWarning(false)
-    }
+    setShowTimeoutWarning(false)
   }, [navigate])
 
   useEffect(() => {
-    checkSession()
-    const interval = setInterval(checkSession, 30000)
+    checkSessionStatus()
+    const interval = setInterval(checkSessionStatus, 30000)
     return () => clearInterval(interval)
-  }, [checkSession])
+  }, [checkSessionStatus])
 
-  const handleStay = () => {
-    touchSession()
+  const handleStay = async () => {
+    try {
+      await fetch("http://localhost:3001/api/v1/auth/extend-session", {
+        method: "POST", credentials: "include",
+      })
+    } catch { /* best-effort */ }
     setShowTimeoutWarning(false)
   }
 

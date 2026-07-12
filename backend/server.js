@@ -1,5 +1,6 @@
 require("dotenv").config()
 const express = require("express")
+const cors = require("cors")
 const cookieParser = require("cookie-parser")
 const authRoutes = require("./routes/auth")
 const booksRoutes = require("./routes/books")
@@ -14,6 +15,10 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}))
 app.use("/uploads", express.static("uploads"))
 
 app.get("/api/health", (_req, res) => {
@@ -26,7 +31,6 @@ app.use("/api/v1/books", booksRoutes)
 app.use("/api/v1/loans", loansRoutes)
 app.use("/api/v1", returnsRoutes)
 app.use("/api/v1/history", historyRoutes)
-app.use("/api/v1/books/public", publicRoutes)
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)
