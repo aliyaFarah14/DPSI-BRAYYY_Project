@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import EmptyState from "@/components/empty-state"
 import AlertBanner from "@/components/alert-banner"
-import { db } from "@/lib/db"
+import { API_BASE } from "@/lib/api"
 import type { Buku, TemaBuku } from "@/types"
 
 export default function PublicPage() {
@@ -18,11 +18,32 @@ export default function PublicPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    try {
-      setBuku(db.getBuku().filter((b) => b.status_buku !== "Tidak Aktif"))
-    } catch {
-      setError("Gagal memuat data buku.")
-    } finally { setLoading(false) }
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/books/public`)
+        const body = await res.json()
+        if (body.success && body.data) {
+          setBuku(
+            body.data.map((b: Record<string, unknown>) => ({
+              id_buku: b.id_buku as string,
+              judul_buku: b.judul_buku as string,
+              penulis: b.penulis as string,
+              penerbit: "",
+              tema_buku: (b.tema_buku as TemaBuku) ?? null,
+              tingkatKelas: (b.tingkat_kelas as number) ?? null,
+              lokasi_rak: b.lokasi_rak as string,
+              stok: b.stok as number,
+              status_buku: (b.status_buku as string) === "Tersedia" ? "Aktif" : (b.status_buku as "Aktif" | "Tidak Aktif"),
+              coverImageUrl: b.gambar_sampul ? `${API_BASE.replace("/api/v1", "")}${b.gambar_sampul}` : undefined,
+            }))
+          )
+        } else {
+          setError("Gagal memuat data buku.")
+        }
+      } catch {
+        setError("Gagal memuat data buku. Periksa koneksi server.")
+      } finally { setLoading(false) }
+    })()
   }, [])
 
   const filtered = useMemo(() => {

@@ -12,6 +12,7 @@ export interface Buku {
   judul_buku: string
   penulis: string
   penerbit: string
+  tahunTerbit?: number
   tema_buku: TemaBuku | null
   tingkatKelas: number | null
   lokasi_rak: string

@@ -2,6 +2,7 @@ const express = require("express")
 const db = require("../lib/db")
 const requireAuth = require("../middleware/requireAuth")
 const { DENDA_PER_HARI, DENDA_RUSAK_RINGAN, DENDA_RUSAK_BERAT } = require("../config/denda.config")
+const { todayWIB, dateFromWIB } = require("../lib/wib")
 
 const router = express.Router()
 
@@ -16,15 +17,16 @@ const KONDISI_BIAYA_MAP = {
 // GET /api/v1/loans/active
 router.get("/loans/active", requireAuth, (req, res) => {
   try {
+    const todayWIBdate = todayWIB()
     const rows = db.all(`
       SELECT p.id_peminjaman, p.nama_siswa, p.kelas_siswa, b.judul_buku,
              p.tgl_peminjaman, p.tgl_batas_pengembalian,
-             MAX(0, CAST(julianday('now') - julianday(p.tgl_batas_pengembalian) AS INTEGER)) AS hari_terlambat_saat_ini
+             MAX(0, CAST(julianday(?) - julianday(p.tgl_batas_pengembalian) AS INTEGER)) AS hari_terlambat_saat_ini
       FROM peminjaman p
       JOIN buku b ON p.id_buku = b.id_buku
       WHERE p.status_peminjaman = 'Dipinjam'
       ORDER BY p.tgl_peminjaman DESC
-    `)
+    `, [todayWIBdate])
     return res.json({ success: true, data: rows, message: "Success" })
   } catch (err) {
     console.error("GET /loans/active:", err)
@@ -78,11 +80,9 @@ router.post("/returns", requireAuth, (req, res) => {
       return res.status(409).json({ success: false, data: null, message: "Peminjaman sudah dikembalikan sebelumnya", errors: [] })
     }
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tgl_pengembalian = today.toISOString().split("T")[0]
-
-    const batasDate = new Date(peminjaman.tgl_batas_pengembalian + "T00:00:00")
+    const tgl_pengembalian = todayWIB()
+    const today = dateFromWIB(tgl_pengembalian)
+    const batasDate = dateFromWIB(peminjaman.tgl_batas_pengembalian)
     const diffTime = today.getTime() - batasDate.getTime()
     const keterlambatan_hari = Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)))
 

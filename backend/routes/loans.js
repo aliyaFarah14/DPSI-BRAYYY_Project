@@ -2,6 +2,7 @@ const express = require("express")
 const db = require("../lib/db")
 const requireAuth = require("../middleware/requireAuth")
 const { stripHTML } = require("../utils/bookValidation")
+const { todayWIB, dateFromWIB } = require("../lib/wib")
 
 const router = express.Router()
 
@@ -23,9 +24,9 @@ router.post("/", requireAuth, (req, res) => {
     const sanitizedNama = stripHTML(nama_siswa.trim())
     const sanitizedKelas = stripHTML(kelas_siswa.trim())
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const batasDate = new Date(tgl_batas_pengembalian + "T00:00:00")
+    const tgl_peminjaman = todayWIB()
+    const today = dateFromWIB(tgl_peminjaman)
+    const batasDate = dateFromWIB(tgl_batas_pengembalian.trim())
     if (isNaN(batasDate.getTime())) {
       return res.status(400).json({ success: false, data: null, message: "Validation Failed", errors: [{ field: "tgl_batas_pengembalian", message: "Format tanggal tidak valid" }] })
     }
@@ -35,7 +36,6 @@ router.post("/", requireAuth, (req, res) => {
 
     const count = db.get("SELECT COUNT(*) as cnt FROM peminjaman").cnt
     const id_peminjaman = `PJ${String(count + 1).padStart(5, "0")}`
-    const tgl_peminjaman = new Date().toISOString().split("T")[0]
     const bukuId = id_buku.trim()
 
     const processLoan = db.transaction(() => {

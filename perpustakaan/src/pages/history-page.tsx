@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo, useRef } from "react"
+﻿import { useState, useEffect } from "react"
 import { ClipboardList, CircleDollarSign, Download, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
@@ -6,68 +6,126 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import EmptyState from "@/components/empty-state"
-import { db } from "@/lib/db"
-import { formatDate, formatCurrency } from "@/lib/utils"
-import type { RiwayatItem } from "@/types"
+import { API_BASE } from "@/lib/api"
+import { formatDate } from "@/lib/utils"
+
+interface HistoryRow {
+  id_peminjaman: string
+  nama_siswa: string
+  kelas_siswa: string
+  judul_buku: string
+  tema_buku: string | null
+  tgl_peminjaman: string
+  tgl_batas_pengembalian: string
+  tgl_pengembalian: string | null
+  kondisi_buku: string | null
+  keterlambatan_hari: number | null
+  total_denda: number | null
+  status_peminjaman: string
+}
+
+function fmtRp(value: number | null): string {
+  if (value == null) return "-"
+  if (value === 0) return "Rp0"
+  return `Rp${value.toLocaleString("id-ID")}`
+}
 
 export default function HistoryPage() {
-  const [riwayat, setRiwayat] = useState<RiwayatItem[]>([])
-  const [searchInput, setSearchInput] = useState("")
-  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [riwayat, setRiwayat] = useState<HistoryRow[]>([])
+  const [search, setSearch] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [appliedFrom, setAppliedFrom] = useState("")
   const [appliedTo, setAppliedTo] = useState("")
+  const [dateError, setDateError] = useState("")
   const [exportBulan, setExportBulan] = useState("")
   const [exportTahun, setExportTahun] = useState("")
   const [exportMessage, setExportMessage] = useState("")
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
-  useEffect(() => { setRiwayat(db.getRiwayat()) }, [])
+  const fetchHistory = async (from?: string, to?: string) => {
+    setLoading(true)
+    setFetchError(null)
+    try {
+      const params = new URLSearchParams()
+      if (from) params.append("tgl_mulai", from)
+      if (to) params.append("tgl_akhir", to)
+      const qs = params.toString()
+      const res = await fetch(`${API_BASE}/history${qs ? `?${qs}` : ""}`, { credentials: "include" })
+      const body = await res.json()
+      if (body.success && body.data) {
+        setRiwayat(body.data)
+      } else {
+        setFetchError(body.message || "Gagal memuat data.")
+      }
+    } catch {
+      setFetchError("Gagal terhubung ke server.")
+    } finally {
+      setLoading(false)
+    }
+  }
 
-  useEffect(() => {
-    clearTimeout(debounceRef.current!)
-    debounceRef.current = setTimeout(() => { setDebouncedSearch(searchInput) }, 300)
-    return () => clearTimeout(debounceRef.current!)
-  }, [searchInput])
+  useEffect(() => { fetchHistory() }, [])
 
-  const filtered = useMemo(() => {
-    return db.searchRiwayat({
-      namaSiswa: debouncedSearch || undefined,
-      judulBuku: debouncedSearch || undefined,
-      tglMulai: appliedFrom || undefined,
-      tglAkhir: appliedTo || undefined,
-    })
-  }, [riwayat, debouncedSearch, appliedFrom, appliedTo])
+  const applyDate = () => {
+    if (dateTo && dateFrom && dateTo < dateFrom) {
+      setDateError("Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.")
+      return
+    }
+    setDateError("")
+    setAppliedFrom(dateFrom)
+    setAppliedTo(dateTo)
+    fetchHistory(dateFrom || undefined, dateTo || undefined)
+  }
 
-  const applyDate = () => { setAppliedFrom(dateFrom); setAppliedTo(dateTo) }
   const reset = () => {
-    setSearchInput("")
-    setDebouncedSearch("")
+    setSearch("")
     setDateFrom("")
     setDateTo("")
     setAppliedFrom("")
     setAppliedTo("")
+    setDateError("")
+    fetchHistory()
   }
 
-  const handleExportExcel = () => {
+  const filtered = riwayat.filter((r) => {
+    if (!search.trim()) return true
+    const q = search.toLowerCase().trim()
+    return r.nama_siswa.toLowerCase().includes(q) || r.judul_buku.toLowerCase().includes(q)
+  })
+
+  const handleExportExcel = async () => {
     if (!exportBulan || !exportTahun) {
       setExportMessage("Pilih bulan dan tahun terlebih dahulu.")
       return
     }
-    const bulan = parseInt(exportBulan)
-    const tahun = parseInt(exportTahun)
-    const matching = riwayat.filter((r) => {
-      const d = new Date(r.tanggal_pinjam)
-      return d.getMonth() + 1 === bulan && d.getFullYear() === tahun
-    })
-    if (matching.length === 0) {
-      setExportMessage("Tidak ada data riwayat pada periode yang dipilih.")
-      return
-    }
     setExportMessage("")
-    // TODO: replace with real API call to GET /api/v1/history/export?bulan=&tahun= once backend UC-005 is implemented
-    console.log(`Would export ${matching.length} rows for ${bulan}/${tahun}`)
+    try {
+      const res = await fetch(
+        `${API_BASE}/history/export?bulan=${exportBulan}&tahun=${exportTahun}`,
+        { credentials: "include" }
+      )
+      if (res.status === 404) {
+        setExportMessage("Tidak ada data peminjaman untuk periode ini.")
+        return
+      }
+      if (!res.ok) {
+        setExportMessage("Gagal mengekspor data.")
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `riwayat-peminjaman-${exportBulan}-${exportTahun}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      setExportMessage("Gagal terhubung ke server.")
+    }
   }
 
   return (
@@ -81,7 +139,7 @@ export default function HistoryPage() {
         <div className="flex flex-wrap items-end gap-3 border-b border-border/60 bg-muted/20 px-4 py-4">
           <div className="relative min-w-[200px] flex-1">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
-            <Input value={searchInput} onChange={(e) => setSearchInput(e.target.value)}
+            <Input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari nama atau judul buku..."
               className="pl-9 bg-white" />
           </div>
@@ -118,9 +176,21 @@ export default function HistoryPage() {
           </div>
         </div>
 
+        {dateError && (
+          <div className="border-b border-border/60 bg-destructive-light/50 px-4 py-2.5 text-center text-sm font-medium text-destructive-dark">
+            {dateError}
+          </div>
+        )}
+
         {exportMessage && (
           <div className="border-b border-border/60 bg-primary-light/50 px-4 py-2.5 text-center text-sm font-medium text-primary">
             {exportMessage}
+          </div>
+        )}
+
+        {fetchError && (
+          <div className="border-b border-border/60 bg-destructive-light/50 px-4 py-2.5 text-center text-sm font-medium text-destructive-dark">
+            {fetchError}
           </div>
         )}
 
@@ -138,11 +208,19 @@ export default function HistoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="p-0">
+                    <div className="flex items-center justify-center py-16">
+                      <p className="text-sm text-muted-foreground">Memuat data...</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="p-0">
                     <EmptyState icon={ClipboardList} message={
-                      debouncedSearch || appliedFrom
+                      search || appliedFrom
                         ? "Riwayat tidak ditemukan."
                         : "Belum ada riwayat transaksi peminjaman."
                     } />
@@ -151,16 +229,10 @@ export default function HistoryPage() {
               ) : filtered.map((r) => (
                 <TableRow key={r.id_peminjaman}>
                   <TableCell className="font-medium">{r.nama_siswa}</TableCell>
-                  <TableCell>
-                    <div className="space-y-0.5">
-                      {r.items.map((item) => (
-                        <span key={item.id_buku} className="block text-xs text-muted-foreground">{item.judul_buku}</span>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{formatDate(r.tanggal_pinjam)}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{r.judul_buku}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(r.tgl_peminjaman)}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {r.tanggal_kembali ? formatDate(r.tanggal_kembali) : <span className="italic text-muted-foreground/50">-</span>}
+                    {r.tgl_pengembalian ? formatDate(r.tgl_pengembalian) : <span className="italic text-muted-foreground/50">-</span>}
                   </TableCell>
                   <TableCell>
                     {r.kondisi_buku
@@ -168,21 +240,23 @@ export default function HistoryPage() {
                       : <span className="text-muted-foreground/50">-</span>}
                   </TableCell>
                   <TableCell>
-                    {r.fineTotal != null && r.fineTotal > 0 ? (
+                    {r.total_denda != null && r.total_denda > 0 ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-destructive-dark bg-destructive-light/50 rounded-lg px-2 py-0.5">
                         <CircleDollarSign size={12} />
-                        {formatCurrency(r.fineTotal)}
+                        {fmtRp(r.total_denda)}
                       </span>
-                    ) : r.fineTotal != null ? (
+                    ) : r.total_denda != null ? (
                       <span className="text-xs text-muted-foreground/60">Rp0</span>
                     ) : (
                       <span className="text-muted-foreground/50">-</span>
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={r.status === "Dikembalikan" ? "Sudah Dikembalikan" : "Masih Dipinjam"}>
-                      {r.status === "Dikembalikan" ? "Dikembalikan" : "Dipinjam"}
-                    </Badge>
+                    {r.status_peminjaman === "Sudah Dikembalikan" ? (
+                      <Badge variant="Sudah Dikembalikan">Dikembalikan</Badge>
+                    ) : (
+                      <Badge variant="Masih Dipinjam">Dipinjam</Badge>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

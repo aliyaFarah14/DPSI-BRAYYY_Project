@@ -22,7 +22,7 @@ function rateLimiter(req, res, next) {
 
 router.use(rateLimiter)
 
-const BASE_SQL = "SELECT id_buku, judul_buku, penulis, tema_buku, lokasi_rak, stok, status_buku, gambar_sampul, tingkat_kelas FROM buku WHERE status_buku != 'Tidak Aktif'"
+const BASE_SQL = "SELECT id_buku, judul_buku, penulis, tema_buku, tahun_terbit, lokasi_rak, stok, status_buku, gambar_sampul, tingkat_kelas FROM buku WHERE status_buku != 'Tidak Aktif'"
 
 router.get("/", (req, res) => {
   try {
