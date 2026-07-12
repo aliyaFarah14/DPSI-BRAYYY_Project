@@ -1,6 +1,6 @@
 # Design System (DS) - Source of Truth #3
 
-Document Version: v1.7 (Sempurnakan Category Filter Bar dengan filter tema tertutup Cerita & Dongeng/Lainnya; sinkron aturan tema_buku enum — sinkron srs.md v3.6)
+Document Version: v1.8 (Tambah tombol Export ke Excel pada Filter Bar Riwayat (Section 9.8); sinkron srs.md v3.7)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
@@ -180,6 +180,7 @@ Aplikasi menggunakan **satu pustaka ikon konsisten: Lucide React** (atau inline 
 | Peringatan Sesi Berakhir | Clock | Ikon Jam |
 | Kegagalan Koneksi Sistem | WifiOff | Ikon Sinyal Terputus |
 | Buku Tidak Aktif | Archive | Ikon Kotak Arsip |
+| Export Data | Download | Ikon unduh, dipakai pada tombol "Export ke Excel" di halaman Riwayat. |
 
 ---
 
@@ -265,8 +266,8 @@ Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
 ### 9.8 Filter Bar (Riwayat Peminjaman)
 
 - **Layout:** Baris horizontal di atas Table Component, latar `#FFFFFF`, border bawah `#E4D8BE`, padding `p-4`.
-- **Elemen:** Text Input pencarian dengan ikon `Search`, dua Date Picker rentang tanggal, Primary Button "Terapkan Filter", Secondary Button "Reset".
-- **Behavior:** Live filtering pada teks (debounce 300ms); tombol filter hanya untuk rentang tanggal.
+- **Elemen:** Text Input pencarian dengan ikon `Search`, dua Date Picker rentang tanggal, dua dropdown/select inputs untuk Bulan (1–12) dan Tahun (4-digit), Primary Button "Terapkan Filter", Secondary Button "Reset", Primary Button "Export ke Excel" (dengan ikon `Download`).
+- **Behavior:** Live filtering pada teks (debounce 300ms); tombol filter hanya untuk rentang tanggal. Klik "Export ke Excel" memicu unduhan file `.xlsx` yang mencakup seluruh kolom tabel Riwayat, disaring berdasarkan bulan/tahun yang dipilih. Jika tidak ada data untuk periode yang dipilih, sistem menampilkan pesan informatif (gunakan pola Empty State, Section 11.2) alih-alih mengunduh file kosong.
 
 ### 9.9 Header / Topbar (Publik vs Guru)
 
@@ -488,7 +489,7 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 
 ---
 
-## 15. TRACEABILITY MATRIX (SRS v3.6 → DS v1.7)
+## 15. TRACEABILITY MATRIX (SRS v3.7 → DS v1.8)
 
 | Feature ID | Feature Name | Design System Target Components | Applied Design / Interaction Rules |
 | --- | --- | --- | --- |
@@ -496,7 +497,7 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | F002 | Manajemen Data Buku | Table Component, Modal Dialog (Tambah/Edit), **Image Upload (9.11 — baru, penyimpanan lokal)**, Danger Button (Hapus), Badge Status Stok, Badge "Tidak Aktif", **Category Filter Bar (9.12 — baru)**. | Modal overlay backdrop-blur navy. Validasi real-time termasuk format Lokasi Rak. Field gambar sampul opsional. Tombol Hapus dinonaktifkan jika buku "Dipinjam". |
 | F003 | Pencatatan Peminjaman Buku | Split Layout Dua Panel, Card Buku bermotif punggung buku (9.6 — direvisi), Read-Only Date Picker (Tanggal Pinjam) & Date Picker aktif (Tanggal Batas Pengembalian). | Buku stok 0 non-selectable. Tanggal Batas Pengembalian date picker aktif, constraint `min` = tanggal peminjaman. Feedback sukses/gagal instan. |
 | **F004** | **Pencatatan Pengembalian Buku** | Table Peminjaman Aktif, Badge Terlambat, **Badge Denda (baru)**, Modal Konfirmasi Pengembalian, Radio Button Group Kondisi Buku, **Panel Ringkasan Denda (11.8 — baru)**. | Indikator keterlambatan visual + jumlah hari. **Denda dihitung otomatis dari hari terlambat dan kondisi buku** Field tanggal pengembalian read-only. Kondisi buku wajib dipilih sebelum konfirmasi. |
-| F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar, Badge Status Transaksi, **Badge Denda (baru, jika ada)**. | Zebra striping. Live filtering. Data read-only, termasuk riwayat denda yang sudah tercatat. |
+| F005 | Riwayat Peminjaman | Table Component (read-only), Filter Bar (termasuk tombol "Export ke Excel" + dropdown Bulan/Tahun), Badge Status Transaksi, **Badge Denda (baru, jika ada)**. | Zebra striping. Live filtering. Data read-only, termasuk riwayat denda yang sudah tercatat. Tombol "Export ke Excel" dengan ikon `Download`, memicu unduh `.xlsx` sesuai filter bulan/tahun. |
 | F006 | Akses Ketersediaan Buku Siswa | Topbar Publik, Card Buku (motif punggung buku), Table Buku, Kolom Pencarian, Badge Ketersediaan, **Category Filter Bar (9.12 — baru)**. | Nuansa navy-krem ramah anak. Tombol "Login Guru" Primary di Topbar Publik. Tidak ada aksi penulisan data. |
 | F007 | Sinkronisasi Stok & Status Otomatis | Tidak ada komponen UI dedicated — logika backend. | Perubahan status/stok tercermin instan pada Badge dan Table Component tanpa refresh manual. |
 | Lintas Fitur | Komunikasi REST API (FE–BE, localhost) | System Error State (11.7) — Inline Alert Banner. | Diterapkan di PAGE-003, PAGE-004, PAGE-005, PAGE-006. Mendukung NFR 9.4 (Reliability). |
@@ -514,3 +515,4 @@ Total Denda          = Denda Keterlambatan + Biaya Kondisi Buku
 | 1.4 | 2026-07-03 | Kelompok DPSI BRAYYY | Revisi besar atas permintaan tim: (1) Pergantian total palet warna dari hijau/slate ke navy `#003049` / biru `#669BBC` / merah `#C1121F` di atas latar krem `#FCF6E8` (Section 4, 14) — oranye yang sempat dieksplorasi pada tahap draf tidak jadi dipakai; (2) penegasan aturan Iconography (Section 8) — satu pustaka ikon konsisten (Lucide outline), larangan campur emoji, pemetaan fungsi eksplisit; (3) komponen baru Image Upload (9.11) untuk unggah gambar sampul buku pada F002, termasuk field opsional di Form Design Rules (Section 10); (4) fitur baru Denda Keterlambatan (Section 11.8) — kalkulasi otomatis berdasarkan jumlah hari terlambat dan kondisi buku, Badge Denda baru (9.5), Panel Ringkasan Denda pada Modal Konfirmasi Pengembalian; (5) revisi motif Card Component (9.6) menjadi gaya "punggung buku di rak" menggantikan kartu generik. |
 | **1.6** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah Section 9.12 — Category Filter Bar (Halaman Publik) untuk filter Tingkat Kelas 1–6 dan Tema pada halaman publik (F006), dengan spesifikasi warna Default/Hover/Selected menggunakan token existing (Section 4). Update Section 15 Traceability Matrix baris F002 dan F006. Sinkron dengan srs.md v3.5.** |
 | **1.7** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Sempurnakan Section 9.12 — filter tema berubah dari teks bebas menjadi enum tertutup (`'Cerita & Dongeng'` / `'Lainnya'`) sesuai CHECK constraint database; perbarui Behavior untuk endpoint `?tema_buku=`. Update Traceability Matrix header v3.6→v1.7. Sinkron dengan srs.md v3.6.** |
+| **1.8** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Tambah tombol Export ke Excel pada Filter Bar Riwayat (Section 9.8): ikon `Download`, dropdown Bulan/Tahun, unduh `.xlsx` sesuai filter. Update Section 8 (icon), Section 15 (Traceability Matrix), header v3.7→v1.8. Sinkron dengan srs.md v3.7.** |

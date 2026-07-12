@@ -1,9 +1,9 @@
 # information_architecture.md — Information Architecture
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Status:** Draft (Revisi — sinkron dengan srs.md v3.6)
+**Status:** Draft (Revisi — sinkron dengan srs.md v3.7)
 **Last Updated:** 2026-07-11
-**Diturunkan dari:** `srs.md` v3.6 (SoT-1)
+**Diturunkan dari:** `srs.md` v3.7 (SoT-1)
 **Digunakan untuk:** High-Fidelity Prototype, struktur halaman Frontend, navigasi antarmuka, struktur routing, pemetaan relasi antar-layar.
 
 ---
@@ -79,7 +79,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Level 3 (Form Konfirmasi): Ringkasan data; Field Tanggal Pengembalian (otomatis); Pilihan Kondisi Buku (Baik/Rusak Ringan/Rusak Berat, radio button); Panel Ringkasan Denda (rincian keterlambatan + biaya kondisi + total, dihitung otomatis dan real-time); info keterlambatan; tombol "Batal" dan "Konfirmasi Pengembalian".
 
 **Module: Riwayat Peminjaman**
-- Level 1 (Halaman Riwayat): Judul "Riwayat Peminjaman"; Filter Pencarian (Nama Siswa, Judul Buku, Rentang Tanggal).
+- Level 1 (Halaman Riwayat): Judul "Riwayat Peminjaman"; Filter Pencarian (Nama Siswa, Judul Buku, Rentang Tanggal); tombol "Export ke Excel" (filter bulan/tahun sebelum export).
 - Level 2 (Tabel Riwayat): Kolom Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Denda, Status; Badge Status (Hijau: Sudah Dikembalikan, Kuning: Masih Dipinjam); Badge Denda (merah, menampilkan nominal, hanya muncul jika Total Denda > 0 — strip "—" jika Rp 0 atau transaksi masih berjalan).
 
 **Module: Akses Publik Siswa**
@@ -154,7 +154,7 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Exit Points: klik menu lain di sidebar.
 - Related User Flow: UC-005 (Melihat Riwayat Peminjaman).
 - Required Permissions: Guru (Authenticated).
-- Notes: Tabel lengkap (Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Denda, Status); filter nama siswa/judul buku/rentang tanggal; data read-only termasuk nominal denda yang sudah tersimpan.
+- Notes: Tabel lengkap (Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Denda, Status); filter nama siswa/judul buku/rentang tanggal; data read-only termasuk nominal denda yang sudah tersimpan; tombol "Export ke Excel" dengan dropdown filter bulan dan tahun — hanya Guru, menghasilkan file .xlsx sesuai filter.
 
 ### 2.3 Traceability Matrix (SRS → IA)
 
@@ -239,3 +239,4 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 | Sinkron v3.4 | 2026-07-09 | Sinkronisasi penuh dengan srs.md v3.4 (deployment single-PC lokal). |
 | **Sinkron v3.5** | **2026-07-10** | **Tambah field Tingkat Kelas (opsional) pada Content Hierarchy Manajemen Data Buku — Level 3 (Section 1.3), tambah Baris Kategori Filter (Semua / Kelas 1–6 / Tema) pada Content Hierarchy Akses Publik Siswa — Level 1 (Section 1.3), update Page Definitions PAGE-002 dan PAGE-003 (Section 2.2) untuk menyebut field/filter baru — sinkron dengan srs.md v3.5.** |
 | **Sinkron v3.6** | **2026-07-11** | **Ubah Tema dari teks bebas menjadi dropdown opsional tertutup (Cerita & Dongeng / Lainnya); aturan mutually exclusive dengan Tingkat Kelas:** (1) update Content Hierarchy Level 3 — Tema jadi dropdown, tambah aturan mutually exclusive; (2) update Content Hierarchy Akses Publik — Baris Kategori Filter jadi 4 nilai; (3) update PAGE-002 Notes — filter tema spesifik; (4) update PAGE-003 Notes — Tema dropdown + mutually exclusive; (5) update NF-002 — Tema dropdown, Tingkat Kelas untuk buku pelajaran. Sinkron dengan srs.md v3.6. |
+| **Sinkron v3.7** | **2026-07-11** | **Tambah tombol "Export ke Excel" (filter bulan/tahun) pada Content Hierarchy Riwayat Level 1 dan PAGE-006 Notes — sinkron dengan srs.md v3.7 (fitur Export Riwayat).** |

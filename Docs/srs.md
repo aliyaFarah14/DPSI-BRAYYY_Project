@@ -1,7 +1,7 @@
 # srs.md — Software Requirements Specification
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Document Version:** v3.6 (Ubah tema_buku jadi dropdown opsional 2 nilai; penyempurnaan aturan pengisian tingkat_kelas & tema_buku)
+**Document Version:** v3.7 (Tambah fitur Export Riwayat Peminjaman ke Excel — filter bulan/tahun, akses Guru; hapus poin Out-of-Scope terkait)
 **Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
 **Product:** Web-Based Library Management System
 **Status:** Draft
@@ -138,6 +138,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 | FR-029 | Sistem harus memastikan perubahan stok dan status tercermin secara real-time pada halaman manajemen Guru maupun halaman publik siswa. | F007 |
 | FR-030 | Sistem harus menyediakan field Tingkat Kelas (opsional, dropdown 1–6) pada form tambah/edit buku untuk buku pelajaran berjenjang. | F002 |
 | FR-031 | Sistem harus menyediakan filter kategori pada halaman publik: Semua / Kelas 1–6 / Cerita & Dongeng / Lainnya, dapat dikombinasikan dengan pencarian judul/tema. | F006 |
+| FR-032 | Sistem harus menyediakan fitur export data riwayat peminjaman ke format Excel (.xlsx), dengan filter bulan dan tahun, hanya dapat diakses oleh Guru yang sudah login. | F005 |
 
 ### 4.2 Detail per Fitur
 
@@ -234,15 +235,19 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 
 ### Feature ID: F005 — Riwayat Peminjaman
 
-**Description:** Fitur ini memungkinkan Guru melihat dan mencari seluruh riwayat transaksi peminjaman dan pengembalian buku.
+**Description:** Fitur ini memungkinkan Guru melihat dan mencari seluruh riwayat transaksi peminjaman dan pengembalian buku, serta mengekspor data riwayat ke format Excel (.xlsx) berdasarkan bulan dan tahun tertentu.
 
 **Requirements:**
 * Sistem harus menampilkan daftar seluruh transaksi peminjaman dan pengembalian secara kronologis.
 * Sistem harus menyediakan pencarian riwayat berdasarkan nama siswa, judul buku, atau rentang tanggal.
 * Sistem harus menampilkan status setiap transaksi (Dipinjam/Dikembalikan/Terlambat).
+* Sistem harus menyediakan tombol "Export ke Excel" pada halaman Riwayat (PAGE-006), yang menghasilkan file .xlsx berisi seluruh kolom yang ditampilkan pada tabel Riwayat (Nama Siswa, Kelas, Judul Buku, Tanggal Pinjam, Batas Kembali, Tanggal Kembali Aktual, Kondisi Buku, Denda, Status), difilter berdasarkan bulan dan tahun yang dipilih Guru.
 
 **Business Rules:**
 * Data riwayat bersifat read-only dan tidak dapat diubah atau dihapus oleh Guru melalui antarmuka sistem.
+* Export hanya mencakup data yang sesuai dengan filter bulan/tahun yang dipilih; jika tidak ada transaksi pada periode tersebut, sistem menampilkan pesan informatif alih-alih men-generate file kosong.
+* Fitur export hanya dapat diakses oleh Guru dengan sesi aktif — tidak tersedia di halaman publik.
+* File Excel yang dihasilkan bersifat read-only snapshot pada saat export dilakukan; tidak ada mekanisme sinkronisasi otomatis setelah file diunduh.
 
 ---
 
@@ -288,7 +293,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 7. Tidak ada manajemen multi-cabang atau multi-perpustakaan.
 8. Tidak ada modul pemesanan/reservasi buku secara online oleh siswa.
 9. Tidak ada notifikasi otomatis (email/SMS) untuk pengingat batas pengembalian.
-10. Tidak ada fitur laporan rekap bulanan/tahunan, manajemen multi-role, integrasi barcode/QR code pada versi ini.
+10. Tidak ada manajemen multi-role, integrasi barcode/QR code pada versi ini. (Fitur export laporan riwayat bulanan/tahunan sudah masuk scope sejak v3.7 — lihat F005, FR-032.)
 11. Tidak ada algoritma penataan ulang rak secara otomatis — Lokasi Rak diinput manual oleh Guru sebagai metadata referensi, bukan sistem pemetaan fisik otomatis.
 12. Tidak ada mekanisme banding/pembatalan denda melalui antarmuka Guru — koreksi kesalahan pencatatan hanya dapat dilakukan oleh administrator sistem di luar antarmuka aplikasi.
 13. Tidak ada akses multi-PC/jaringan (LAN) pada versi ini — sistem hanya berjalan pada satu unit PC perpustakaan (lihat Section 3.3).
@@ -450,7 +455,6 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 
 ## 13. Future Considerations
 
-* Pengembangan fitur laporan rekap bulanan/tahunan peminjaman buku.
 * Integrasi barcode/QR code pada buku untuk mempercepat proses pencatatan transaksi.
 * Dukungan akses multi-PC via jaringan LAN sekolah, apabila ke depan dibutuhkan lebih dari satu titik akses di perpustakaan.
 * Migrasi ke database server (mis. MySQL/PostgreSQL) apabila skala data atau jumlah titik akses bertambah sehingga SQLite tidak lagi mencukupi.
@@ -470,6 +474,7 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 | **3.3** | 2026-07-09 | Kelompok DPSI BRAYYY | Penyesuaian Tech Stack (Section 3) agar sistem dapat dijalankan secara lokal pada satu unit PC (Windows) di perpustakaan sekolah: database diganti dari MySQL menjadi SQLite (file-based, tanpa instalasi server DB terpisah), protokol komunikasi diubah dari HTTPS menjadi HTTP localhost (CORS tidak lagi diperlukan), deployment diubah dari hosting cloud (Vercel/Netlify/VPS/Railway) menjadi instalasi lokal PC. Menambah Out-of-Scope poin #14 (tanpa akses multi-PC/LAN), menambah catatan backup manual database di Section 7.3, menambah Open Question #3 soal operasional harian (start server & backup), menambah Future Consideration soal dukungan LAN dan migrasi DB server di masa depan. Section 8.1, 8.3, 9.1, 9.3, 9.5 disesuaikan mengikuti konteks single-PC lokal. |
 | **3.4** | 2026-07-09 | Kelompok DPSI BRAYYY | Menambah Section 4.1 — Kebutuhan Fungsional (Functional Requirements) berisi daftar eksplisit FR-001 s.d. FR-029, disarikan dari Requirements tiap Feature ID (F001–F007) agar dapat ditelusuri (traceable) dan mudah ditemukan sebagai section tersendiri. Detail per fitur yang sudah ada dipindah ke Section 4.2 tanpa perubahan isi.
 | **3.6** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah tema_buku dari teks bebas menjadi dropdown tertutup (Cerita & Dongeng / Lainnya) opsional; penyempurnaan aturan pengisian:** (1) update FR-005, FR-025, FR-030, FR-031 di Section 4.1; (2) update Requirements & Business Rules F002 — Tema jadi dropdown opsional, Tingkat Kelas dropdown opsional, aturan pengisian mutually exclusive; (3) update Requirements F006 — filter kategori Semua/Kelas 1–6/Cerita & Dongeng/Lainnya; (4) update Section 7.1 & 7.4. |
+| **3.7** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Tambah fitur Export Riwayat Peminjaman ke Excel (FR-032): filter bulan/tahun, akses terbatas Guru, kolom sesuai tabel Riwayat. Hapus bagian "laporan rekap bulanan/tahunan" dari Out-of-Scope (Section 5) dan Future Considerations (Section 13).** |
 
 ---
 

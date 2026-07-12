@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useMemo, useRef } from "react"
-import { ClipboardList, CircleDollarSign, Search } from "lucide-react"
+import { ClipboardList, CircleDollarSign, Download, Search } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
@@ -18,6 +18,9 @@ export default function HistoryPage() {
   const [dateTo, setDateTo] = useState("")
   const [appliedFrom, setAppliedFrom] = useState("")
   const [appliedTo, setAppliedTo] = useState("")
+  const [exportBulan, setExportBulan] = useState("")
+  const [exportTahun, setExportTahun] = useState("")
+  const [exportMessage, setExportMessage] = useState("")
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => { setRiwayat(db.getRiwayat()) }, [])
@@ -47,6 +50,26 @@ export default function HistoryPage() {
     setAppliedTo("")
   }
 
+  const handleExportExcel = () => {
+    if (!exportBulan || !exportTahun) {
+      setExportMessage("Pilih bulan dan tahun terlebih dahulu.")
+      return
+    }
+    const bulan = parseInt(exportBulan)
+    const tahun = parseInt(exportTahun)
+    const matching = riwayat.filter((r) => {
+      const d = new Date(r.tanggal_pinjam)
+      return d.getMonth() + 1 === bulan && d.getFullYear() === tahun
+    })
+    if (matching.length === 0) {
+      setExportMessage("Tidak ada data riwayat pada periode yang dipilih.")
+      return
+    }
+    setExportMessage("")
+    // TODO: replace with real API call to GET /api/v1/history/export?bulan=&tahun= once backend UC-005 is implemented
+    console.log(`Would export ${matching.length} rows for ${bulan}/${tahun}`)
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -72,7 +95,34 @@ export default function HistoryPage() {
           </div>
           <Button onClick={applyDate} size="sm">Terapkan Filter</Button>
           <Button onClick={reset} variant="outline" size="sm">Reset</Button>
+          <div className="w-px h-8 bg-border/60 self-center hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <select value={exportBulan} onChange={(e) => { setExportBulan(e.target.value); setExportMessage("") }}
+              className="flex h-9 w-28 rounded-lg border border-input bg-white px-2.5 py-1.5 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <option value="">Bulan</option>
+              {["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"].map((nama, i) => (
+                <option key={i + 1} value={i + 1}>{nama}</option>
+              ))}
+            </select>
+            <select value={exportTahun} onChange={(e) => { setExportTahun(e.target.value); setExportMessage("") }}
+              className="flex h-9 w-24 rounded-lg border border-input bg-white px-2.5 py-1.5 text-xs ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <option value="">Tahun</option>
+              {(() => {
+                const taun = new Date().getFullYear()
+                return Array.from({ length: 5 }, (_, i) => taun - 2 + i)
+              })().map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <Button onClick={handleExportExcel} size="sm"><Download size={14} />Export ke Excel</Button>
+          </div>
         </div>
+
+        {exportMessage && (
+          <div className="border-b border-border/60 bg-primary-light/50 px-4 py-2.5 text-center text-sm font-medium text-primary">
+            {exportMessage}
+          </div>
+        )}
 
         <div className="overflow-x-auto">
           <Table>

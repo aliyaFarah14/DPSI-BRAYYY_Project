@@ -1,6 +1,6 @@
 # System Logic: UC-005 Riwayat Peminjaman
 
-**Document Version:** v1.2 (Tambah section Related Screens & Related Entities)
+**Document Version:** v1.3 (Tambah endpoint export Excel — GET /api/v1/history/export; sinkron srs.md v3.7 / userflow_uc_005.md v1.2)
 
 **Use Case ID:** UC-005
 
@@ -160,6 +160,58 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan filter.
 
 ---
 
+## 5.3 GET /api/v1/history/export?bulan={1-12}&tahun={yyyy}
+
+Menghasilkan file Excel (.xlsx) berisi riwayat peminjaman untuk bulan dan tahun tertentu. Memerlukan sesi Guru aktif (cookie `session_id`).
+
+### Request Header
+
+| Header | Value |
+|--------|-------|
+| Cookie | session_id=... |
+
+### Query Parameter
+
+| Parameter | Required | Description |
+|-----------|----------|-------------|
+| `bulan` | Ya | Angka 1–12 (bulan) |
+| `tahun` | Ya | Tahun 4 digit (contoh: 2026) |
+
+### Success Response (200)
+
+- **Content-Type:** `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- **Content-Disposition:** `attachment; filename="riwayat-{bulan}-{tahun}.xlsx"`
+- Body: file binary `.xlsx`
+
+Kolom dalam file Excel (sesuai urutan tabel Riwayat):
+Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali, Tgl Kembali Aktual, Kondisi Buku, Denda, Status.
+
+Data diambil dari VIEW `riwayat_peminjaman`, difilter berdasarkan `tgl_peminjaman` yang jatuh dalam bulan/tahun yang dipilih.
+
+### Error Response (400 Bad Request)
+
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "Parameter bulan dan tahun wajib diisi",
+  "errors": []
+}
+```
+
+### Error Response (404 Not Found)
+
+```json
+{
+  "success": false,
+  "data": null,
+  "message": "Tidak ada data riwayat pada periode yang dipilih.",
+  "errors": []
+}
+```
+
+---
+
 # 6. Data Flow
 
 | Step | Input | Process | Output |
@@ -198,6 +250,7 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan filter.
 | Business Rule F005 (data read-only) | AC-005-04 | VIEW riwayat_peminjaman (tidak ada endpoint tulis) |
 | AC-005-06 (Badge Denda tampil jika total_denda > 0) | AC-005-06 | GET /api/v1/history |
 | AC-005-07 (strip "—" jika total_denda = 0/null) | AC-005-07 | GET /api/v1/history |
+| FR-032 (export riwayat ke Excel, filter bulan/tahun) | AC-005-08, AC-005-09 | GET /api/v1/history/export?bulan=&tahun= |
 
 ---
 
@@ -208,3 +261,4 @@ Format sama seperti Section 5.1, hanya berisi baris yang cocok dengan filter.
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Initial Draft System Logic UC-005 — belum ada field denda, enum status tidak sinkron Data Model (`"Dikembalikan"` alih-alih `"Sudah Dikembalikan"`), endpoint search terpisah dari endpoint utama. |
 | 1.1 | 2026-07-09 | Kelompok DPSI BRAYYY | Perbaikan: (1) tambah field `total_denda` pada response, sinkron Badge Denda `design_system.md` v1.5; (2) perbaiki enum `status_peminjaman` menjadi `'Dipinjam'`/`'Sudah Dikembalikan'` sesuai `data_model.md` v1.3; (3) gabung endpoint `/history/search` ke dalam `/history` dengan query parameter opsional, konsisten dengan pola UC-002; (4) hapus referensi Bearer Token, ganti otentikasi via cookie sesi; (5) field naming diselaraskan Data Model; (6) Traceability Matrix diarahkan ke FR-ID dan AC-ID sesungguhnya, termasuk AC-005-06/07 yang baru ditambahkan di `userflow_uc_005.md` v1.1. |
 | **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Tambah Section 2 (Related Screens) dan Section 3 (Related Entities) sesuai checklist minimal isi UCIC, menyamakan struktur dengan sys_uc_001.md–sys_uc_004.md; section lain digeser penomorannya (Sequence Diagram jadi Section 4, dst.).** |
+| **1.3** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Tambah endpoint export Excel (Section 5.3 — GET /api/v1/history/export?bulan=&tahun=):** (1) query params bulan (1–12) dan tahun (yyyy) wajib; (2) query VIEW riwayat_peminjaman filter tgl_peminjaman; (3) sukses → unduh .xlsx, 404 jika tidak ada data; (4) update Traceability (Section 8) — FR-032, AC-005-08, AC-005-09. Sinkron dengan srs.md v3.7 & userflow_uc_005.md v1.2. |

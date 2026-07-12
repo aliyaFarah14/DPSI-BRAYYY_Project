@@ -1,6 +1,6 @@
 # User Flow — UC-005: Melihat Riwayat Peminjaman
 
-Document Version: v1.1 (Sinkronisasi Badge Denda — SRS v3.4 F004/F005, DS v1.5 Section 9.5 & 15)
+Document Version: v1.2 (Tambah Export Riwayat ke Excel — AF-004, EF-003; sinkron srs.md v3.7 & design_system.md v1.8)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
@@ -18,7 +18,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | Use Case Name | Melihat Riwayat Peminjaman |
 | Actor | ACT-01 — Guru |
 | Feature ID (SRS) | F005 |
-| FR-ID Terkait (SRS v3.4) | FR-021, FR-022, FR-023 |
+| FR-ID Terkait (SRS v3.7) | FR-021, FR-022, FR-023, FR-032 |
 | Page ID (IA) | PAGE-006 |
 | Route | `/riwayat` |
 | Priority | Medium |
@@ -28,7 +28,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 
 ## 2. GOAL
 
-Guru dapat melihat dan mencari seluruh riwayat transaksi peminjaman dan pengembalian buku — **termasuk nominal denda yang sudah tercatat pada masing-masing transaksi** — kapan saja tanpa perhitungan atau pencatatan manual di buku tulis.
+Guru dapat melihat dan mencari seluruh riwayat transaksi peminjaman dan pengembalian buku — **termasuk nominal denda yang sudah tercatat pada masing-masing transaksi** — kapan saja tanpa perhitungan atau pencatatan manual di buku tulis, **serta mengekspor data riwayat ke Excel berdasarkan bulan/tahun tertentu.**
 
 ---
 
@@ -96,6 +96,19 @@ Guru dapat melihat dan mencari seluruh riwayat transaksi peminjaman dan pengemba
 | --- | --- | --- |
 | 1C | Transaksi dikembalikan tepat waktu dengan Kondisi Buku "Baik" (Total Denda = Rp 0). | Kolom Denda menampilkan strip "—" tanpa Badge, agar tidak menimbulkan kesan "kritis" pada transaksi yang sebenarnya bersih. |
 
+### AF-004: Export Riwayat ke Excel
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 1D | Guru memilih Bulan dan Tahun pada dropdown filter, lalu mengklik "Export ke Excel". | Sistem memvalidasi ada tidaknya data pada periode tersebut. |
+| 2D | Data tersedia untuk periode tersebut. | Sistem men-generate file .xlsx berisi seluruh kolom tabel Riwayat, difilter sesuai bulan/tahun, dan memicu unduhan file di browser Guru. |
+
+### EF-003: Tidak Ada Data untuk Periode yang Dipilih
+
+| Step | Condition | System Response |
+| --- | --- | --- |
+| 1E | Guru memilih Bulan/Tahun yang tidak memiliki transaksi apa pun. | Sistem menampilkan pesan informatif: "Tidak ada data riwayat pada periode yang dipilih." tanpa men-generate file. |
+
 ### EF-001: Filter Tidak Menemukan Hasil
 
 | Step | Condition | System Response |
@@ -116,6 +129,7 @@ Guru dapat melihat dan mencari seluruh riwayat transaksi peminjaman dan pengemba
 | --- | --- | --- |
 | Peminjaman | Nama Siswa, Kelas, Judul Buku, Tanggal Pinjam, Tanggal Batas Kembali | Database → tabel `peminjaman` (join `siswa`, `buku`) |
 | Pengembalian | Tanggal Kembali Aktual, Kondisi Buku, Status Keterlambatan, **Total Denda** | Database → tabel `pengembalian` |
+| Export Riwayat | Seluruh kolom di atas, difilter berdasarkan bulan/tahun pada `tgl_peminjaman` | Database → VIEW `riwayat_peminjaman` |
 
 ---
 
@@ -143,6 +157,8 @@ Guru dapat melihat dan mencari seluruh riwayat transaksi peminjaman dan pengemba
 | AC-005-05 | Tabel riwayat menampilkan Empty State saat belum ada transaksi. |
 | **AC-005-06** | **Setiap transaksi pengembalian dengan Total Denda > 0 menampilkan Badge Denda dengan nominal yang sesuai dengan yang sudah dikonfirmasi pada UC-004.** |
 | **AC-005-07** | **Transaksi dengan Total Denda = Rp 0 (tepat waktu, kondisi Baik) menampilkan strip "—" tanpa Badge Denda.** |
+| **AC-005-08** | **Guru dapat mengekspor data riwayat ke file .xlsx untuk bulan/tahun tertentu, berisi kolom yang sama dengan tabel Riwayat.** |
+| **AC-005-09** | **Jika tidak ada data pada periode yang dipilih, sistem menampilkan pesan informatif tanpa mengunduh file kosong.** |
 
 ---
 
@@ -160,3 +176,4 @@ Guru dapat melihat dan mencari seluruh riwayat transaksi peminjaman dan pengemba
 | --- | --- | --- | --- |
 | 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Draft awal — kolom tabel riwayat belum mencantumkan Denda (masih mengacu SRS v3.1 yang belum ada fitur denda). |
 | **1.1** | **2026-07-09** | **Kelompok DPSI BRAYYY** | **Sinkronisasi dengan SRS v3.4 (Business Rule F004/F005) dan DS v1.5 (Badge Denda Section 9.5, Traceability Matrix Section 15):** (1) tambah kolom "Denda" pada tabel Riwayat di Main Flow; (2) tambah step 2 Main Flow untuk Badge Denda; (3) tambah AF-003 untuk transaksi tanpa denda; (4) tambah field Total Denda di Related Data & Related Components; (5) tambah AC-005-06, AC-005-07; (6) tambah FR-ID Terkait di Header; (7) Notes diperbarui soal immutability denda. |
+| **1.2** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Tambah Export Riwayat ke Excel (AF-004, EF-003):** (1) tambah FR-032 di Header; (2) perluas GOAL untuk menyebut export; (3) tambah AF-004 (Export sukses) dan EF-003 (tidak ada data); (4) tambah baris Export di Related Data; (5) tambah AC-005-08 dan AC-005-09 di Acceptance Criteria. Sinkron dengan srs.md v3.7 & design_system.md v1.8. |
