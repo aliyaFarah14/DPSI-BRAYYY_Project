@@ -12,13 +12,13 @@ export interface Buku {
   judul_buku: string
   penulis: string
   penerbit: string
-  tahunTerbit?: number
+  tahun_terbit?: number
   tema_buku: TemaBuku | null
-  tingkatKelas: number | null
+  tingkat_kelas: number | null
   lokasi_rak: string
   stok: number
   status_buku: "Aktif" | "Tidak Aktif"
-  coverImageUrl?: string
+  gambar_sampul?: string
 }
 
 export interface PeminjamanItem {
