@@ -116,7 +116,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 | FR-007 | Sistem harus menyediakan fitur pencarian buku berdasarkan judul, tema, atau ID Buku. | F002 |
 | FR-008 | Sistem harus menolak penyimpanan apabila ID Buku sudah terdaftar sebelumnya. | F002 |
 | FR-009 | Sistem harus menolak penyimpanan apabila field Lokasi Rak dikosongkan atau tidak sesuai format. | F002 |
-| FR-010 | Sistem harus menyediakan form peminjaman dengan pilihan siswa dan pilihan buku. | F003 |
+| FR-010 | Sistem harus menyediakan form peminjaman dengan pilihan siswa dan pilihan buku (dapat memilih lebih dari satu buku dalam satu transaksi).. | F003 |
 | FR-011 | Sistem harus mengisi tanggal peminjaman secara otomatis berdasarkan tanggal hari ini. | F003 |
 | FR-012 | Sistem harus menyediakan kolom tanggal batas pengembalian yang dapat diatur oleh Guru. | F003 |
 | FR-013 | Sistem harus menyembunyikan buku dengan stok 0 dari daftar pilihan peminjaman. | F003 |
@@ -200,7 +200,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 
 **Business Rules:**
 * Buku dengan stok 0 (habis) tidak dapat dipilih untuk transaksi peminjaman.
-* Satu transaksi peminjaman hanya berlaku untuk satu eksemplar buku per siswa per waktu.
+* Satu transaksi peminjaman dapat mencakup lebih dari satu eksemplar buku untuk satu siswa dalam satu waktu; setiap buku dicatat sebagai baris data terpisah namun tetap dikelompokkan sebagai satu sesi peminjaman berdasarkan kombinasi siswa, tanggal peminjaman, dan tanggal batas pengembalian.
 * Tanggal peminjaman diisi otomatis oleh sistem berdasarkan tanggal hari ini dan tidak dapat diubah manual.
 * Tanggal batas pengembalian harus selalu lebih besar atau sama dengan tanggal peminjaman.
 * Stok buku berkurang otomatis saat peminjaman berhasil dicatat, dan status buku berubah menjadi "Dipinjam".
