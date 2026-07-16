@@ -16,7 +16,7 @@
 
 # 1. Overview
 
-Dokumen ini mendefinisikan logika sistem untuk proses pencatatan pengembalian buku oleh Guru. Sistem memvalidasi data peminjaman yang masih aktif, menghitung keterlambatan **dan nominal denda** secara otomatis (F004, `srs.md` v3.4 Business Rule F004), menyimpan data pengembalian, serta memperbarui stok dan status buku dalam satu transaksi database atomik (F007). Status buku setelah pengembalian **selalu** kembali menjadi `'Tersedia'`, terlepas dari kondisi fisik buku — perubahan status menjadi `'Tidak Aktif'` hanya dapat dilakukan Guru secara manual melalui F002 (Manajemen Data Buku), bukan otomatis saat pengembalian.
+Dokumen ini mendefinisikan logika sistem untuk proses pencatatan pengembalian buku oleh Guru. Sistem memvalidasi data peminjaman yang masih aktif, menghitung keterlambatan *dan nominal denda* secara otomatis (F004, srs.md v3.4 Business Rule F004), menyimpan data pengembalian, serta memperbarui stok dan status buku dalam satu transaksi database atomik (F007). Status buku setelah pengembalian *selalu* kembali menjadi 'Tersedia', terlepas dari kondisi fisik buku — perubahan status menjadi 'Tidak Aktif' hanya dapat dilakukan Guru secara manual melalui F002 (Manajemen Data Buku), bukan otomatis saat pengembalian. Ketika satu siswa memiliki beberapa buku yang dipinjam bersamaan, Modal Konfirmasi Pengembalian menampilkan seluruh buku tersebut sekaligus dengan kondisi dinilai individual per buku; frontend memanggil POST /api/v1/returns berkali-kali secara berurutan (satu panggilan per buku, lihat Section 5.2 catatan Multi-Buku), bukan melalui endpoint batch/gabungan.
 
 ---
 
@@ -61,32 +61,35 @@ sequenceDiagram
     API-->>Frontend: 200 OK
     Frontend-->>Guru: Tampilkan daftar peminjaman aktif (badge Terlambat jika lewat batas)
 
-    Guru->>Frontend: Klik "Proses Pengembalian" pada baris terkait
-    Frontend-->>Guru: Tampilkan Modal Konfirmasi (tanggal kembali otomatis, info keterlambatan)
+    Guru->>Frontend: Klik "Proses Pengembalian" pada baris terkait (dapat mewakili beberapa buku sekaligus)
+    Frontend-->>Guru: Tampilkan Modal Konfirmasi (tanggal kembali otomatis, info keterlambatan, satu baris per buku jika multi-buku)
 
-    Guru->>Frontend: Pilih Kondisi Buku (Baik/Rusak Ringan/Rusak Berat)
-    Frontend->>Frontend: Hitung ulang Panel Ringkasan Denda (live, client-side preview)
+    Guru->>Frontend: Pilih Kondisi Buku per buku (Baik/Rusak Ringan/Rusak Berat)
+    Frontend->>Frontend: Hitung ulang Panel Ringkasan Denda per buku + Total Denda gabungan (live, client-side preview)
 
     Guru->>Frontend: Klik "Konfirmasi Pengembalian"
-    Frontend->>Frontend: Validasi Form (Kondisi Buku wajib dipilih)
+    Frontend->>Frontend: Validasi Form (Kondisi Buku wajib dipilih untuk seluruh buku)
 
     alt Data Valid
-        Frontend->>API: POST /api/v1/returns
+        loop Untuk setiap buku dalam modal
+            Frontend->>API: POST /api/v1/returns (id_peminjaman & kondisi_buku spesifik buku ini)
 
-        API->>Database: SELECT tgl_batas_pengembalian FROM peminjaman WHERE id_peminjaman = ?
-        API->>API: keterlambatan_hari = MAX(0, TODAY - tgl_batas_pengembalian)
-        API->>API: denda_keterlambatan = keterlambatan_hari * DENDA_PER_HARI
-        API->>API: biaya_kondisi = lookup(kondisi_buku)
-        API->>API: total_denda = denda_keterlambatan + biaya_kondisi
+            API->>Database: SELECT tgl_batas_pengembalian FROM peminjaman WHERE id_peminjaman = ?
+            API->>API: keterlambatan_hari = MAX(0, TODAY - tgl_batas_pengembalian)
+            API->>API: denda_keterlambatan = keterlambatan_hari * DENDA_PER_HARI
+            API->>API: biaya_kondisi = lookup(kondisi_buku)
+            API->>API: total_denda = denda_keterlambatan + biaya_kondisi
 
-        API->>Database: BEGIN TRANSACTION
-        API->>Database: INSERT pengembalian (..., keterlambatan_hari, denda_keterlambatan, biaya_kondisi, total_denda)
-        API->>Database: UPDATE peminjaman SET status_peminjaman = 'Sudah Dikembalikan'
-        API->>Database: UPDATE buku SET stok = stok + 1, status_buku = 'Tersedia'
-        Database-->>API: COMMIT
+            API->>Database: BEGIN TRANSACTION
+            API->>Database: INSERT pengembalian (..., keterlambatan_hari, denda_keterlambatan, biaya_kondisi, total_denda)
+            API->>Database: UPDATE peminjaman SET status_peminjaman = 'Sudah Dikembalikan'
+            API->>Database: UPDATE buku SET stok = stok + 1, status_buku = 'Tersedia'
+            Database-->>API: COMMIT
 
-        API-->>Frontend: 201 Created (termasuk total_denda final, dihitung server-side)
-        Frontend-->>Guru: Toast "Pengembalian tercatat. Total Denda: Rp X."
+            API-->>Frontend: 201 Created (total_denda final per buku, dihitung server-side)
+        end
+        Frontend->>Frontend: Jumlahkan total_denda seluruh buku → Total Denda gabungan
+        Frontend-->>Guru: Toast "Pengembalian tercatat. Total Denda: Rp X." (gabungan seluruh buku)
 
     else Data Tidak Valid
         Frontend-->>Guru: Inline Validation Error
@@ -146,7 +149,9 @@ Mencatat pengembalian buku beserta kalkulasi denda otomatis.
 }
 ```
 
-> **Catatan v1.1:** Request **tidak** menyertakan `tanggal_kembali` (server mengisi otomatis `tgl_pengembalian = date('now')`, FR-017, immutable) maupun nominal denda apa pun — seluruh kalkulasi denda wajib dilakukan di backend, bukan diterima dari client (mencegah manipulasi nominal via request tercurangi).
+> > *Catatan v1.1:* Request *tidak* menyertakan tanggal_kembali (server mengisi otomatis tgl_pengembalian = date('now'), FR-017, immutable) maupun nominal denda apa pun — seluruh kalkulasi denda wajib dilakukan di backend, bukan diterima dari client (mencegah manipulasi nominal via request tercurangi).
+>
+> *Catatan Multi-Buku:* Endpoint ini menerima *satu id_peminjaman per panggilan, tidak ada array/batch. Ketika satu siswa memiliki beberapa buku yang dipinjam bersamaan, Modal Konfirmasi Pengembalian menampilkan seluruh buku tersebut dengan kondisi dinilai individual; saat Guru klik "Konfirmasi Pengembalian", frontend memanggil endpoint ini **berkali-kali secara berurutan* — satu kali panggilan per buku (per id_peminjaman), masing-masing dengan kondisi_buku sesuai pilihan Guru untuk buku tersebut. Setiap panggilan menghasilkan satu id_pengembalian independen dengan denda dihitung sendiri-sendiri. Total Denda gabungan yang ditampilkan di modal adalah hasil penjumlahan di sisi frontend dari seluruh total_denda per buku setelah semua panggilan API berhasil.
 
 ### Success Response (201 Created)
 
@@ -235,7 +240,7 @@ Mengambil konstanta nominal denda saat ini, dipakai frontend untuk menghitung **
 | 1 | Request halaman | Ambil daftar peminjaman aktif | Data peminjaman + indikator keterlambatan live |
 | 2 | Klik "Proses Pengembalian" | Ambil detail peminjaman | Data ditampilkan di modal |
 | 3 | Kondisi Buku dipilih (frontend) | Preview kalkulasi denda client-side (pakai `GET /api/v1/config/denda`) | Panel Ringkasan Denda (preview) |
-| 4 | Request POST `/returns` | **Kalkulasi ulang di server**: `keterlambatan_hari`, `denda_keterlambatan`, `biaya_kondisi`, `total_denda` | Nilai final tersimpan |
+| 4 | Request POST /returns (diulang per buku jika multi-buku) | *Kalkulasi ulang di server per buku*: keterlambatan_hari, denda_keterlambatan, biaya_kondisi, total_denda | Nilai final tersimpan per buku, dijumlahkan di frontend menjadi Total Denda gabungan |
 | 5 | Data valid | Simpan data pengembalian (INSERT) | Data pengembalian |
 | 6 | Data pengembalian | Tambah stok buku (+1) | Stok terbaru |
 | 7 | — | Update status buku → `'Tersedia'` (selalu, tanpa pengecualian kondisi) | Status Tersedia |
@@ -277,6 +282,7 @@ Mengambil konstanta nominal denda saat ini, dipakai frontend untuk menghitung **
 | Business Rule F004 (denda immutable setelah tersimpan) | AC-004-09 | Tidak ada endpoint UPDATE pada `pengembalian` |
 | Business Rule F004 (data pengembalian terpisah, terhubung via id_peminjaman) | AC-004-08 | POST /api/v1/returns |
 | Business Rule F007 (transaksi atomik) | AC-004-07 | Database Transaction |
+| Business Rule F004 (Guru dapat mengembalikan >1 buku sekaligus, denda dihitung & tersimpan per buku) | AC-004-10 | POST /api/v1/returns (dipanggil berkali-kali) |
 
 ---
 

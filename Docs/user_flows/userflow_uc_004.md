@@ -70,12 +70,12 @@ Guru dapat mencatat pengembalian buku oleh siswa — termasuk kondisi fisik buku
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
 | 1 | Guru | Membuka `/pengembalian`. | Sistem menampilkan tabel Peminjaman Aktif (belum dikembalikan): Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali; indikator keterlambatan (badge merah + jumlah hari) jika melewati batas. |
-| 2 | Guru | Mengklik tombol "Proses Pengembalian" pada baris transaksi terkait. | Sistem membuka Modal Konfirmasi Pengembalian berisi ringkasan data peminjaman. |
+| 2 | Guru | Mengklik tombol "Proses Pengembalian" pada baris transaksi terkait (baris dapat mewakili satu siswa dengan beberapa buku yang dipinjam bersamaan). | Sistem membuka Modal Konfirmasi Pengembalian berisi ringkasan data peminjaman; jika siswa meminjam lebih dari satu buku bersamaan (dikelompokkan berdasarkan nama siswa + tanggal peminjaman + tanggal batas kembali), modal menampilkan seluruh buku tersebut sekaligus. |
 | 3 | — | Modal menampilkan Tanggal Pengembalian otomatis (Read-Only, tanggal hari ini) dan info keterlambatan (jumlah hari, jika ada). | Sistem menghitung otomatis selisih hari antara Tanggal Pengembalian dan Tanggal Batas Kembali (Tanggal Pengembalian − Tanggal Batas Kembali; jika ≤ 0 hari, dianggap tidak terlambat). |
-| 4 | Guru | Memilih Kondisi Buku melalui Radio Button Group: "Baik" (default), "Rusak Ringan", atau "Rusak Berat". | Tombol "Konfirmasi Pengembalian" aktif (non-disabled) setelah salah satu opsi terpilih. Perubahan pilihan memicu perhitungan ulang otomatis pada Panel Ringkasan Denda. |
+| 4 | Guru | Memilih Kondisi Buku untuk setiap buku secara individual melalui Radio Button Group/dropdown per buku: "Baik" (default), "Rusak Ringan", atau "Rusak Berat". | Tombol "Konfirmasi Pengembalian" aktif (non-disabled) setelah kondisi seluruh buku terpilih. Perubahan pilihan pada buku mana pun memicu perhitungan ulang otomatis pada Panel Ringkasan Denda per buku dan Total Denda gabungan. |
 | 5 | — | Sistem menampilkan Panel Ringkasan Denda tepat di bawah Radio Button Group. | Panel menampilkan rincian: baris "Keterlambatan: N hari × Rp 500 = Rp X", baris "Kondisi buku: [Baik/Rusak Ringan/Rusak Berat] = Rp Y", dan baris Total bergaya tebal-besar: "Total Denda: Rp (X+Y)" — atau "Tidak ada denda" jika Rp 0. Panel bersifat read-only, tidak ada input manual. |
 | 6 | Guru | Meninjau Total Denda yang tampil, lalu mengklik tombol "Konfirmasi Pengembalian". | Tombol ke state `[Loading]`. Sistem mengirim request POST ke API. |
-| 7 | — | — | Sistem menyimpan data Pengembalian (terhubung ke ID Peminjaman) beserta Total Denda yang sudah dihitung, lalu menjalankan F007: Stok buku +1, Status buku → "Tersedia", dalam satu transaksi database. |
+| 7 | — | — | Sistem menyimpan data Pengembalian untuk setiap buku sebagai transaksi terpisah (satu ID Pengembalian per buku, terhubung ke ID Peminjaman masing-masing), dengan Total Denda dihitung per buku lalu dijumlahkan menjadi Total Denda gabungan yang ditampilkan pada modal. F007 dijalankan untuk setiap buku: Stok +1, Status → "Tersedia". Seluruh proses per buku dalam satu klik "Konfirmasi Pengembalian" dijalankan dalam rangkaian transaksi database yang sama. |
 | 8 | — | — | Modal tertutup; tabel Peminjaman Aktif diperbarui (baris terkait hilang dari daftar aktif); toast notifikasi sukses muncul, mis. *"Pengembalian tercatat. Total Denda: Rp X."* |
 
 ---
@@ -150,6 +150,7 @@ Guru dapat mencatat pengembalian buku oleh siswa — termasuk kondisi fisik buku
 | AC-004-07 | Setelah pengembalian tersimpan, Stok buku bertambah 1 dan Status berubah menjadi "Tersedia" secara instan (F007). |
 | AC-004-08 | Data Pengembalian (termasuk Total Denda) tersimpan terpisah namun tetap terhubung ke ID Peminjaman terkait. |
 | AC-004-09 | Nominal Total Denda yang sudah tersimpan tidak dapat diubah/dihapus melalui antarmuka Guru setelah dikonfirmasi (immutable). |
+| AC-004-10 | Ketika satu siswa memiliki beberapa buku yang dipinjam bersamaan, Guru dapat mengatur kondisi tiap buku secara individual dan mengonfirmasi pengembalian seluruhnya dalam satu aksi; setiap buku tetap tersimpan sebagai transaksi pengembalian terpisah dengan denda dihitung per buku. |
 
 ---
 
@@ -161,6 +162,7 @@ Guru dapat mencatat pengembalian buku oleh siswa — termasuk kondisi fisik buku
 - Jika terjadi kesalahan pencatatan kondisi buku setelah pengembalian dikonfirmasi, koreksi hanya dapat dilakukan oleh administrator langsung di database — tidak melalui antarmuka Guru (Out-of-Scope poin #13).
 - Data Pengembalian disimpan terpisah dari data Peminjaman, namun tetap terhubung melalui ID Peminjaman (Business Rule Master List poin 8).
 - Perubahan stok dan status wajib terjadi dalam satu transaksi database yang sama dengan pencatatan pengembalian (Business Rule F007).
+- Ketika satu siswa meminjam beberapa buku bersamaan, Guru dapat mengonfirmasi pengembalian seluruh buku tersebut dalam satu aksi ("Konfirmasi Pengembalian"). Setiap buku tetap diproses sebagai transaksi pengembalian independen (satu ID Pengembalian per buku) dengan kondisi dan denda dihitung terpisah per buku, lalu dijumlahkan menjadi Total Denda gabungan pada modal.
 
 ---
 

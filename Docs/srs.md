@@ -116,7 +116,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 | FR-007 | Sistem harus menyediakan fitur pencarian buku berdasarkan judul, tema, atau ID Buku. | F002 |
 | FR-008 | Sistem harus menolak penyimpanan apabila ID Buku sudah terdaftar sebelumnya. | F002 |
 | FR-009 | Sistem harus menolak penyimpanan apabila field Lokasi Rak dikosongkan atau tidak sesuai format. | F002 |
-| FR-010 | Sistem harus menyediakan form peminjaman dengan pilihan siswa dan pilihan buku (dapat memilih lebih dari satu buku dalam satu transaksi).. | F003 |
+| FR-010 | Sistem harus menyediakan form peminjaman dengan pilihan siswa dan pilihan buku; Guru dapat memilih lebih dari satu buku sekaligus dalam satu kali submit untuk satu siswa. Setiap buku yang dipilih dicatat sebagai transaksi peminjaman terpisah (satu ID Peminjaman per buku). | F003 |
 | FR-011 | Sistem harus mengisi tanggal peminjaman secara otomatis berdasarkan tanggal hari ini. | F003 |
 | FR-012 | Sistem harus menyediakan kolom tanggal batas pengembalian yang dapat diatur oleh Guru. | F003 |
 | FR-013 | Sistem harus menyembunyikan buku dengan stok 0 dari daftar pilihan peminjaman. | F003 |
@@ -200,7 +200,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 
 **Business Rules:**
 * Buku dengan stok 0 (habis) tidak dapat dipilih untuk transaksi peminjaman.
-* Satu transaksi peminjaman dapat mencakup lebih dari satu eksemplar buku untuk satu siswa dalam satu waktu; setiap buku dicatat sebagai baris data terpisah namun tetap dikelompokkan sebagai satu sesi peminjaman berdasarkan kombinasi siswa, tanggal peminjaman, dan tanggal batas pengembalian.
+* Guru dapat memilih lebih dari satu buku sekaligus untuk satu siswa dalam satu kali submit form peminjaman. Setiap buku dicatat sebagai transaksi peminjaman independen (satu ID Peminjaman per buku, bukan satu record gabungan). Buku-buku yang dipinjamkan bersamaan oleh siswa yang sama dikelompokkan secara tampilan (UI) berdasarkan kombinasi nama siswa + tanggal peminjaman + tanggal batas kembali — tidak ada entity atau kolom "sesi peminjaman" pada database; pengelompokan murni untuk kemudahan tampilan bagi Guru.
 * Tanggal peminjaman diisi otomatis oleh sistem berdasarkan tanggal hari ini dan tidak dapat diubah manual.
 * Tanggal batas pengembalian harus selalu lebih besar atau sama dengan tanggal peminjaman.
 * Stok buku berkurang otomatis saat peminjaman berhasil dicatat, dan status buku berubah menjadi "Dipinjam".
@@ -219,6 +219,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 * Sistem harus menghitung dan menampilkan jumlah hari keterlambatan secara otomatis, apabila ada.
 * Sistem harus menghitung dan menampilkan nominal denda keterlambatan secara otomatis berdasarkan jumlah hari terlambat dan kondisi buku, sebelum Guru mengklik "Konfirmasi Pengembalian".
 * Sistem harus memperbarui stok dan status buku segera setelah transaksi pengembalian berhasil disimpan.
+* Sistem harus mendukung pengembalian sekaligus untuk beberapa buku yang dipinjam bersamaan oleh siswa yang sama (dikelompokkan berdasarkan siswa + tanggal peminjaman + tanggal batas kembali), dengan kondisi buku dapat diatur secara individual per buku sebelum konfirmasi.
 
 **Business Rules:**
 * Tanggal pengembalian diisi otomatis oleh sistem berdasarkan tanggal hari ini.
@@ -230,6 +231,7 @@ Berikut daftar seluruh kebutuhan fungsional sistem (FR-ID), disarikan dari Requi
 * Sesuai Business Rule F005 (data riwayat read-only), nominal Total Denda yang sudah tersimpan tidak dapat diubah atau dihapus melalui antarmuka sistem setelah transaksi pengembalian dikonfirmasi — konsisten dengan sifat immutable data pengembalian yang sudah berlaku sejak v3.1. Jika terjadi kesalahan pencatatan kondisi buku, koreksi dilakukan secara manual oleh administrator langsung di database, bukan melalui antarmuka Guru.
 * Data pengembalian disimpan terpisah dari data peminjaman, namun tetap terhubung melalui ID Peminjaman.
 * Stok buku bertambah kembali dan status berubah menjadi "Tersedia" setelah pengembalian berhasil dicatat.
+* Ketika beberapa buku dipinjam bersamaan oleh satu siswa, Guru dapat mengonfirmasi pengembalian seluruh buku tersebut dalam satu aksi ("Konfirmasi Pengembalian"). Setiap buku tetap diproses sebagai transaksi pengembalian terpisah (satu ID Pengembalian per buku), dengan kondisi buku dan denda dihitung secara independen per buku, lalu dijumlahkan menjadi Total Denda gabungan yang ditampilkan pada modal konfirmasi.
 
 ---
 

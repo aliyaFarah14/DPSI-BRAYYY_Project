@@ -148,8 +148,8 @@ Sistem menggunakan font **Noto Sans** untuk memastikan legibilitas teks berbahas
 - **Gutter Grid:** 12px (`gap-3`).
 
 ### 7.3 Halaman Catat Peminjaman — Split Layout Khusus
-- **Panel Kiri (60%):** Daftar buku tersedia.
-- **Panel Kanan (40%):** Form isian data peminjam dan detail transaksi.
+- **Panel Kiri (60%):**  Daftar buku tersedia, mendukung multi-select (Guru dapat memilih lebih dari satu buku sekaligus untuk satu siswa).
+- **Panel Kanan (40%):** Form isian data peminjam dan detail transaksi; menampilkan ringkasan seluruh buku yang dipilih sebelum submit.
 
 ---
 
@@ -253,15 +253,16 @@ Digunakan pada PAGE-002 untuk menampilkan buku dalam format kartu kepada siswa. 
 
 ### 9.7 Radio Button Group (Kondisi Buku)
 
-Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004).
+Digunakan pada Modal Konfirmasi Pengembalian (PAGE-005, F004). Jika siswa mengembalikan lebih dari satu buku sekaligus (dipinjam bersamaan), Modal menampilkan *satu Radio Button Group terpisah per buku* — setiap buku dinilai kondisinya secara independen.
 
-- **Layout:** Tiga opsi sejajar horizontal (atau vertikal jika lebar modal sempit).
-- **Opsi:** "Baik" (default terpilih), "Rusak Ringan", "Rusak Berat".
+- *Layout:* Tiga opsi sejajar horizontal (atau vertikal jika lebar modal sempit), diulang per buku dalam daftar buku yang dikembalikan.
+- *Opsi:* "Baik" (default terpilih), "Rusak Ringan", "Rusak Berat".
 - **Default State:** Lingkaran kosong `border-[#E4D8BE]`.
 - **Selected State:** Lingkaran terisi `bg-[#003049]` dengan border `#003049`; label terkait `font-semibold text-[#003049]`.
 - **Hover State:** Latar belakang opsi `#FCF6E8`.
 - **Wajib Pilih:** Salah satu opsi harus terpilih sebelum tombol "Konfirmasi Pengembalian" aktif.
-- **(Baru v1.4) Pemicu Kalkulasi Denda:** Perubahan pilihan pada komponen ini **memicu perhitungan ulang otomatis** pada Panel Ringkasan Denda (Section 11.8) — karena kondisi buku adalah salah satu variabel formula denda.
+- **Pemicu Kalkulasi Denda:** Perubahan pilihan pada komponen ini **memicu perhitungan ulang otomatis** pada Panel Ringkasan Denda (Section 11.8) — karena kondisi buku adalah salah satu variabel formula denda.
+- **Multi-Buku:** Ketika modal menampilkan lebih dari satu buku, tombol "Konfirmasi Pengembalian" aktif hanya setelah kondisi seluruh buku dipilih. Perubahan kondisi pada buku mana pun memicu perhitungan ulang denda untuk buku tersebut secara independen dan pembaruan Total Denda gabungan (lihat Section 11.8).
 
 ### 9.8 Filter Bar (Riwayat Peminjaman)
 
@@ -370,10 +371,10 @@ Komponen ini digunakan pada halaman publik (PAGE-002, F006) untuk memfilter daft
 
 Setiap kali guru menekan tombol "Proses Pengembalian" pada PAGE-005:
 
-- Modal konfirmasi meringkas data peminjaman.
-- Guru memilih kondisi buku (Radio Button Group, 9.7).
-- **(Baru v1.4)** Panel Ringkasan Denda (lihat 11.8) muncul dan diperbarui otomatis berdasarkan tanggal pengembalian aktual dan kondisi buku.
-- Guru mengklik "Konfirmasi Pengembalian" untuk menyelesaikan proses.
+- Modal konfirmasi meringkas data peminjaman. Jika siswa meminjam beberapa buku bersamaan (dikelompokkan berdasarkan nama siswa + tanggal peminjaman + tanggal batas kembali), seluruh buku tersebut ditampilkan dalam satu modal.
+- Guru memilih kondisi buku secara individual untuk setiap buku (Radio Button Group per buku, 9.7).
+- Panel Ringkasan Denda (lihat 11.8) muncul per buku dan diperbarui otomatis berdasarkan tanggal pengembalian aktual dan kondisi masing-masing buku, dijumlahkan menjadi Total Denda gabungan.
+- Guru mengklik "Konfirmasi Pengembalian" untuk menyelesaikan proses pengembalian seluruh buku dalam modal sekaligus — setiap buku tetap diproses sebagai transaksi pengembalian terpisah di backend.
 
 ### 11.5 Destructive Action Pattern
 

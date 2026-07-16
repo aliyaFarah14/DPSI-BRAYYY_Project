@@ -154,6 +154,8 @@ Berdasarkan analisis seluruh User Flows (UC-001 s.d. UC-006), terdapat **6 domai
 - `nama_siswa`, `kelas_siswa` wajib diisi, bersih dari XSS.
 - `tgl_peminjaman` immutable.
 
+#### Catatan Pengelompokan Tampilan (Bukan Struktur Database)
+Ketika Guru memilih beberapa buku sekaligus untuk satu siswa dalam satu form peminjaman, setiap buku tetap menghasilkan satu baris peminjaman independen (sesuai BR-08). Aplikasi frontend mengelompokkan baris-baris ini untuk tampilan (mis. Panel "Peminjaman Aktif", Modal Konfirmasi Pengembalian) berdasarkan kombinasi nama_siswa + tgl_peminjaman + tgl_batas_pengembalian yang sama — ini murni query-time grouping di application layer, bukan kolom/tabel tambahan di skema.
 ---
 
 ### 3.4 Entity: pengembalian

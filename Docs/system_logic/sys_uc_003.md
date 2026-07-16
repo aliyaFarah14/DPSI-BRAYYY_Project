@@ -16,7 +16,7 @@
 
 # 1. Overview
 
-Dokumen ini mendefinisikan logika sistem untuk proses pencatatan peminjaman buku oleh Guru. Sistem memvalidasi data buku yang tersedia serta data siswa yang **diketik manual oleh Guru** (nama dan kelas, bukan dipilih dari tabel master terpisah — lihat `data_model.md` v1.3 Section 2), menyimpan transaksi peminjaman, serta menjalankan sinkronisasi stok dan status buku secara otomatis (F007) dalam satu transaksi database atomik.
+Dokumen ini mendefinisikan logika sistem untuk proses pencatatan peminjaman buku oleh Guru. Sistem memvalidasi data buku yang tersedia serta data siswa yang *diketik manual oleh Guru* (nama dan kelas, bukan dipilih dari tabel master terpisah — lihat data_model.md v1.3 Section 2), menyimpan transaksi peminjaman, serta menjalankan sinkronisasi stok dan status buku secara otomatis (F007) dalam satu transaksi database atomik. Guru dapat memilih lebih dari satu buku sekaligus untuk siswa yang sama dalam satu submit form (Panel Kiri mendukung multi-select); dalam kasus ini, frontend memanggil POST /api/v1/loans berkali-kali secara berurutan — satu kali panggilan API per buku (lihat Section 5.2, catatan Multi-Buku) — bukan melalui endpoint batch/gabungan.
 
 ---
 
@@ -59,7 +59,7 @@ sequenceDiagram
     API-->>Frontend: 200 OK
     Frontend-->>Guru: Tampilkan Form Peminjaman (Panel Kiri: buku, Panel Kanan: form)
 
-    Guru->>Frontend: Pilih Buku (dari Panel Kiri)
+    Guru->>Frontend: Pilih satu atau lebih Buku (dari Panel Kiri, multi-select)
     Guru->>Frontend: Ketik Nama Siswa & Kelas Siswa
     Guru->>Frontend: Atur Tanggal Batas Kembali
     Guru->>Frontend: Klik "Simpan Peminjaman"
@@ -67,18 +67,20 @@ sequenceDiagram
     Frontend->>Frontend: Validasi Input
 
     alt Data Valid
-        Frontend->>API: POST /api/v1/loans
+        loop Untuk setiap buku yang dipilih
+            Frontend->>API: POST /api/v1/loans (id_buku berbeda, nama_siswa/kelas_siswa/tgl_batas_pengembalian sama)
 
-        API->>Database: BEGIN TRANSACTION
-        API->>Database: SELECT stok FROM buku WHERE id_buku = ? (cek race condition)
-        API->>Database: INSERT peminjaman (nama_siswa, kelas_siswa, ...)
-        API->>Database: UPDATE buku SET stok = stok - 1, status_buku = CASE WHEN stok-1=0 THEN 'Dipinjam' ELSE status_buku END
-        Database-->>API: COMMIT
+            API->>Database: BEGIN TRANSACTION
+            API->>Database: SELECT stok FROM buku WHERE id_buku = ? (cek race condition)
+            API->>Database: INSERT peminjaman (nama_siswa, kelas_siswa, ...)
+            API->>Database: UPDATE buku SET stok = stok - 1, status_buku = CASE WHEN stok-1=0 THEN 'Dipinjam' ELSE status_buku END
+            Database-->>API: COMMIT
 
-        API-->>Frontend: 201 Created
+            API-->>Frontend: 201 Created (satu id_peminjaman per buku)
+        end
         Frontend->>API: GET /api/v1/books/available
         API-->>Frontend: Data terbaru
-        Frontend-->>Guru: Toast "Peminjaman berhasil dicatat"
+        Frontend-->>Guru: Toast "Peminjaman berhasil dicatat" (ringkasan hasil per buku jika ada yang gagal)
 
     else Data Tidak Valid
         Frontend-->>Guru: Inline Validation Error
@@ -138,7 +140,9 @@ Mencatat transaksi peminjaman buku.
 }
 ```
 
-> **Catatan v1.1:** Tidak ada field `id_siswa` (integer FK) seperti draft v1.0 — diganti `nama_siswa` dan `kelas_siswa` (teks bebas), sesuai `data_model.md` v1.3 tabel `peminjaman`. Field `tanggal_pinjam` juga **tidak dikirim dari frontend** — backend mengisi otomatis `tgl_peminjaman = date('now')` (FR-011, immutable).
+> *Catatan v1.1:* Tidak ada field id_siswa (integer FK) seperti draft v1.0 — diganti nama_siswa dan kelas_siswa (teks bebas), sesuai data_model.md v1.3 tabel peminjaman. Field tanggal_pinjam juga *tidak dikirim dari frontend* — backend mengisi otomatis tgl_peminjaman = date('now') (FR-011, immutable).
+>
+> *Catatan Multi-Buku:* Endpoint ini menerima *satu id_buku per panggilan, tidak ada array/batch. Ketika Guru memilih lebih dari satu buku dalam satu submit form, frontend memanggil endpoint ini **berkali-kali secara berurutan* — satu kali panggilan per buku, masing-masing dengan id_buku berbeda tapi nama_siswa, kelas_siswa, dan tgl_batas_pengembalian yang sama. Setiap panggilan menghasilkan satu id_peminjaman independen. Backend tidak perlu tahu bahwa beberapa panggilan berasal dari satu submit form yang sama — pengelompokan "buku-buku yang dipinjam bersamaan" untuk kebutuhan tampilan (mis. Panel Peminjaman Aktif, Modal Konfirmasi Pengembalian) dilakukan di level query GET, berdasarkan kombinasi nama_siswa + tgl_peminjaman + tgl_batas_pengembalian yang sama (lihat data_model.md v1.6 Section 3.3).
 
 ### Success Response (201 Created)
 
@@ -201,7 +205,7 @@ Mencatat transaksi peminjaman buku.
 | 1 | Request halaman | Ambil buku dengan stok > 0 | Daftar buku untuk Panel Kiri |
 | 2 | Pilihan buku | Tampilkan detail (Lokasi Rak, dsb.) di Panel Kanan | Detail buku |
 | 3 | Nama Siswa, Kelas Siswa, Tanggal Batas Kembali | Validasi input & tanggal | Request siap dikirim |
-| 4 | Request POST | Cek stok ulang (race condition), simpan transaksi peminjaman | Data peminjaman |
+| 4 | Request POST (diulang per buku jika multi-buku) | Cek stok ulang (race condition), simpan transaksi peminjaman | Data peminjaman (satu baris per buku) |
 | 5 | Data peminjaman | Kurangi stok buku | Stok terbaru |
 | 6 | Stok terbaru | Update status buku jika stok = 0 | Status Dipinjam |
 | 7 | Commit transaksi | Refresh data | Form siap digunakan kembali |
@@ -238,6 +242,7 @@ Mencatat transaksi peminjaman buku.
 | Business Rule F003 (satu eksemplar per transaksi) | AC-003-01 | POST /api/v1/loans |
 | Business Rule F007 (transaksi atomik) | AC-003-05 | Database Transaction |
 | — (data form tidak hilang saat gagal) | AC-003-06 | Frontend Local State |
+| Business Rule F003 (Guru dapat memilih >1 buku sekaligus, setiap buku transaksi independen) | AC-003-07 | POST /api/v1/loans (dipanggil berkali-kali) |
 
 ---
 

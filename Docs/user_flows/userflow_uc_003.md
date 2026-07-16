@@ -55,7 +55,7 @@ Guru dapat mencatat transaksi peminjaman buku oleh siswa secara digital dengan c
 ## 6. POST-CONDITION
 
 ### 6.1 Success Postcondition
-- Data transaksi peminjaman baru tersimpan (ID Peminjaman, ID Siswa, ID Buku, Tanggal Pinjam, Tanggal Batas Kembali).
+- Data transaksi peminjaman baru tersimpan — satu baris transaksi (ID Peminjaman, ID Siswa, ID Buku, Tanggal Pinjam, Tanggal Batas Kembali) untuk setiap buku yang dipilih Guru dalam satu submit form.
 - Stok buku terkait berkurang 1 unit dan Status berubah menjadi "Dipinjam" dalam transaksi database yang sama (F007), tercermin instan di PAGE-003, PAGE-004, dan PAGE-002.
 - Form peminjaman ter-reset untuk transaksi berikutnya.
 
@@ -69,12 +69,12 @@ Guru dapat mencatat transaksi peminjaman buku oleh siswa secara digital dengan c
 | Step | Actor | Action | System Response |
 | --- | --- | --- | --- |
 | 1 | Guru | Membuka `/peminjaman`. | Sistem menampilkan Split Layout: Panel Kiri (60%) daftar buku dengan Stok > 0 (Lokasi Rak ditampilkan pada tiap kartu); Panel Kanan (40%) form data peminjaman. |
-| 2 | Guru | Memilih satu buku dari Panel Kiri. | Sistem menyorot kartu buku terpilih; detail (Judul, Penulis, Tema, Lokasi Rak, Badge Stok) muncul di Panel Kanan. |
+| 2 | Guru | Memilih satu atau lebih buku dari Panel Kiri (dapat memilih beberapa buku sekaligus untuk siswa yang sama dalam satu form). | Sistem menyorot setiap kartu buku yang dipilih (multi-select); daftar ringkas buku terpilih (Judul, Penulis, Tema, Lokasi Rak, Badge Stok) muncul di Panel Kanan. |
 | 3 | Guru | Mengisi **Nama Siswa** dan **Kelas Siswa**. | Field **Tanggal Pinjam** otomatis terisi tanggal hari ini (Read-Only, keterangan "Otomatis"). |
 | 4 | Guru | Memilih **Tanggal Batas Pengembalian** melalui Date Picker aktif. | Date Picker menerapkan constraint `min` = Tanggal Pinjam (hari ini); Guru dapat memilih tanggal ≥ hari ini. |
 | 5 | Guru | Mengklik tombol **"Simpan Peminjaman"**. | Tombol ke state `[Loading]`. Sistem mengirim request POST ke API. |
 | 6 | — | — | Sistem memvalidasi: buku masih Stok > 0, Tanggal Batas Kembali ≥ Tanggal Pinjam, Nama Siswa bersih dari tag skrip (XSS). |
-| 7 | — | — | Validasi lolos. Sistem menyimpan transaksi Peminjaman, lalu menjalankan F007: Stok buku −1, Status buku → "Dipinjam", dalam satu transaksi database. |
+| 7 | — | — | Validasi lolos. Sistem menyimpan satu transaksi Peminjaman terpisah untuk setiap buku yang dipilih (satu ID Peminjaman per buku), lalu menjalankan F007 untuk masing-masing buku: Stok buku −1, Status buku → "Dipinjam". Seluruh transaksi buku dalam satu submit diproses dalam rangkaian transaksi database yang sama. |
 | 8 | — | — | Panel Kiri, tabel katalog (PAGE-003), dan halaman publik (PAGE-002) diperbarui instan. Form ter-reset; toast notifikasi sukses muncul. |
 
 ---
@@ -151,12 +151,13 @@ Guru dapat mencatat transaksi peminjaman buku oleh siswa secara digital dengan c
 | AC-003-04 | Tanggal Batas Kembali dapat diatur Guru dan tidak boleh kurang dari Tanggal Pinjam. |
 | AC-003-05 | Setelah transaksi tersimpan, Stok buku berkurang 1 dan Status berubah menjadi "Dipinjam" secara instan (F007). |
 | AC-003-06 | Data form tidak hilang saat terjadi kegagalan koneksi selama submit. |
+| AC-003-07 | Guru dapat memilih lebih dari satu buku sekaligus dalam satu submit form peminjaman untuk siswa yang sama; setiap buku tersimpan sebagai transaksi peminjaman terpisah. |
 
 ---
 
 ## 12. NOTES
 
-- Satu transaksi peminjaman hanya berlaku untuk satu eksemplar buku per siswa per waktu (Business Rule F003).
+- Guru dapat memilih lebih dari satu buku sekaligus dalam satu form peminjaman untuk siswa yang sama; setiap buku dicatat sebagai transaksi independen (satu ID Peminjaman per buku) — tidak ada entity/kolom "sesi peminjaman" pada database, pengelompokan tampilan (mis. Panel Peminjaman Aktif) murni berdasarkan kombinasi nama siswa + tanggal peminjaman + tanggal batas kembali (Business Rule F003).
 - Buku dipinjam untuk digunakan di lingkungan sekolah dan tidak wajib dikembalikan pada hari yang sama, selama masih dalam periode yang ditentukan Guru (SRS v3.4, Out-of-Scope poin #4).
 - Perubahan stok dan status wajib terjadi dalam satu transaksi database yang sama dengan pencatatan peminjaman (Business Rule F007) — tidak boleh terpisah/tertunda.
 

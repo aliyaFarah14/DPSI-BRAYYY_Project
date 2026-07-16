@@ -69,14 +69,14 @@ Sistem Informasi Perpustakaan SDN Tamanan (Root)
 - Level 3 (Modal Form Tambah/Edit Buku): Field Gambar Sampul (Image Upload, opsional), ID Buku (alfanumerik, unik), Judul Buku, Penulis, Penerbit, Tema (dropdown opsional: Cerita & Dongeng / Lainnya — diisi hanya untuk buku non-pelajaran), Tahun Terbit (numerik), Lokasi Rak (format kode huruf + nomor, misal "A1"/"B3", wajib diisi, tervalidasi), Tingkat Kelas (opsional, dropdown Kelas 1–6 — diisi hanya untuk buku pelajaran berjenjang, mutually exclusive dengan Tema), Stok Awal (integer ≥ 0); tombol "Batal" dan "Simpan".
 
 **Module: Transaksi Peminjaman**
-- Level 1 (Halaman Catat Peminjaman): Judul "Catat Peminjaman Buku"; Panel Kiri (Daftar Buku Tersedia, stok > 0); Panel Kanan (Form Data Peminjaman).
+- Level 1 (Halaman Catat Peminjaman): Judul "Catat Peminjaman Buku"; Panel Kiri (Daftar Buku Tersedia, stok > 0, mendukung multi-select untuk memilih beberapa buku sekaligus); Panel Kanan (Form Data Peminjaman).
 - Level 2 (Detail & Form Isian): Kartu Buku (Judul, Penulis, Tema, Lokasi Rak, Badge Stok) — Lokasi Rak ditampilkan agar Guru dapat mengambil buku secara fisik dengan cepat; Field Nama Siswa, Kelas Siswa, Tanggal Pinjam (otomatis, non-editable), Tanggal Batas Pengembalian (date picker).
 - Level 3 (Aksi & Konfirmasi): Ringkasan Data Peminjaman; tombol "Batal" dan "Simpan Peminjaman".
 
 **Module: Transaksi Pengembalian**
 - Level 1 (Daftar Peminjaman Aktif): Judul "Catat Pengembalian Buku"; daftar peminjaman belum dikembalikan.
 - Level 2 (Detail Transaksi Aktif): Tabel Peminjaman Aktif (Nama Siswa, Kelas, Judul Buku, Tgl Pinjam, Batas Kembali); Indikator Keterlambatan (badge merah + jumlah hari); tombol "Proses Pengembalian" per baris.
-- Level 3 (Form Konfirmasi): Ringkasan data; Field Tanggal Pengembalian (otomatis); Pilihan Kondisi Buku (Baik/Rusak Ringan/Rusak Berat, radio button); Panel Ringkasan Denda (rincian keterlambatan + biaya kondisi + total, dihitung otomatis dan real-time); info keterlambatan; tombol "Batal" dan "Konfirmasi Pengembalian".
+- Level 3 (Form Konfirmasi): Ringkasan data; Field Tanggal Pengembalian (otomatis); jika siswa meminjam beberapa buku bersamaan, seluruh buku ditampilkan dalam satu modal dengan Pilihan Kondisi Buku individual per buku (Baik/Rusak Ringan/Rusak Berat, radio button); Panel Ringkasan Denda per buku (rincian keterlambatan + biaya kondisi, dihitung otomatis dan real-time) dijumlahkan menjadi Total Denda gabungan; info keterlambatan; tombol "Batal" dan "Konfirmasi Pengembalian" (memproses seluruh buku sekaligus).
 
 **Module: Riwayat Peminjaman**
 - Level 1 (Halaman Riwayat): Judul "Riwayat Peminjaman"; Filter Pencarian (Nama Siswa, Judul Buku, Rentang Tanggal); tombol "Export ke Excel" (filter bulan/tahun sebelum export).
