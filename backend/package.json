@@ -2,8 +2,9 @@
   "name": "backend-perpustakaan",
   "version": "1.0.0",
   "description": "Backend Sistem Informasi Perpustakaan SD Negeri Tamanan",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "dev": "node server.js",
     "db:init": "node scripts/init-db.js",
     "db:seed": "node scripts/seed.js"
