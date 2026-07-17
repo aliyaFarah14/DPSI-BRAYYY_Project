@@ -36,7 +36,7 @@ export default function HistoryPage() {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [appliedFrom, setAppliedFrom] = useState("")
-  const [appliedTo, setAppliedTo] = useState("")
+  const [_appliedTo, setAppliedTo] = useState("")
   const [dateError, setDateError] = useState("")
   const [exportBulan, setExportBulan] = useState("")
   const [exportTahun, setExportTahun] = useState("")

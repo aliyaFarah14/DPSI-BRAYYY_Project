@@ -30,11 +30,11 @@ export default function PublicPage() {
               penulis: b.penulis as string,
               penerbit: "",
               tema_buku: (b.tema_buku as TemaBuku) ?? null,
-              tingkatKelas: (b.tingkat_kelas as number) ?? null,
+              tingkat_kelas: (b.tingkat_kelas as number) ?? null,
               lokasi_rak: b.lokasi_rak as string,
               stok: b.stok as number,
               status_buku: (b.status_buku as string) === "Tersedia" ? "Aktif" : (b.status_buku as "Aktif" | "Tidak Aktif"),
-              coverImageUrl: b.gambar_sampul ? `${API_BASE.replace("/api/v1", "")}${b.gambar_sampul}` : undefined,
+              gambar_sampul: b.gambar_sampul ? `${API_BASE.replace("/api/v1", "")}${b.gambar_sampul}` : undefined,
             }))
           )
         } else {
@@ -60,11 +60,11 @@ export default function PublicPage() {
       // no filter
     } else if (category.startsWith("Kelas ")) {
       const kelasNum = parseInt(category.replace("Kelas ", ""), 10)
-      result = result.filter((b) => b.tingkatKelas === kelasNum)
+      result = result.filter((b) => b.tingkat_kelas === kelasNum)
     } else if (category === "Cerita & Dongeng") {
       result = result.filter((b) => b.tema_buku === "Cerita & Dongeng")
     } else if (category === "Lainnya") {
-      result = result.filter((b) => b.tema_buku === "Lainnya" || (!b.tingkatKelas && !b.tema_buku))
+      result = result.filter((b) => b.tema_buku === "Lainnya" || (!b.tingkat_kelas && !b.tema_buku))
     }
     return result
   }, [buku, keyword, category])
@@ -159,8 +159,8 @@ export default function PublicPage() {
                     className="flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1">
                     {/* Cover area */}
                     <div className="relative aspect-[3/4] w-full bg-primary-light/30">
-                      {b.coverImageUrl ? (
-                        <img src={b.coverImageUrl} alt={b.judul_buku}
+                      {b.gambar_sampul ? (
+                        <img src={b.gambar_sampul} alt={b.judul_buku}
                           className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
@@ -176,8 +176,8 @@ export default function PublicPage() {
                     <div className="flex flex-1 flex-col gap-1.5 p-3">
                       <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-2">{b.judul_buku}</h3>
                       <p className="text-xs text-muted-foreground line-clamp-1">{b.penulis}</p>
-                      {b.tingkatKelas ? (
-                        <span className="self-start rounded-md bg-[#E1EEF3] px-2 py-0.5 text-[10px] font-medium text-[#669BBC]">Kelas {b.tingkatKelas}</span>
+                      {b.tingkat_kelas ? (
+                        <span className="self-start rounded-md bg-[#E1EEF3] px-2 py-0.5 text-[10px] font-medium text-[#669BBC]">Kelas {b.tingkat_kelas}</span>
                       ) : b.tema_buku ? (
                         <span className="self-start rounded-md bg-[#FDF1D9] px-2 py-0.5 text-[10px] font-medium text-[#CA8A04]">{b.tema_buku}</span>
                       ) : null}

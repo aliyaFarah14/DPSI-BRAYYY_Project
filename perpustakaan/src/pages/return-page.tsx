@@ -2,7 +2,6 @@
 import { BookOpen, CalendarDays, User, CheckCircle, XCircle, CircleDollarSign, Search, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from "@/components/ui/table"
@@ -171,7 +170,7 @@ export default function ReturnPage() {
 
     for (const entry of condEntries) {
       try {
-        const { res, body } = await apiFetch("/returns", {
+        const { res, body } = await apiFetch<{ total_denda?: number }>("/returns", {
           method: "POST",
           body: JSON.stringify({
             id_peminjaman: entry.id_peminjaman,

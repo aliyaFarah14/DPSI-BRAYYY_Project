@@ -50,13 +50,13 @@ function mapApiBuku(b: Record<string, unknown>): Buku {
     judul_buku: b.judul_buku as string,
     penulis: b.penulis as string,
     penerbit: b.penerbit as string,
-    tahunTerbit: b.tahun_terbit as number,
+    tahun_terbit: b.tahun_terbit as number,
     tema_buku: (b.tema_buku as TemaBuku) ?? null,
-    tingkatKelas: (b.tingkat_kelas as number) ?? null,
+    tingkat_kelas: (b.tingkat_kelas as number) ?? null,
     lokasi_rak: b.lokasi_rak as string,
     stok: b.stok as number,
     status_buku: (b.status_buku as string) === "Tersedia" ? "Aktif" : (b.status_buku as "Aktif" | "Tidak Aktif"),
-    coverImageUrl: b.gambar_sampul ? `${API_BASE.replace("/api/v1", "")}${b.gambar_sampul}` : undefined,
+    gambar_sampul: b.gambar_sampul ? `${API_BASE.replace("/api/v1", "")}${b.gambar_sampul}` : undefined,
   }
 }
 
@@ -175,13 +175,13 @@ export default function BookManagement() {
       judul_buku: b.judul_buku,
       penulis: b.penulis,
       penerbit: b.penerbit,
-      tahun_terbit: b.tahunTerbit ? String(b.tahunTerbit) : String(new Date().getFullYear()),
+      tahun_terbit: b.tahun_terbit ? String(b.tahun_terbit) : String(new Date().getFullYear()),
       tema_buku: tema,
-      tingkatKelas: b.tingkatKelas ? String(b.tingkatKelas) : "",
+      tingkatKelas: b.tingkat_kelas ? String(b.tingkat_kelas) : "",
       lokasi_rak: b.lokasi_rak,
       stok: String(b.stok),
       status_buku: b.status_buku,
-      coverImageUrl: b.coverImageUrl,
+      coverImageUrl: b.gambar_sampul,
       hapusGambar: false,
     })
     setFieldErrors({})
