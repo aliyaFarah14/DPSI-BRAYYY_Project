@@ -83,6 +83,7 @@ router.post("/login", (req, res) => {
 
     res.cookie("session_id", sessionId, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 30 * 60 * 1000
@@ -120,6 +121,7 @@ router.post("/logout", (req, res) => {
 
     res.cookie("session_id", "", {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 0

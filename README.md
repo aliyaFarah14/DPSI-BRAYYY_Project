@@ -55,3 +55,47 @@ Proyek ini menggunakan arsitektur terpisah antara Backend (Express.js) dan Front
    npm run dev
    # (Akses antarmuka sistem di http://localhost:5173)
    ```
+
+## 🚀 Deployment (Single-Server Production)
+
+Untuk deployment produksi, backend Express akan menyajikan file frontend yang sudah di-build dari direktori yang sama (same-origin), sehingga tidak diperlukan CORS.
+
+### Langkah-langkah
+
+1. **Build frontend**
+   ```bash
+   cd perpustakaan
+   npm install
+   npm run build
+   # Hasil build akan berada di perpustakaan/dist/
+   ```
+
+2. **Atur environment variables**
+   Salin `backend/.env.example` menjadi `backend/.env` dan isi nilai yang sesuai untuk produksi:
+   ```bash
+   cd backend
+   cp .env.example .env
+   ```
+
+3. **Jalankan backend dalam mode produksi**
+   ```bash
+   cd backend
+   npm install
+   NODE_ENV=production node server.js
+   # Server berjalan di http://localhost:3001
+   # (Frontend sudah disajikan sebagai static files dari server yang sama)
+   ```
+
+### Environment Variables (Production)
+
+| Variable | Wajib | Deskripsi |
+|---|---|---|
+| `NODE_ENV` | Ya | Set ke `production` untuk mengaktifkan serving frontend dan cookie secure |
+| `PORT` | Tidak | Port server (default: 3001) |
+| `SESSION_SECRET` | **Ya** | String acak kuat untuk menandatangani cookie sesi (gunakan `openssl rand -hex 64`) |
+| `CORS_ORIGIN` | Tidak | Origin frontend untuk development (default: http://localhost:5173) |
+| `DB_PATH` | Tidak | Path ke file database SQLite (default: backend/data/perpustakaan.db) |
+| `VITE_API_BASE` | Tidak | URL API untuk frontend — di produksi set ke `/api/v1` (relative path) |
+| `DENDA_PER_HARI` | Tidak | Denda keterlambatan per hari (default: 500) |
+| `DENDA_RUSAK_RINGAN` | Tidak | Denda rusak ringan (default: 2000) |
+| `DENDA_RUSAK_BERAT` | Tidak | Denda rusak berat (default: 5000) |

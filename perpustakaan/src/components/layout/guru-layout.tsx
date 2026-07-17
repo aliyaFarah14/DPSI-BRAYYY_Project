@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom"
 import { Menu } from "lucide-react"
 import Sidebar from "./sidebar"
 import { getSessionState, getSession, checkSession } from "@/lib/auth"
+import { API_BASE } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 
 export default function GuruLayout() {
@@ -44,7 +45,7 @@ export default function GuruLayout() {
 
   const handleStay = async () => {
     try {
-      await fetch("http://localhost:3001/api/v1/auth/extend-session", {
+      await fetch(`${API_BASE}/auth/extend-session`, {
         method: "POST", credentials: "include",
       })
     } catch { /* best-effort */ }
