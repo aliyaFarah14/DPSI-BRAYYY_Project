@@ -75,6 +75,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | TC-F003-005 | Input Siswa Kosong | 1. Pilih buku<br>2. Biarkan nama siswa kosong<br>3. Klik "Simpan Peminjaman" | Tombol disabled atau error "Nama siswa wajib diisi.". | Sesuai — validasi frontend mencegah submit. | PASS | |
 | TC-F003-006 | Tanggal Kembali Sebelum Tanggal Pinjam | 1. Pilih buku, isi data<br>2. Atur tanggal kembali ke masa lalu<br>3. Coba submit | Validasi: tanggal kembali harus setelah tanggal pinjam. Tombol disabled. | Sesuai — validasi frontend + backend menolak (400). | PASS | Backend juga memvalidasi: `batasDate < today` → 400. |
 | TC-F003-007 | Stok Berkurang Setelah Peminjaman (F007) | 1. Catat stok buku<br>2. Lakukan peminjaman<br>3. Periksa stok di Manajemen Buku | Stok berkurang 1, perubahan real-time. | Sesuai — stok decrement dalam transaction, tercermin di GET /api/v1/books. | PASS | Diverifikasi: stok sebelum = X, setelah peminjaman = X-1. |
+| TC-F003-008 | Peminjaman Multi-Buku Berhasil | 1. Pilih 3 buku sekaligus dari Panel Kiri<br>2. Isi data siswa "Ica"<br>3. Atur tanggal kembali<br>4. Simpan | 3 transaksi tersimpan terpisah, stok ketiga buku berkurang, dikelompokkan sebagai satu entri di Panel Aktif. | Sesuai — diverifikasi langsung: siswa "Ica" berhasil pinjam 3 buku (Matematika Kelas 4, Cerita Rakyat Jawa, Kumpulan Dongeng Fabel Dunia) sekaligus, tersimpan sebagai PJ terpisah, muncul dikelompokkan di Riwayat dengan tanggal pinjam/kembali sama. | PASS | Diverifikasi via UI end-to-end; juga terlihat pola serupa pada siswa "Citra" (2 buku sekaligus). |
 
 ---
 
@@ -93,6 +94,7 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 | TC-F004-007 | Pengembalian Terlambat — Kondisi Rusak Ringan — Denda Kombinasi | 1. Pilih peminjaman terlambat<br>2. Kondisi "Rusak Ringan"<br>3. Periksa + konfirmasi | `keterlambatan_hari` x 500 + Rp2.000 = total. | Sesuai — kombinasi denda keterlambatan + biaya kondisi dijumlah. | PASS | Diverifikasi via curl: POST /api/v1/returns dengan data terlambat + Rusak Ringan. |
 | TC-F004-008 | Pengembalian — Kondisi Rusak Berat — Status Tersedia (Regresi) | 1. Pilih peminjaman<br>2. Kondisi "Rusak Berat"<br>3. Konfirmasi<br>4. Cek status di Manajemen Buku | `biaya_kondisi` = Rp5.000, status buku tetap "Tersedia" / "Aktif", bukan "Tidak Aktif". | Sesuai — status_buku di-update ke 'Tersedia' terlepas dari kondisi. | PASS | **Regression check:** backend selalu set `status_buku = 'Tersedia'` di query UPDATE. Tidak ada logika yang mengubah ke 'Tidak Aktif' untuk Rusak Berat. |
 | TC-F004-009 | Pengembalian Gagal — ID Peminjaman Sudah Dikembalikan | 1. Coba return id_peminjaman yang sudah dikembalikan<br>2. Via curl atau UI | Response 409 (Conflict), pesan "Peminjaman sudah dikembalikan sebelumnya". | Sesuai — backend validasi `status_peminjaman !== "Dipinjam"` → 409. Di UI, peminjaman yang sudah kembali tidak muncul di daftar aktif. | PASS | Diverifikasi via curl: POST /api/v1/returns dengan id sudah kembali → 409. |
+| TC-F004-010 | Pengembalian Multi-Buku Berhasil | 1. Klik "Proses Pengembalian" pada baris siswa dengan 3 buku dipinjam bersamaan<br>2. Pilih kondisi berbeda per buku (Baik/Rusak Ringan/Rusak Berat)<br>3. Konfirmasi | 3 transaksi pengembalian tersimpan terpisah, Total Denda gabungan = jumlah denda ketiga buku, stok ketiga buku bertambah. | Sesuai — diverifikasi langsung: siswa "Ica" mengembalikan 3 buku sekaligus dengan kondisi Rusak Ringan/Rusak Ringan/Rusak Berat, denda tercatat per buku (Rp2.000, Rp2.000, Rp5.000) di Riwayat, status ketiga buku kembali "Tersedia". | PASS | Diverifikasi via UI end-to-end (lihat screenshot Riwayat 12 Jul 2026). |
 
 ---
 
@@ -137,11 +139,11 @@ Supervisor: Farid Suryanto, S.Pd., MT.
 |---|---|---|---|---|---|
 | F001 — Autentikasi Guru (Login) | 8 | 7 | 0 | 1 | 100% (7/7 diuji) |
 | F002 — Manajemen Data Buku | 13 | 13 | 0 | 0 | 100% |
-| F003 — Pencatatan Peminjaman Buku | 7 | 7 | 0 | 0 | 100% |
-| F004 — Pencatatan Pengembalian Buku | 9 | 9 | 0 | 0 | 100% |
+| F003 — Pencatatan Peminjaman Buku | 8 | 8 | 0 | 0 | 100% |
+| F004 — Pencatatan Pengembalian Buku | 10 | 10 | 0 | 0 | 100% |
 | F005 — Riwayat Peminjaman + Export Excel | 9 | 8 | 0 | 1 | 100% (8/8 diuji) |
 | F006 — Akses Ketersediaan & Lokasi Buku (Publik) | 8 | 8 | 0 | 0 | 100% |
-| **TOTAL** | **54** | **52** | **0** | **2** | **100%** |
+| **TOTAL** | **56** | **54** | **0** | **2** | **100%** |
 
 **Catatan:**
 - 2 test case berstatus N/A (TC-F001-006: idle timeout tidak praktis diuji manual; TC-F005-009: export boundary perlu data 2 bulan yang sudah dihapus).
@@ -161,3 +163,4 @@ Signature: ____________________
 | Version | Date | Author | Description |
 |---|---|---|---|
 | 1.0 | 2026-07-12 | Kelompok DPSI BRAYYY | Initial execution record — populasi awal berdasarkan manual testing yang sudah dilakukan selama implementasi backend (6 use case) dan frontend integration. Mencakup 52 TC PASS, 2 TC N/A, 3 bug mayor terdokumentasi di Notes. |
+| 1.1 | 2026-07-16 | Kelompok DPSI BRAYYY | Tambah eksekusi TC-F003-008 dan TC-F004-010 (skenario multi-buku), keduanya PASS berdasarkan verifikasi end-to-end langsung (siswa "Ica" 3 buku, siswa "Citra" 2 buku). Update Execution Summary (54→56 TC, 52→54 PASS). |

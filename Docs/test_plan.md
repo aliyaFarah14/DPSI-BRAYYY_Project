@@ -29,10 +29,10 @@ Dokumen ini mendefinisikan rencana pengujian (test plan) untuk sistem Aplikasi P
 
 | Document | Version | Location |
 | --- | --- | --- |
-| Software Requirements Specification (SRS) | v3.7 | `docs/srs.md` |
-| User Flow Specifications | v1.3 | `docs/user_flows/` |
-| System Logic Specifications | v1.4 | `docs/system_logic/` |
-| Design System | v1.8 | `docs/design_system.md` |
+| Software Requirements Specification (SRS) | v3.8 | `docs/srs.md` |
+| User Flow Specifications | v1.3 (uc_003 v1.1, uc_004 v1.2 — revisi klarifikasi multi-buku) | `docs/user_flows/` |
+| System Logic Specifications | v1.4 (sys_uc_003 v1.3, sys_uc_004 v1.3 — revisi klarifikasi multi-buku) | `docs/system_logic/` |
+| Design System | v1.9 | `docs/design_system.md` |
 | Information Architecture | v3.7 | `docs/information_architecture.md` |
 | Class Diagram | v1.1 | `docs/class_diagram.md` |
 | Test Case Specification | v0.1 | `docs/test_case_specification.md` |
@@ -47,8 +47,8 @@ Dokumen ini mendefinisikan rencana pengujian (test plan) untuk sistem Aplikasi P
 | --- | --- | --- | --- |
 | F001 | Autentikasi Guru (Login) | UC-001 | 8 TC |
 | F002 | Manajemen Data Buku (CRUD + image upload + validasi) | UC-002 | 12 TC |
-| F003 | Pencatatan Peminjaman Buku (multi-buku, stock sync, race condition stok=0) | UC-003 | 8 TC |
-| F004 | Pencatatan Pengembalian Buku (denda per hari + biaya kondisi, status sync) | UC-004 | 8 TC |
+| F003 | Pencatatan Peminjaman Buku (single & multi-buku, stock sync, race condition stok=0) | UC-003 | 8 TC |
+| F004 | Pencatatan Pengembalian Buku (single & multi-buku, denda per hari + biaya kondisi, status sync) | UC-004 | 10 TC |
 | F005 | Riwayat Peminjaman + Export Excel (search/filter, export .xlsx via bulan/tahun) | UC-005, FR-032 | 10 TC |
 | F006 | Katalog Publik (no-auth, filter kategori termasuk aturan Lainnya, search) | UC-006 | 6 TC |
 
@@ -361,3 +361,4 @@ Berikut defect nyata yang ditemukan selama siklus pengembangan-pengujian dan tel
 | --- | --- | --- | --- |
 | 0.1 | 2026-07-10 | Kelompok DPSI BRAYYY | Initial Draft — Test Plan untuk Sistem Informasi Perpustakaan SD Negeri Tamanan, mencakup strategi pengujian 6 fitur (F001–F006 + embedded F007), 38 test case, jadwal 12 hari, konteks deployment single-PC lokal. |
 | 0.2 | 2026-07-12 | Kelompok DPSI BRAYYY | Sinkronisasi test plan dengan hasil implementasi aktual — seluruh backend API (6 use case) dan frontend integration sudah selesai; scope diperluas mencakup fitur Export Excel (FR-032); penambahan dua level verifikasi (API-level via curl dan E2E UI via browser); penambahan risk flags berdasarkan defect nyata yang ditemukan (timezone bug, mock data regression, 401 handling); update referensi dokumen ke versi terbaru (SRS v3.7, system logic v1.4, design system v1.8, class diagram v1.1); update test case count dari 38 ke 52 TC; update environment details (server URLs, alat uji, seed data). |
+| 0.3 | 2026-07-16 | Kelompok DPSI BRAYYY | Update referensi versi dokumen (SRS v3.8, System Logic sys_uc_003/004 v1.3, Design System v1.9) menyusul revisi klarifikasi dukungan multi-buku; tambah 2 test case baru (TC-F003-008, TC-F004-010) untuk skenario peminjaman & pengembalian multi-buku; update jumlah TC F003 (7→8) dan F004 (9→10) di Test Scope. |

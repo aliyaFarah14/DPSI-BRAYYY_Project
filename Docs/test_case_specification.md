@@ -32,11 +32,11 @@ Mencakup test case untuk:
 
 | Document | Version | Location |
 | --- | --- | --- |
-| Test Plan | v0.2 | `docs/test_plan.md` |
-| Software Requirements Specification (SRS) | v3.7 | `docs/srs.md` |
-| User Flow Specifications | v1.3 | `docs/user_flows/` |
-| System Logic Specifications | v1.4 | `docs/system_logic/` |
-| Design System | v1.8 | `docs/design_system.md` |
+| Test Plan | v0.3 | `docs/test_plan.md` |
+| Software Requirements Specification (SRS) | v3.8 | `docs/srs.md` |
+| User Flow Specifications | v1.3 (uc_003 v1.1, uc_004 v1.2 — revisi klarifikasi multi-buku) | `docs/user_flows/` |
+| System Logic Specifications | v1.4 (sys_uc_003 v1.3, sys_uc_004 v1.3 — revisi klarifikasi multi-buku) | `docs/system_logic/` |
+| Design System | v1.9 | `docs/design_system.md` |
 | Information Architecture | v3.7 | `docs/information_architecture.md` |
 | Class Diagram | v1.1 | `docs/class_diagram.md` |
 
@@ -88,6 +88,7 @@ Mencakup test case untuk:
 | TC-F003-005 | F003 | UC-003 | Input Siswa Kosong |
 | TC-F003-006 | F003 | UC-003 | Tanggal Kembali Sebelum Tanggal Pinjam |
 | TC-F003-007 | F003 | UC-003 | Stok Berkurang Setelah Peminjaman (F007) |
+| TC-F003-008 | F003 | UC-003 | Peminjaman Multi-Buku Berhasil |
 | TC-F004-001 | F004 | UC-004 | Pengembalian Berhasil — Tepat Waktu, Kondisi Baik |
 | TC-F004-002 | F004 | UC-004 | Pengembalian Terlambat dengan Denda |
 | TC-F004-003 | F004 | UC-004 | Pengembalian dengan Kondisi Rusak |
@@ -97,6 +98,7 @@ Mencakup test case untuk:
 | TC-F004-007 | F004 | UC-004 | Pengembalian Terlambat — Kondisi Rusak Ringan — Denda Kombinasi |
 | TC-F004-008 | F004 | UC-004 | Pengembalian — Kondisi Rusak Berat — Status Tersedia (Regresi) |
 | TC-F004-009 | F004 | UC-004 | Pengembalian Gagal — ID Peminjaman Sudah Dikembalikan |
+| TC-F004-010 | F004 | UC-004 | Pengembalian Multi-Buku Berhasil |
 | TC-F005-001 | F005 | UC-005 | Melihat Riwayat Transaksi |
 | TC-F005-002 | F005 | UC-005 | Cari Riwayat Berdasarkan Nama Siswa |
 | TC-F005-003 | F005 | UC-005 | Cari Riwayat Berdasarkan Judul Buku |
@@ -405,16 +407,18 @@ Mencakup test case untuk:
 
 #### TC-F002-010: Cari Buku
 
+#### TC-F002-010: Cari Buku
+
 | Field | Value |
 | --- | --- |
 | **TC ID** | TC-F002-010 |
 | **Related UC** | UC-002 (AF-003) |
 | **Related Feature** | F002 |
-| **Test Scenario** | Guru mencari buku berdasarkan kata kunci |
-| **Preconditions** | Minimal 5 buku terdaftar dengan variasi judul |
+| **Test Scenario** | Guru mencari buku berdasarkan kata kunci di halaman Manajemen Buku |
+| **Preconditions** | Minimal 5 buku terdaftar dengan variasi judul, Guru sudah login |
 | **Test Data** | Pencarian: "Matematika" |
-| **Test Steps** | 1. Akses halaman Manajemen Buku<br>2. Perhatikan bahwa tidak ada kolom pencarian di halaman ini (pencarian tersedia di halaman lain)<br>3. Alternatif: gunakan fitur pencarian yang tersedia |
-| **Expected Result** | CATATAN: Pencarian di halaman Manajemen Buku dapat dilakukan melalui filter bawaan tabel atau belum diimplementasikan — verifikasi sesuai implementasi aktual. Jika belum ada, ini adalah area pengembangan. |
+| **Test Steps** | 1. Akses halaman Manajemen Buku (`/buku`)<br>2. Ketik "Matematika" pada kolom pencarian yang tersedia di halaman<br>3. Amati hasil filter pada tabel |
+| **Expected Result** | 1. Tabel menampilkan hanya buku dengan judul/ID mengandung "Matematika"<br>2. Pencarian bersifat case-insensitive<br>3. Pencarian dilakukan via parameter `?search=` ke `GET /api/v1/books` (bukan hanya filter client-side pada data yang sudah dimuat) |
 | **Type** | Positif |
 
 ---
@@ -585,6 +589,22 @@ Mencakup test case untuk:
 
 ---
 
+#### TC-F003-008: Peminjaman Multi-Buku Berhasil
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F003-008 |
+| **Related UC** | UC-003 (AC-003-07) |
+| **Related Feature** | F003 |
+| **Test Scenario** | Guru mencatat peminjaman lebih dari satu buku sekaligus untuk satu siswa dalam satu submit form |
+| **Preconditions** | 1. Guru sudah login<br>2. Minimal 3 buku berbeda dengan stok > 0 |
+| **Test Data** | Siswa: "Ica", Buku: 3 buku berbeda (misal Matematika Kelas 4, Cerita Rakyat Jawa, Kumpulan Dongeng Fabel Dunia), Tanggal Kembali: H+7 |
+| **Test Steps** | 1. Akses halaman `/peminjaman`<br>2. Pilih 3 buku sekaligus dari Panel Kiri (multi-select)<br>3. Isi Nama Siswa = "Ica"<br>4. Isi Kelas Siswa<br>5. Atur Tanggal Batas Kembali<br>6. Klik "Simpan Peminjaman" |
+| **Expected Result** | 1. Frontend memanggil `POST /api/v1/loans` sebanyak 3 kali (satu per buku), masing-masing dengan `nama_siswa`, `kelas_siswa`, `tgl_batas_pengembalian` yang sama tapi `id_buku` berbeda<br>2. Tersimpan 3 baris transaksi peminjaman independen (3 `id_peminjaman` berbeda)<br>3. Stok ketiga buku masing-masing berkurang 1<br>4. Panel Peminjaman Aktif menampilkan ketiga buku dikelompokkan sebagai satu entri (grouping berdasarkan nama_siswa + tgl_peminjaman + tgl_batas_pengembalian) |
+| **Type** | Positif |
+
+---
+
 ## 3.4 Feature F004: Pencatatan Pengembalian Buku
 
 ### UC-004: Pencatatan Pengembalian Buku
@@ -732,6 +752,22 @@ Mencakup test case untuk:
 | **Test Steps** | 1. Buka halaman `/pengembalian`<br>2. Pastikan peminjaman yang sudah dikembalikan tidak muncul di daftar aktif<br>3. Secara manual kirim POST `/api/v1/returns` dengan id_peminjaman yang sudah dikembalikan (via curl/DevTools)<br>4. Atau: jika UI memungkinkan, coba klik "Kembalikan" pada peminjaman yang sudah diproses |
 | **Expected Result** | 1. Backend mengembalikan status 409 (Conflict)<br>2. Pesan error: "Peminjaman sudah dikembalikan sebelumnya"<br>3. Tidak ada duplikasi data pengembalian<br>4. Stok buku tidak bertambah lagi |
 | **Type** | Exception |
+
+---
+
+#### TC-F004-010: Pengembalian Multi-Buku Berhasil
+
+| Field | Value |
+| --- | --- |
+| **TC ID** | TC-F004-010 |
+| **Related UC** | UC-004 (AC-004-10) |
+| **Related Feature** | F004 |
+| **Test Scenario** | Guru mengembalikan beberapa buku yang dipinjam bersamaan oleh satu siswa dalam satu aksi konfirmasi, dengan kondisi berbeda per buku |
+| **Preconditions** | Minimal 1 siswa memiliki 2+ buku yang dipinjam bersamaan (hasil TC-F003-008) |
+| **Test Data** | Siswa dengan 3 buku dipinjam bersamaan, kondisi: Baik, Rusak Ringan, Rusak Berat (satu kondisi berbeda per buku) |
+| **Test Steps** | 1. Akses halaman `/pengembalian`<br>2. Klik "Proses Pengembalian" pada baris siswa yang mewakili 3 buku sekaligus<br>3. Modal menampilkan ketiga buku dalam satu tampilan<br>4. Pilih kondisi berbeda untuk masing-masing buku (Baik / Rusak Ringan / Rusak Berat)<br>5. Periksa Panel Ringkasan Denda per buku dan Total Denda gabungan<br>6. Klik "Konfirmasi Pengembalian" |
+| **Expected Result** | 1. Frontend memanggil `POST /api/v1/returns` sebanyak 3 kali (satu per `id_peminjaman`), masing-masing dengan `kondisi_buku` sesuai pilihan<br>2. Tersimpan 3 baris data pengembalian independen dengan denda dihitung sendiri-sendiri per buku<br>3. Total Denda gabungan yang ditampilkan di modal = penjumlahan `total_denda` ketiga buku<br>4. Stok ketiga buku masing-masing bertambah 1, status kembali "Tersedia" untuk semua (termasuk yang kondisinya Rusak Berat)<br>5. Riwayat menampilkan 3 baris terpisah untuk transaksi ini, masing-masing dengan kondisi dan denda sesuai input |
+| **Type** | Positif |
 
 ---
 
@@ -1027,8 +1063,8 @@ Mencakup test case untuk:
 | --- | --- | --- |
 | F001 | Autentikasi Guru (Login) | TC-F001-001 s.d. TC-F001-008 |
 | F002 | Manajemen Data Buku | TC-F002-001 s.d. TC-F002-013 |
-| F003 | Pencatatan Peminjaman Buku | TC-F003-001 s.d. TC-F003-007 |
-| F004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-009 |
+| F003 | Pencatatan Peminjaman Buku | TC-F003-001 s.d. TC-F003-008 |
+| F004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-010 |
 | F005 | Riwayat Peminjaman + Export Excel | TC-F005-001 s.d. TC-F005-009 |
 | F006 | Akses Ketersediaan & Lokasi Buku untuk Siswa (Publik) | TC-F006-001 s.d. TC-F006-008 |
 
@@ -1038,8 +1074,8 @@ Mencakup test case untuk:
 | --- | --- | --- |
 | UC-001 | Login Guru | TC-F001-001 s.d. TC-F001-008 |
 | UC-002 | Manajemen Data Buku | TC-F002-001 s.d. TC-F002-013 |
-| UC-003 | Pencatatan Peminjaman Buku | TC-F003-001 s.d. TC-F003-007 |
-| UC-004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-009 |
+| UC-003 | Pencatatan Peminjaman Buku | TC-F003-001 s.d. TC-F003-008 |
+| UC-004 | Pencatatan Pengembalian Buku | TC-F004-001 s.d. TC-F004-010 |
 | UC-005 | Melihat Riwayat Peminjaman + Export Excel | TC-F005-001 s.d. TC-F005-009 |
 | UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | TC-F006-001 s.d. TC-F006-008 |
 
@@ -1056,12 +1092,12 @@ Mencakup test case untuk:
 | FR-007 | Pencarian buku | TC-F002-010 |
 | FR-008 | Tolak ID Buku duplikat | TC-F002-004 |
 | FR-009 | Validasi format Lokasi Rak | TC-F002-005 |
-| FR-010 | Form peminjaman dengan pilihan siswa dan buku | TC-F003-001 |
+| FR-010 | Form peminjaman dengan pilihan siswa dan buku (termasuk multi-buku) | TC-F003-001, TC-F003-008 |
 | FR-011 | Tanggal pinjam otomatis | TC-F003-001 |
 | FR-012 | Kolom tanggal batas pengembalian | TC-F003-001, TC-F003-006 |
 | FR-013 | Sembunyikan buku stok 0 | TC-F003-003 |
 | FR-014 | Update stok setelah peminjaman | TC-F003-007 |
-| FR-015 | Form pengembalian terhubung ke ID Peminjaman | TC-F004-001 |
+| FR-015 | Form pengembalian terhubung ke ID Peminjaman (termasuk multi-buku) | TC-F004-001, TC-F004-010 |
 | FR-016 | Pilihan kondisi buku | TC-F004-001, TC-F004-003 |
 | FR-017 | Tanggal kembali otomatis | TC-F004-001 |
 | FR-018 | Hitung hari keterlambatan otomatis | TC-F004-002 |
@@ -1084,10 +1120,10 @@ Mencakup test case untuk:
 
 | Type | Count |
 | --- | --- |
-| Positif | 28 |
+| Positif | 30 |
 | Negatif | 11 |
 | Exception | 13 |
-| **Total** | **52** |
+| **Total** | **54** |
 
 ---
 
@@ -1133,3 +1169,4 @@ Sebelum eksekusi test case, pastikan kondisi berikut terpenuhi:
 | --- | --- | --- | --- |
 | 0.1 | 2026-07-10 | Kelompok DPSI BRAYYY | Initial Draft — 38 test cases covering F001–F006 (UC-001 s.d. UC-006), termasuk F007 embedded test cases, traceability matrix, FR-ID mapping, dan test execution notes. |
 | 0.2 | 2026-07-12 | Kelompok DPSI BRAYYY | Tambah 14 test case baru (total 52 TC) untuk fitur Export Excel (FR-032, F005), skenario regresi yang ditemukan selama implementasi (mock-data fallback, timezone pada Pengembalian, sesi expired), denda kombinasi, filter kategori publik, persistensi data, dan boundary export; update referensi dokumen ke versi terbaru (SRS v3.7, test plan v0.2, system logic v1.4); update test data setup sesuai seed aktual (username: guru_sd, 9 buku). |
+| 0.3 | 2026-07-16 | Kelompok DPSI BRAYYY | Tambah 2 test case baru: TC-F003-008 (Peminjaman Multi-Buku Berhasil) dan TC-F004-010 (Pengembalian Multi-Buku Berhasil), menyusul konfirmasi implementasi dan revisi dokumentasi dukungan multi-buku (srs.md v3.8, userflow_uc_003.md v1.1, userflow_uc_004.md v1.2, sys_uc_003.md v1.3, sys_uc_004.md v1.3). Perbaikan TC-F002-010 (Cari Buku) yang sebelumnya berisi catatan ambigu/kontradiktif soal keberadaan kolom pencarian di halaman Manajemen Buku. Update Traceability Matrix dan Test Type Summary (52→54 TC). Update referensi dokumen ke versi terbaru. |
