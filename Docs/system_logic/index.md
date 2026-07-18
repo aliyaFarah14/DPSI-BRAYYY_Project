@@ -2,7 +2,7 @@
 
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Document Version:** v1.4 (Update versi sys_uc_002.md → v1.4 dan sys_uc_006.md → v1.4 — sinkron data_model.md v1.5 & srs.md v3.6)
+**Document Version:** v1.5 (Perbaiki versi sys_uc_005.md di Catalog dan Mapping dari v1.2 menjadi v1.4, dan userflow_uc_005.md terkait dari v1.1 menjadi v1.2, agar sesuai file aslinya)
 
 **Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
 
@@ -10,7 +10,7 @@
 
 **Status:** Draft
 
-**Last Updated:** 2026-07-10
+**Last Updated:** 2026-07-17
 
 **Author:** Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 
@@ -70,7 +70,7 @@ system_logics/
 | UC-002 | Manajemen Data Buku | ./sys_uc_002.md | Draft | v1.4 |
 | UC-003 | Pencatatan Peminjaman Buku | ./sys_uc_003.md | Draft | v1.2 |
 | UC-004 | Pencatatan Pengembalian Buku | ./sys_uc_004.md | Draft | v1.2 |
-| UC-005 | Riwayat Peminjaman | ./sys_uc_005.md | Draft | v1.2 |
+| UC-005 | Riwayat Peminjaman | ./sys_uc_005.md | Draft | v1.4 |
 | UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | ./sys_uc_006.md | Draft | v1.4 |
 
 ---
@@ -83,7 +83,7 @@ system_logics/
 | userflow_uc_002.md v1.3 | sys_uc_002.md v1.4 | CRUD data buku, validasi, upload gambar sampul, serta sinkronisasi data buku |
 | userflow_uc_003.md v1.0 | sys_uc_003.md v1.2 | Proses peminjaman buku, validasi stok, pencatatan transaksi (nama/kelas siswa manual), dan sinkronisasi stok otomatis |
 | userflow_uc_004.md v1.1 | sys_uc_004.md v1.2 | Proses pengembalian buku, kalkulasi keterlambatan & denda otomatis, dan sinkronisasi stok otomatis |
-| userflow_uc_005.md v1.1 | sys_uc_005.md v1.2 | Pengambilan data riwayat peminjaman beserta filter pencarian dan nominal denda |
+| userflow_uc_005.md v1.2 | sys_uc_005.md v1.4 | Pengambilan data riwayat peminjaman beserta filter pencarian dan nominal denda, termasuk export ke Excel |
 | userflow_uc_006.md v1.2 | sys_uc_006.md v1.4 | Akses publik terhadap informasi ketersediaan, lokasi, dan stok buku |
 
 ---
@@ -162,7 +162,8 @@ Sejak v1.1, seluruh System Logic tidak lagi mengasumsikan tabel master `siswa`. 
 
 | Version | Date | Author | Description |
 | --- | --- | --- | --- |
-| 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Initial Draft System Logic Index yang diturunkan dari User Flows Index (SoT-4). |
-| 1.1 | 2026-07-09 | Kelompok DPSI BRAYYY | Perbaikan 4 gap kritis: (1) model autentikasi diubah dari Bearer Token ke session-cookie murni; (2) penghapusan asumsi entity `siswa` terpisah; (3) penambahan logika Denda Keterlambatan pada UC-004; (4) penghapusan business rule "Rusak Berat → Tidak Aktif otomatis" yang tidak berdasar SRS. Juga: field naming API diselaraskan dengan `data_model.md` v1.3, Traceability Matrix diarahkan ke FR-ID/AC-ID yang sesungguhnya (bukan skema ID buatan), Base URL diperjelas konteks localhost. |
-| **1.3** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Update Catalog (Section 3): sys_uc_002.md → v1.3, sys_uc_006.md → v1.3; update Mapping (Section 4): userflow_uc_002.md v1.2 → sys_uc_002.md v1.3, userflow_uc_006.md v1.1 → sys_uc_006.md v1.3. Sinkron data_model.md v1.4 & srs.md v3.5.** |
-| **1.4** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Update Catalog: sys_uc_002.md → v1.4, sys_uc_006.md → v1.4; update Mapping: userflow_uc_002.md v1.3 → sys_uc_002.md v1.4, userflow_uc_006.md v1.2 → sys_uc_006.md v1.4. Sinkron data_model.md v1.5 & srs.md v3.6.** |
+| **1.0** | **2026-07-01** | Kelompok DPSI BRAYYY | Initial Draft System Logic Index yang diturunkan dari User Flows Index (SoT-4). |
+| **1.1** | **2026-07-09** | Kelompok DPSI BRAYYY | Perbaikan 4 gap kritis: (1) model autentikasi diubah dari Bearer Token ke session-cookie murni; (2) penghapusan asumsi entity `siswa` terpisah; (3) penambahan logika Denda Keterlambatan pada UC-004; (4) penghapusan business rule "Rusak Berat → Tidak Aktif otomatis" yang tidak berdasar SRS. Juga: field naming API diselaraskan dengan `data_model.md` v1.3, Traceability Matrix diarahkan ke FR-ID/AC-ID yang sesungguhnya (bukan skema ID buatan), Base URL diperjelas konteks localhost. |
+| **1.3** | **2026-07-10** | Kelompok DPSI BRAYYY | Update Catalog (Section 3): sys_uc_002.md → v1.3, sys_uc_006.md → v1.3; update Mapping (Section 4): userflow_uc_002.md v1.2 → sys_uc_002.md v1.3, userflow_uc_006.md v1.1 → sys_uc_006.md v1.3. Sinkron data_model.md v1.4 & srs.md v3.5. |
+| **1.4** | **2026-07-11** | Kelompok DPSI BRAYYY | Update Catalog: sys_uc_002.md → v1.4, sys_uc_006.md → v1.4; update Mapping: userflow_uc_002.md v1.3 → sys_uc_002.md v1.4, userflow_uc_006.md v1.2 → sys_uc_006.md v1.4. Sinkron data_model.md v1.5 & srs.md v3.6.|
+| **1.5** | **2026-07-17** | Kelompok DPSI BRAYYY | Perbaiki ketidaksesuaian versi: Catalog (Section 3) dan Mapping (Section 4) menyatakan sys_uc_005.md versi v1.2, padahal file aslinya sudah v1.4 (mencakup 2 revisi tambahan soal Export Excel). Update baris terkait userflow_uc_005.md dari v1.1 menjadi v1.2 . |

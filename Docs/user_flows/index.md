@@ -1,10 +1,12 @@
 # User Flows (UF) - Source of Truth #4 — Index
 
-Document Version: v1.3 (Update versi userflow_uc_002.md → v1.3 dan userflow_uc_006.md → v1.2; update FR-ID traceability — sinkron srs.md v3.6)
+Document Version: v1.4 (Perbaiki versi userflow_uc_005.md di Use Case Inventory
+dari v1.1 menjadi v1.2 agar sesuai file aslinya; update judul Traceability Matrix
+menjadi SRS v3.8 > IA > UF v1.4)
 Project: Sistem Informasi Perpustakaan SD Negeri Tamanan
 Product: Web-Based Library Management System (LMS)
 Status: Draft
-Last Updated: 2026-07-11
+Last Updated: 2026-07-17
 Author: Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 Supervisor: Farid Suryanto, S.Pd., MT.
 
@@ -52,7 +54,7 @@ Setiap user flow dalam dokumen ini menggambarkan rangkaian langkah interaksi akt
 | UC-002 | Manajemen Data Buku | ACT-01 | F002 | PAGE-003, PAGE-003-SUB-01, PAGE-003-SUB-02 | /buku | High | userflow_uc_002.md | **v1.3** |
 | UC-003 | Pencatatan Peminjaman Buku | ACT-01 | F003 (memicu F007) | PAGE-004 | /peminjaman | High | userflow_uc_003.md | v1.0 |
 | UC-004 | Pencatatan Pengembalian Buku | ACT-01 | F004 (memicu F007) | PAGE-005 | /pengembalian | High | userflow_uc_004.md | **v1.1** |
-| UC-005 | Melihat Riwayat Peminjaman | ACT-01 | F005 | PAGE-006 | /riwayat | Medium | userflow_uc_005.md | **v1.1** |
+| UC-005 | Melihat Riwayat Peminjaman | ACT-01 | F005 | PAGE-006 | /riwayat | Medium | userflow_uc_005.md | **v1.2** |
 | UC-006 | Akses Ketersediaan & Lokasi Buku (Publik) | ACT-02 | F006 | PAGE-002 | / | High | userflow_uc_006.md | **v1.2** |
 
 ### 3.1 Catatan tentang F007
@@ -82,7 +84,7 @@ UC-006 (Akses Publik Siswa)               ← Independen, tidak memerlukan login
 
 ---
 
-## 5. TRACEABILITY MATRIX (SRS v3.6 → IA → UF v1.3)
+## 5. TRACEABILITY MATRIX (SRS v3.8 → IA → UF v1.4)
 
 | Feature ID | FR-ID Terkait | Feature Name | UC ID | Page ID | Route | DS Components (v1.5) |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -100,6 +102,7 @@ UC-006 (Akses Publik Siswa)               ← Independen, tidak memerlukan login
 
 | Version | Date | Author | Description |
 |---|---|---|---|
-| 1.0 | 2026-07-01 | Kelompok DPSI BRAYYY | Draft awal SoT-4 mengikuti template header/goal/trigger/precondition/postcondition/main-alt-exception-flow, diturunkan dari srs.md v3.1, information_architecture.md, dan design_system.md v1.3. |
+| **1.0** | **2026-07-01** | **Kelompok DPSI BRAYYY** | **Draft awal SoT-4 mengikuti template header/goal/trigger/precondition/postcondition/main-alt-exception-flow, diturunkan dari srs.md v3.1, information_architecture.md, dan design_system.md v1.3.** |
 | **1.2** | **2026-07-10** | **Kelompok DPSI BRAYYY** | **Update versi userflow_uc_002.md → v1.2 dan userflow_uc_006.md → v1.1 di Use Case Inventory (Section 3); update FR-ID pada Traceability Matrix (Section 5) baris F002 → FR-005–FR-009, FR-030 dan F006 → FR-024–FR-026, FR-031. Sinkron srs.md v3.5.** |
 | **1.3** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Update versi userflow_uc_002.md → v1.3 dan userflow_uc_006.md → v1.2 di Use Case Inventory; update Traceability Matrix header. Sinkron srs.md v3.6.** |
+| **1.4** | **2026-07-17** | **Kelompok DPSI BRAYYY** | **Perbaiki ketidaksesuaian versi: tabel Use Case Inventory (Section 3) menyatakan userflow_uc_005.md versi v1.1, padahal file aslinya sudah v1.2 (mencakup fitur Export Excel). Update judul Traceability Matrix (Section 5) dari "SRS v3.6 > IA > UF v1.3" menjadi "SRS v3.8 > IA > UF v1.4" mengikuti revisi srs.md v3.8.** |

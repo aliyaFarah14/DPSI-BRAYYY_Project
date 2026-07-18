@@ -1,11 +1,11 @@
 # srs.md — Software Requirements Specification
 ## Sistem Informasi Perpustakaan SD Negeri Tamanan
 
-**Document Version:** v3.7 (Tambah fitur Export Riwayat Peminjaman ke Excel — filter bulan/tahun, akses Guru; hapus poin Out-of-Scope terkait)
+**Document Version:** v3.8 (Tambah baris Revision Histroy untuk mendokumentasikan dukungan peminjaman multi-buku pada FR-010 dan Business Rule F003/F004, yang sudah diterapkan pada isi dokumen namun belum tercatat di riwayat revisi)
 **Project:** Sistem Informasi Perpustakaan SD Negeri Tamanan
 **Product:** Web-Based Library Management System
 **Status:** Draft
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-17
 **Author:** Kelompok DPSI BRAYYY — Sistem Informasi, Universitas Ahmad Dahlan
 **Supervisor:** Farid Suryanto, S.Pd., MT.
 
@@ -477,6 +477,12 @@ Tidak ada sistem eksternal pihak ketiga yang diintegrasikan pada versi ini (liha
 | **3.4** | 2026-07-09 | Kelompok DPSI BRAYYY | Menambah Section 4.1 — Kebutuhan Fungsional (Functional Requirements) berisi daftar eksplisit FR-001 s.d. FR-029, disarikan dari Requirements tiap Feature ID (F001–F007) agar dapat ditelusuri (traceable) dan mudah ditemukan sebagai section tersendiri. Detail per fitur yang sudah ada dipindah ke Section 4.2 tanpa perubahan isi.
 | **3.6** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Ubah tema_buku dari teks bebas menjadi dropdown tertutup (Cerita & Dongeng / Lainnya) opsional; penyempurnaan aturan pengisian:** (1) update FR-005, FR-025, FR-030, FR-031 di Section 4.1; (2) update Requirements & Business Rules F002 — Tema jadi dropdown opsional, Tingkat Kelas dropdown opsional, aturan pengisian mutually exclusive; (3) update Requirements F006 — filter kategori Semua/Kelas 1–6/Cerita & Dongeng/Lainnya; (4) update Section 7.1 & 7.4. |
 | **3.7** | **2026-07-11** | **Kelompok DPSI BRAYYY** | **Tambah fitur Export Riwayat Peminjaman ke Excel (FR-032): filter bulan/tahun, akses terbatas Guru, kolom sesuai tabel Riwayat. Hapus bagian "laporan rekap bulanan/tahunan" dari Out-of-Scope (Section 5) dan Future Considerations (Section 13).** |
+| **3.8** | **2026-07-17** | **Kelompok DPSI BRAYYY** | **Dokumentasi ulang
+dukungan peminjaman multi-buku (multi-select buku dalam satu transaksi per siswa)
+pada FR-010 dan Business Rule F003, serta dukungan pengembalian sekaligus untuk
+beberapa buku pada Business Rule F004 - fungsionalitas ini sudah diimplementasikan
+dan tercermin pada isi Section 4.1/4.2 sebelumnya, namun belum tercatat sebagai
+entri Revision History tersendiri.** |
 
 ---
 
