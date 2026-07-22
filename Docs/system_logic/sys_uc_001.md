@@ -112,7 +112,7 @@ Melakukan autentikasi Guru dan membuat sesi login berbasis cookie.
 ```json
 {
   "username": "guru_sd",
-  "password": "password123"
+  "password": "guru123"
 }
 ```
 
